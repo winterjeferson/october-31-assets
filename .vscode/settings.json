@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        ".vscode": true,
+        "docs/font": true,
+    }
+}

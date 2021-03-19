@@ -2132,11 +2132,16 @@ input:-webkit-autofill:active {
   z-index: 1000;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   transition: 0.3s;
-  background: #4b9a49 url(../img/tile/battle.png) repeat; }
+  background: #4b9a49 url("../img/game/alpha-1-9-0//tile/battle.png") repeat; }
+  #battlefield .area {
+    position: absolute;
+    width: 250px;
+    height: 300px;
+    pointer-events: none; }
 
 .damage {
   position: absolute;
