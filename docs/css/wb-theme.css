@@ -18,6 +18,10 @@
 /* ------------------------------------------------------------------ TRIANGLE */
 /* ------------------------------------------------------------------ Z-INDEX */
 /* ------------------------------------------------------------------ PSEUDO ELEMENT */
+/*$font-family-regular: 'roboto-regular';
+$font-family-thin: 'roboto-thin';
+$font-family-black: 'roboto-black';
+$font-family-bold: 'roboto-bold';*/
 #accountReset .bt-fu {
   padding: 30px; }
 
@@ -25,7 +29,7 @@
   padding-right: 0; }
   @media (min-width: 992px) {
     #pageBlog .col-first {
-      padding-right: 16px; } }
+      padding-right: 40px; } }
 
 #pageBlog .empty-list {
   text-align: center;
@@ -33,11 +37,11 @@
 
 @media (min-width: 992px) {
   #pageBlog .blog-list {
-    margin-top: 16px; } }
+    margin-top: 40px; } }
 
 #pageBlog .blog-list .link {
-  margin-bottom: 8px;
-  padding-bottom: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
   border-bottom: 2px dotted #e1e1e1;
   text-decoration: none;
   width: 100%; }
@@ -57,24 +61,24 @@
   width: 100%; }
 
 #pageBlog .blog-list .blog-list-text {
-  padding: 0 16px 0 0; }
+  padding: 0 40px 0 0; }
   @media (min-width: 768px) {
     #pageBlog .blog-list .blog-list-text {
-      padding: 0 16px 0 8px; } }
+      padding: 0 40px 0 20px; } }
   #pageBlog .blog-list .blog-list-text .blog-list-title {
     font-size: 1.4rem !important;
-    margin: 4px 0 0 0;
+    margin: 10px 0 0 0;
     color: #1761d9; }
     @media (min-width: 768px) {
       #pageBlog .blog-list .blog-list-text .blog-list-title {
         margin-top: 0; } }
   #pageBlog .blog-list .blog-list-text .text {
-    margin: 4px 0 0 0;
+    margin: 10px 0 0 0;
     color: #555555; }
 
 #pageBlog .date {
   display: flex;
-  margin-top: 4px;
+  margin-top: 10px;
   color: #bbbbbb;
   font-size: 0.7rem !important; }
 
@@ -111,7 +115,7 @@
   padding: 30px; }
 
 #pagePlay {
-  background: url("../img/site/5-0-0//tile.png") repeat #4b9a49; }
+  background: url("../img/tile.png") repeat #4b9a49; }
 
 #pagePlay,
 #pagePlay iframe {
@@ -158,11 +162,11 @@
     padding: 30px; }
 
 #pageWiki .table {
-  margin-bottom: 16px; }
+  margin-bottom: 40px; }
 
 @media (min-width: 992px) {
   #pageWiki .col-2 {
-    padding-left: 8px; }
+    padding-left: 20px; }
     #pageWiki .col-2 .title {
       text-align: left !important; } }
 
@@ -173,14 +177,14 @@
 #pageBlogPost .col-first p,
 #pageBlogPost .col-first ul {
   line-height: 150%;
-  margin: 16px auto;
+  margin: 40px auto;
   max-width: 900px; }
 
 #pageBlogPost .col-first ul {
-  margin-left: 16px; }
+  margin-left: 40px; }
 
 #pageBlogPost .tag-list {
-  margin-top: 4px !important; }
+  margin-top: 10px !important; }
 
 #error {
   text-align: center; }
@@ -241,7 +245,7 @@ th {
   position: fixed;
   z-index: 3;
   width: 100%;
-  padding: 4px;
+  padding: 10px;
   background-color: #e1e1e1;
   border-bottom: 1px solid #d5d5d5; }
   #mainMenu select {
@@ -307,12 +311,12 @@ th {
 @media only screen and (min-width: 992px) {
   #ranking,
   #about {
-    padding-top: 8px;
-    padding-bottom: 8px; } }
+    padding-top: 20px;
+    padding-bottom: 20px; } }
 
 @media only screen and (min-width: 0) {
   #ranking {
-    padding-bottom: 8px; } }
+    padding-bottom: 20px; } }
 
 @media only screen and (min-width: 992px) {
   #ranking {
@@ -320,18 +324,18 @@ th {
 
 @media only screen and (min-width: 0) {
   #ranking .card {
-    margin: 8px 0 0 0; } }
+    margin: 20px 0 0 0; } }
 
 @media only screen and (min-width: 992px) {
   #ranking .card {
     margin: 0; } }
 
 #ranking .card .card-body {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
   border-left: 2px dotted #e1e1e1;
   border-right: 2px dotted #e1e1e1;
-  margin-top: 4px; }
+  margin-top: 10px; }
 
 #ranking img {
   width: 50px;
@@ -377,7 +381,7 @@ th {
     .ranking table tbody tr:last-child {
       border-color: transparent; }
     .ranking table tbody tr td {
-      padding-left: 8px;
+      padding-left: 20px;
       border-color: transparent; }
       .ranking table tbody tr td:first-child::before {
         content: counter(rowNumber); }
@@ -399,7 +403,7 @@ th {
   @media only screen and (min-width: 0) {
     #gameDev .text {
       padding-top: 0px;
-      padding-bottom: 16px; } }
+      padding-bottom: 40px; } }
   @media only screen and (min-width: 992px) {
     #gameDev .text {
       padding-top: 70px; } }
@@ -408,7 +412,7 @@ th {
   margin-top: auto; }
   #mainFooter .col-1,
   #mainFooter .col-2 {
-    padding: 4px; }
+    padding: 10px; }
     @media only screen and (min-width: 0) {
       #mainFooter .col-1,
       #mainFooter .col-2 {
@@ -444,8 +448,8 @@ select,
     color: #fbfbfb; }
 
 .padding-content {
-  padding-left: 8px;
-  padding-right: 8px; }
+  padding-left: 20px;
+  padding-right: 20px; }
 
 .carousel .carousel-controller-over {
   top: 70px;
@@ -472,7 +476,7 @@ select,
   margin: auto; }
   @media only screen and (min-width: 992px) {
     .logo-link {
-      margin: 0 auto 8px auto; } }
+      margin: 0 auto 20px auto; } }
   .logo-link .logo {
     height: auto;
     width: 150px;
@@ -508,7 +512,7 @@ th {
   z-index: 2;
   margin-top: 50px;
   width: 350px;
-  padding-bottom: 8px; }
+  padding-bottom: 20px; }
 
 .character-warrior {
   width: 375px;
@@ -520,7 +524,7 @@ th {
   margin-right: 1px !important; }
 
 .social .bt {
-  padding: 4px; }
+  padding: 10px; }
   .social .bt img {
     width: 18px;
     height: auto; }
@@ -536,20 +540,20 @@ th {
   text-align: center; }
 
 #rankingSearch .form {
-  padding-bottom: 12px; }
+  padding-bottom: 30px; }
 
 #rankingSearch .ranking {
-  margin-bottom: 12px; }
+  margin-bottom: 30px; }
 
 .color-red {
   color: #d91818 !important; }
 
 #screenshot {
-  padding: 4px 0 16px 0;
+  padding: 10px 0 40px 0;
   text-align: center; }
   @media (min-width: 992px) {
     #screenshot {
-      padding: 0 0 16px 0; } }
+      padding: 0 0 40px 0; } }
 
 .template-clean-padding-content {
   padding-bottom: 50px; }
@@ -559,9 +563,9 @@ th {
   justify-content: space-between;
   max-width: 1600px;
   margin: auto;
-  padding: 8px; }
+  padding: 20px; }
   .gallery .link {
-    margin: 4px auto;
+    margin: 10px auto;
     display: inline-flex;
     overflow: hidden;
     border-radius: 100%;
@@ -571,7 +575,7 @@ th {
       .gallery .link {
         flex: 1;
         max-width: 200px;
-        margin: 8px; } }
+        margin: 20px; } }
     @media (min-width: 992px) {
       .gallery .link {
         border: 7px solid #e1e1e1; } }
@@ -602,3 +606,23 @@ th {
   width: 100%;
   height: 500px;
   border: 0; }
+
+/* ------------------------------------------------------------------ SOCIAL */
+/* ------------------------------------------------------------------ COMPONENT EXTRA LIGHT */
+/* ------------------------------------------------------------------ COMPONENT LIGHT */
+/* ------------------------------------------------------------------ COMPONENT REGULAR*/
+/* ------------------------------------------------------------------ COMPONENT DARK */
+/* ------------------------------------------------------------------ COMPONENT FOCUS */
+/* ------------------------------------------------------------------ COMPONENT EXTRA LIGHT */
+/* ------------------------------------------------------------------ COMPONENT LIGHT */
+/* ------------------------------------------------------------------ COMPONENT REGULAR */
+/* ------------------------------------------------------------------ COMPONENT DARK */
+/* ------------------------------------------------------------------ FOCUS */
+/* ------------------------------------------------------------------ TRIANGLE */
+/* ------------------------------------------------------------------ Z-INDEX */
+/* ------------------------------------------------------------------ PSEUDO ELEMENT */
+/*regular*/
+/*small*/
+/*extra small*/
+/*big*/
+/*extra big*/
