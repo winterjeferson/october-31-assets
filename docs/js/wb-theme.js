@@ -1,3 +1,7 @@
+function getUrlWord(target) {
+    return new RegExp('\\b' + target + '\\b', 'i').test(window.location.href);
+}
+
 class AccountActivate {
     build() {
         /*removeIf(production)*/ objDebug.debugMethod(this, objDebug.getMethodName()); /*endRemoveIf(production)*/

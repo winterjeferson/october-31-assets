@@ -602,3 +602,114 @@ th {
   width: 100%;
   height: 500px;
   border: 0; }
+
+.modal {
+  padding: 20px; }
+
+.modal__footer,
+.modal__header {
+  display: flex;
+  padding: 10px;
+  width: 100%; }
+
+.modal__header {
+  position: relative;
+  z-index: 2; }
+
+.modal__footer {
+  background-color: #f2f2f2; }
+
+@media (min-width: 1024px) {
+  .modal__footer {
+    border-radius: 0 0 4px 4px; } }
+
+.modal__box {
+  align-items: center;
+  background-color: #fff;
+  border-radius: 0;
+  justify-content: center;
+  margin: auto;
+  pointer-events: initial;
+  position: relative;
+  transform: translate(0, -200px);
+  transition: .3s;
+  width: 100%; }
+
+@media (min-width: 1024px) {
+  .modal__box {
+    border-radius: 4px; } }
+
+.modal--extra-small {
+  max-width: 100%; }
+
+@media (min-width: 1024px) {
+  .modal--extra-small {
+    max-width: 320px; } }
+
+.modal--small {
+  max-width: 100%; }
+
+@media (min-width: 1024px) {
+  .modal--small {
+    max-width: 768px; } }
+
+.modal--regular {
+  max-width: 100%; }
+
+@media (min-width: 1024px) {
+  .modal--regular {
+    max-width: 1024px; } }
+
+.modal--big {
+  max-width: 100%; }
+
+@media (min-width: 1024px) {
+  .modal--big {
+    max-width: 1366px; } }
+
+.modal--extra-big {
+  max-width: 100%; }
+
+@media (min-width: 1024px) {
+  .modal--extra-big {
+    max-width: 1600px; } }
+
+.modal--full {
+  max-width: 100%; }
+
+.modal__content {
+  padding: 10px;
+  position: relative;
+  width: 100%; }
+
+.modal__description {
+  background-color: rgba(51, 51, 51, 0.6);
+  bottom: 0;
+  color: #fff;
+  margin-bottom: 14px;
+  padding: 5px;
+  position: absolute;
+  text-align: center;
+  width: calc(100% - 20px); }
+
+@media (min-width: 1024px) {
+  .modal__description {
+    padding: 10px; } }
+
+.modal--close {
+  display: none;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: .3s; }
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .modal--close {
+    position: absolute;
+    top: -100% !important; } }
+
+.modal--close * {
+  pointer-events: none !important; }
+
+.modal-animate {
+  transform: translate(0, 0) !important;
+  transition: .3s; }
