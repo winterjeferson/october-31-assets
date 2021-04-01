@@ -43,8 +43,8 @@
   text-align: left; }
 
 .page__blog .column--big .blog-list__image {
-  width: 300px;
-  padding-right: 20px; }
+  padding-right: 20px;
+  width: 300px; }
 
 .page__blog .column--small {
   border-left: 2px dotted #e1e1e1; }
@@ -361,7 +361,7 @@ strong {
     background-color: #ffffff;
     border-bottom: 2px dotted #e1e1e1; }
     .table tbody tr:hover {
-      background-color: #eeeeee;
+      background-color: #e5e3f0;
       transition: 0.3s; }
     .table tbody tr:last-child {
       border-color: transparent; }
