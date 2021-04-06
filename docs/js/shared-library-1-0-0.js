@@ -291,16 +291,14 @@ export class LazyLoad {
     }
 
     build() {
-        if (document.querySelectorAll(this.cssData).length < 1) {
-            return;
-        }
+        if (!document.querySelector(this.cssData)) return;
 
         this.addListener();
         this.buildLoop();
     }
 
     addListener() {
-        window.addEventListener('scroll', () => {
+        document.querySelector('body').addEventListener('scroll', () => {
             window.requestAnimationFrame(() => {
                 this.buildLoop();
             });
@@ -310,7 +308,7 @@ export class LazyLoad {
     buildLoop() {
         const el = document.querySelectorAll(this.cssData);
 
-        Array.prototype.forEach.call(el, (item) => {
+        [...el].forEach.call(el, (item) => {
             this.verifyPosition(item);
         });
     }
@@ -651,6 +649,27 @@ export class Modal {
         if (typeof window.lazyLoad !== 'undefined') {
             window.lazyLoad.build();
         }
+    }
+}
+export class Table {
+    constructor() {
+        this.elTable = document.querySelectorAll('.table');
+        this.cssResponsive = 'table-responsive';
+    }
+
+    build() {
+        if (this.elTable.length < 1) {
+            return;
+        }
+
+        this.buildResponsive();
+    }
+
+    buildResponsive() {
+        Array.prototype.forEach.call(this.elTable, (item) => {
+            window.helper.wrapItem(item, this.cssResponsive);
+            window.helper.wrapItem(item.parentNode.parentNode.querySelector(`.${this.cssResponsive}`), `wrapper-${this.cssResponsive}`);
+        });
     }
 }
 export class Translation {
