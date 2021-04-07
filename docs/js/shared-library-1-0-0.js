@@ -236,54 +236,6 @@ export class Carousel {
         elCarouselList.style.width += `${length * 100}%`;
     }
 }
-export class Helper {
-    getUrlParameter(target) {
-        const url = top.location.search.substring(1);
-        const parameter = url.split('&');
-
-        for (let i = 0; i < parameter.length; i++) {
-            let parameterName = parameter[i].split('=');
-
-            if (parameterName[0] === target) {
-                return parameterName[1];
-            }
-        }
-    }
-
-    getUrlWord(target) {
-        return new RegExp('\\b' + target + '\\b', 'i').test(window.location.href);
-    }
-
-    offset(element) {
-        let rect = element.getBoundingClientRect();
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const obj = {
-            'top': rect.top + scrollTop,
-            'left': rect.left + scrollLeft,
-        };
-
-        return obj;
-    }
-
-    verifyUrlRoute(target) {
-        const arrFolder = window.location.pathname.split('/');
-
-        if (arrFolder.indexOf(target) > -1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    wrapItem(target, cssClass) {
-        const wrapper = document.createElement('div');
-
-        wrapper.className = cssClass;
-        target.parentNode.insertBefore(wrapper, target);
-        wrapper.appendChild(target);
-    }
-}
 export class LazyLoad {
     constructor() {
         this.cssAttribute = 'data-lazy-load';
@@ -298,7 +250,7 @@ export class LazyLoad {
     }
 
     addListener() {
-        document.querySelector('body').addEventListener('scroll', () => {
+        window.addEventListener('scroll', () => {
             window.requestAnimationFrame(() => {
                 this.buildLoop();
             });
@@ -308,7 +260,7 @@ export class LazyLoad {
     buildLoop() {
         const el = document.querySelectorAll(this.cssData);
 
-        [...el].forEach.call(el, (item) => {
+        Array.prototype.forEach.call(el, (item) => {
             this.verifyPosition(item);
         });
     }
@@ -332,6 +284,7 @@ export class LoadingMain {
     constructor() {
         this.cssHide = 'hide';
         this.cssAnimation = 'animate';
+        this.cssOverflow = 'overflow-hidden';
 
         this.elWrapper = document.querySelector('.loading-main');
         this.elLoading = this.elWrapper.querySelector('.loading');
@@ -339,9 +292,139 @@ export class LoadingMain {
     }
 
     hide() {
-        this.elWrapper.classList.add(this.cssHide);
-        this.elLoading.classList.remove(this.cssAnimation);
-        this.elBody.style.overflow = 'auto';
+        this.elWrapper.parentNode.removeChild(this.elWrapper);
+        this.elBody.classList.remove(this.cssOverflow);
+    }
+}
+export class MenuDropDown {
+    update() {
+        this.isClickBuild = false;
+        this.classMenu = 'drop-down';
+        this.classMenuText = `${this.classMenu}-text`;
+        this.cssDropDownContent = `${this.classMenu}__content`;
+        this.cssOpend = `${this.cssDropDownContent}--opened`;
+        this.cssMobileShow = 'mobile-show';
+        this.elMenu = document.querySelectorAll(`.${this.classMenu}, .${this.classMenuText}`);
+    }
+
+    build() {
+        this.update();
+
+        if (this.elMenu.length < 1) {
+            return;
+        }
+
+        if (!this.isClickBuild) {
+            this.isClickBuild = true;
+            this.buildClick();
+        }
+
+        document.addEventListener('click', this.close, true);
+    }
+
+    close() {
+        if (this.elMenu === typeof 'undefined') {
+            return;
+        }
+
+        const self = window.menuDropDown;
+
+        Array.prototype.forEach.call(self.elMenu, (item) => {
+            const elContent = item.querySelector(`.${self.cssDropDownContent}`);
+
+            if (elContent === null) {
+                return;
+            }
+
+            if (elContent.classList.contains(self.cssOpend)) {
+                elContent.classList.remove(self.cssOpend);
+            }
+        });
+    }
+
+    buildClick() {
+        const self = this;
+
+        Array.prototype.forEach.call(this.elMenu, (item) => {
+            let elButton = item.querySelectorAll('.button:first-child, .link:first-child')[0];
+
+            elButton.addEventListener('click', function () {
+                self.buildClickAction(elButton);
+            });
+        });
+    }
+
+    buildClickAction(item) {
+        const elContent = item.parentNode.querySelector(`.${this.cssDropDownContent}`);
+
+        if (elContent === null) {
+            return;
+        }
+
+        elContent.classList.add(this.cssOpend);
+    }
+
+    listener(event) {
+        const el = document.querySelectorAll(`.${window.menuDropDown.cssMobileShow}`);
+
+        if (event.toElement.classList.contains('button') || event.toElement.classList.contains('link')) {
+            return;
+        }
+
+        Array.prototype.forEach.call(el, (item) => {
+            item.classList.remove(window.menuDropDown.cssMobileShow);
+        });
+    }
+
+    reset() {
+        document.removeEventListener('click', this.listener, true);
+        window.menuDropDown.build();
+    }
+}
+export class MenuToggle {
+    constructor() {
+        this.classButton = 'toggle-menu';
+        this.isWatch = false;
+    }
+
+    build() {
+        this.update();
+        this.buildClick();
+
+        if (!this.isWatch) {
+            this.isWatch = true;
+            this.watchResize();
+        }
+    }
+
+    update() {
+        this.elButton = document.querySelectorAll(`.${this.classButton}`);
+    }
+
+    buildClick() {
+        Array.prototype.forEach.call(this.elButton, (el) => {
+            el.onclick = () => {
+                const attribute = 'style';
+                const sibling = el.nextElementSibling;
+                const isStyle = sibling.hasAttribute(attribute);
+
+                if (isStyle) {
+                    sibling.removeAttribute(attribute);
+                } else {
+                    sibling.style.display = 'flex';
+                }
+            };
+        });
+    }
+
+    watchResize() {
+        window.onresize = () => {
+            this.build();
+        };
+    }
+
+    reset() {
+        this.build();
     }
 }
 export class Modal {
@@ -651,6 +734,94 @@ export class Modal {
         }
     }
 }
+export class Notification {
+    constructor() {
+        this.elBody = document.querySelector('body');
+        this.elNotificationId = 'notification';
+        this.colorDefault = 'grey';
+
+        this.notificationId = 0;
+    }
+
+    build() {
+        this.buildHtml();
+        this.update();
+    }
+
+    update() {
+        this.elNotification = document.querySelector(`#${this.elNotificationId}`);
+    }
+
+    buildHtml() {
+        const html = `<div id="${this.elNotificationId}" class="${this.elNotificationId} ${this.elNotificationId}--default"></div>`;
+
+        this.elBody.insertAdjacentHTML('beforeend', html);
+    }
+
+    buildHtmlItem(obj) {
+        console.log(obj);
+        const color = typeof obj.color !== 'undefined' ? obj.color : this.colorDefault;
+
+        return `
+            <div class="${this.elNotificationId}__item ${this.elNotificationId}--regular ${this.elNotificationId}--${color}" id="${this.elNotificationId}${this.notificationId}">
+                <span class="${this.elNotificationId}__text">${obj.text}</span>
+                <button type="button" class="button button--small button--small--proportional button--transparent" onclick="Notification.remove(this.parentNode, 0)" aria-label="${window.translation.translation.close}">
+                    <svg class="icon icon--regular rotate-45">
+                        <use xlink:href="./assets/img/icon.svg#plus"></use>
+                    </svg>
+                </button>
+            </div>
+        `;
+    }
+
+    add(obj) {
+        if (!obj.text) {
+            return;
+        }
+
+        this.placeItem(obj);
+        this.remove(document.querySelector(`#${this.elNotificationId}${this.notificationId}`), obj.text.length);
+        this.notificationId++;
+    }
+
+    placeItem(obj) {
+        let string = this.buildHtmlItem(obj);
+        let place = '';
+
+        if (typeof obj.place === 'undefined') {
+            place = this.elNotification;
+        } else {
+            let elList = document.querySelector(obj.place).querySelector(`.${this.elNotificationId}`);
+
+            if (elList === null) {
+                let newString = `<div class="${this.elNotificationId}">${string}</div>`;
+
+                string = newString;
+                place = document.querySelector(obj.place);
+            } else {
+                place = elList;
+            }
+        }
+
+        place.insertAdjacentHTML('beforeend', string);
+    }
+
+    remove(item, messageLength) {
+        let messageTime = messageLength * 150;
+
+        setTimeout(() => {
+            this.removeItem(item);
+        }, messageTime);
+    }
+
+    removeItem(item) {
+        if (item.parentNode === null) {
+            return;
+        }
+
+        item.parentNode.removeChild(item);
+    }
+}
 export class Table {
     constructor() {
         this.elTable = document.querySelectorAll('.table');
@@ -709,5 +880,53 @@ export class Translation {
         const capitalize = globalLanguage.charAt(0).toUpperCase() + globalLanguage.slice(1);
 
         this.translation = this[`translation${capitalize}`];
+    }
+}
+export class Helper {
+    getUrlParameter(target) {
+        const url = top.location.search.substring(1);
+        const parameter = url.split('&');
+
+        for (let i = 0; i < parameter.length; i++) {
+            let parameterName = parameter[i].split('=');
+
+            if (parameterName[0] === target) {
+                return parameterName[1];
+            }
+        }
+    }
+
+    getUrlWord(target) {
+        return new RegExp('\\b' + target + '\\b', 'i').test(window.location.href);
+    }
+
+    offset(element) {
+        let rect = element.getBoundingClientRect();
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const obj = {
+            'top': rect.top + scrollTop,
+            'left': rect.left + scrollLeft,
+        };
+
+        return obj;
+    }
+
+    verifyUrlRoute(target) {
+        const arrFolder = window.location.pathname.split('/');
+
+        if (arrFolder.indexOf(target) > -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    wrapItem(target, cssClass) {
+        const wrapper = document.createElement('div');
+
+        wrapper.className = cssClass;
+        target.parentNode.insertBefore(wrapper, target);
+        wrapper.appendChild(target);
     }
 }

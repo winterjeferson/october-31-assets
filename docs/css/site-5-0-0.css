@@ -82,7 +82,8 @@
 .page__home {
   margin-bottom: 0;
   overflow: hidden;
-  padding-bottom: 20px; }
+  padding-bottom: 20px;
+  padding-top: 20px; }
   @media (min-width: 1024px) {
     .page__home {
       padding-bottom: 0; } }
@@ -245,21 +246,47 @@ strong {
 .menu-main {
   background-color: #e1e1e1;
   border-bottom: 1px solid #d5d5d5;
+  flex-direction: column;
   padding: 10px;
-  position: fixed;
+  position: sticky;
+  top: 0;
   width: 100%;
-  z-index: 6; }
+  z-index: 9; }
+  @media (min-width: 1024px) {
+    .menu-main {
+      flex-direction: row; } }
   .menu-main .form__fill {
     margin: 5px;
     width: auto; }
   .menu-main .button--white,
   .menu-main .form__fill {
     border-color: #c8c8c8; }
+  .menu-main .toggle-menu__content {
+    flex-direction: column;
+    width: 100%; }
+    @media (min-width: 1024px) {
+      .menu-main .toggle-menu__content {
+        flex-direction: row;
+        width: auto; } }
   .menu-main__primary, .menu-main__secondary {
     display: flex; }
+  .menu-main__primary {
+    align-items: flex-start;
+    flex-direction: column; }
   .menu-main__secondary {
     flex: 1;
-    justify-content: flex-end; }
+    flex-direction: row;
+    justify-content: flex-start; }
+    @media (min-width: 1024px) {
+      .menu-main__secondary {
+        justify-content: flex-end; } }
+    .menu-main__secondary .button--orange {
+      flex: 1; }
+      @media (min-width: 1024px) {
+        .menu-main__secondary .button--orange {
+          flex: initial; } }
+    .menu-main__secondary .form__fill {
+      margin: 2px; }
 
 .logo-link {
   display: block;
@@ -324,7 +351,7 @@ strong {
   box-shadow: 0 0 0 4px #aeaeae; }
 
 .carousel__controller--over {
-  bottom: 280px; }
+  bottom: calc(100% - 30px); }
 
 .title {
   color: #a2a2a2;
@@ -337,12 +364,14 @@ strong {
 .page {
   display: flex;
   flex-wrap: wrap;
-  max-width: 100%;
-  padding-bottom: 40px; }
+  max-width: 100%; }
 
 .padding-side {
   padding-left: 20px;
   padding-right: 20px; }
+
+.padding-bottom {
+  padding-bottom: 20px; }
 
 .column--small,
 .column--big {
@@ -477,3 +506,8 @@ strong {
     .form-donation {
       justify-content: flex-start;
       text-align: left; } }
+
+.loading-main {
+  background-color: #bbbbbb; }
+  .loading-main .loading-1--grey {
+    color: #a2a2a2; }
