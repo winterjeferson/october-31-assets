@@ -297,7 +297,7 @@ strong {
   position: relative;
   z-index: 1; }
   .logo-image--small {
-    margin: 95px auto 0 auto;
+    margin: 30px auto 0 auto;
     width: 130px; }
     @media (min-width: 1024px) {
       .logo-image--small {
