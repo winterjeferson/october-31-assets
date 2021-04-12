@@ -11,6 +11,17 @@
   flex: inherit;
   position: relative; }
 
+.cke_inner,
+.cke_editor_fieldContent,
+textarea {
+  width: 100% !important; }
+
+.table {
+  margin-bottom: 40px; }
+
+.color--red {
+  color: #d91818; }
+
 .page__login {
   align-items: center;
   background-color: transparent;

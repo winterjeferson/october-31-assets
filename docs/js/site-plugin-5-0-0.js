@@ -1,6 +1,7 @@
 export class WbBlog {
     constructor() {
         this.classlaodMore = 'loadMore';
+        this.classDisabled = 'button--disabled';
     }
 
     build() {
@@ -17,28 +18,27 @@ export class WbBlog {
     }
 
     buildMenu() {
-        let self = this;
+        let elLastPost = this.$lastPost.querySelector(`[data-id="${this.classlaodMore}"]`);
+        let elMostViewed = this.$mostViewed.querySelector(`[data-id="${this.classlaodMore}"]`);
 
-        if (!this.$lastPost) {
-            return;
-        }
+        if (!this.$lastPost) return;
 
-        if (document.contains(this.$lastPost.querySelector('[data-id="' + this.classlaodMore + '"]'))) {
-            this.$lastPost.querySelector('[data-id="' + this.classlaodMore + '"]').addEventListener('click', () => {
-                self.loadMore(this);
+        if (document.contains(elLastPost)) {
+            elLastPost.addEventListener('click', () => {
+                this.loadMore(elLastPost);
             });
         }
 
-        if (document.contains(this.$mostViewed.querySelector('[data-id="' + this.classlaodMore + '"]'))) {
-            this.$mostViewed.querySelector('[data-id="' + this.classlaodMore + '"]').addEventListener('click', () => {
-                self.loadMore(this);
+        if (document.contains(elMostViewed)) {
+            elMostViewed.addEventListener('click', () => {
+                this.loadMore(elMostViewed);
             });
         }
     }
 
     loadMore(target) {
         let self = this;
-        let parentId = target.parentNode.parentNode.parentNode.getAttribute('id');
+        let parentId = target.parentNode.parentNode.getAttribute('id');
         let parentIdString = parentId.substring(this.page.length);
         let ajax = new XMLHttpRequest();
         let url = objWbUrl.getController({
@@ -48,12 +48,12 @@ export class WbBlog {
         let parameter =
             '&target=' + parentIdString;
 
-        target.classList.add('disabled');
+        target.classList.add(this.classDisabled);
         ajax.open('POST', url, true);
         ajax.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         ajax.onreadystatechange = () => {
             if (ajax.readyState === 4 && ajax.status === 200) {
-                target.classList.remove('disabled');
+                target.classList.remove(this.classDisabled);
                 self.loadMoreSuccess(parentId, ajax.responseText);
             }
         };
@@ -67,7 +67,7 @@ export class WbBlog {
         let $bt = $section.querySelector('[data-id="' + this.classlaodMore + '"]');
 
         if (!json[this.classlaodMore]) {
-            $bt.classList.add('disabled');
+            $bt.classList.add(this.classDisabled);
         }
 
         $sectionList.insertAdjacentHTML('beforeend', json['html']);
@@ -187,7 +187,6 @@ export class WbUrl {
     }
 
     build(target) {
-
         window.location = globalUrl + globalLanguage + '/' + target + '/';
     }
 

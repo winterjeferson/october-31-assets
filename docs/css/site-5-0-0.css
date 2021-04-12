@@ -55,6 +55,9 @@
     .page__blog .column--big .blog-list__image-wrapper {
       flex-direction: row; } }
 
+.page__blog .column--big .button--full {
+  margin-bottom: 20px; }
+
 @media (min-width: 1024px) {
   .page__blog .column--small {
     border-left: 2px dotted #e1e1e1; } }
@@ -112,6 +115,11 @@
     margin: 10px auto; }
   .page__home .table {
     counter-reset: rowNumber; }
+    .page__home .table thead {
+      border-left: 20px solid;
+      border-left-color: #eeeeee;
+      border-right: 20px solid;
+      border-right-color: #eeeeee; }
     .page__home .table tbody tr {
       counter-increment: rowNumber; }
       .page__home .table tbody tr td:first-child::before {
@@ -411,14 +419,9 @@ strong {
 
 .table {
   border: 0; }
-  .table thead {
-    border-left: 20px solid;
-    border-left-color: #eeeeee;
-    border-right: 20px solid;
-    border-right-color: #eeeeee; }
-    .table thead th {
-      color: #a2a2a2;
-      font-weight: initial; }
+  .table thead th {
+    color: #a2a2a2;
+    font-weight: initial; }
   .table th,
   .table header {
     background-color: #eeeeee;
