@@ -22,6 +22,9 @@ textarea {
 .color--red {
   color: #d91818; }
 
+.button-wrapper {
+  display: flex; }
+
 .page__login {
   align-items: center;
   background-color: transparent;
@@ -34,3 +37,7 @@ textarea {
     margin: auto;
     max-width: 500px;
     padding: 20px; }
+
+.page__upload-image .column {
+  flex: 1;
+  padding: 20px; }

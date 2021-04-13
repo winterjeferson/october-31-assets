@@ -236,6 +236,20 @@ export class Carousel {
         elCarouselList.style.width += `${length * 100}%`;
     }
 }
+export class Form {
+    validateEmpty(arr) {
+        const length = arr.length;
+
+        for (let i = 0; i < length; i++) {
+            if (arr[i].value === '') {
+                arr[i].focus();
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
 export class LazyLoad {
     constructor() {
         this.cssAttribute = 'data-lazy-load';
@@ -467,7 +481,7 @@ export class Modal {
             <div class="modal ${this.cssClose}">
                 <div class="modal__box">
                     <header class="modal__header right">
-                        <button type="button" aria-label="${window.translation.translation.close}" class="button button--small button--small--proportional button--grey button--transparent button--close">
+                        <button type="button" aria-label="${window.translation.translation.close}" class="button button--small button--small--proportional button--transparent button--close">
                             <svg class="icon icon--regular rotate-45">
                                 <use xlink:href="./assets/img/icon.svg#plus"></use>
                             </svg>

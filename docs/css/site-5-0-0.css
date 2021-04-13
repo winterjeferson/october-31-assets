@@ -221,6 +221,8 @@
   .page__promote .character-wizzard {
     margin-top: 0;
     max-width: 100%; }
+  .page__promote .youtube-video {
+    margin-bottom: 20px; }
 
 .page__wiki .column--big .title {
   text-align: center; }
@@ -251,6 +253,9 @@ strong {
 .form__fill {
   border-width: 2px; }
 
+.display-none {
+  display: none; }
+
 .menu-main {
   background-color: #e1e1e1;
   border-bottom: 1px solid #d5d5d5;
@@ -259,7 +264,7 @@ strong {
   position: sticky;
   top: 0;
   width: 100%;
-  z-index: 9; }
+  z-index: 6; }
   @media (min-width: 1024px) {
     .menu-main {
       flex-direction: row; } }
@@ -360,6 +365,9 @@ strong {
 
 .carousel__controller--over {
   bottom: calc(100% - 30px); }
+
+.carousel .navigation-change {
+  display: none; }
 
 .title {
   color: #a2a2a2;

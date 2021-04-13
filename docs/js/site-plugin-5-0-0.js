@@ -18,10 +18,10 @@ export class WbBlog {
     }
 
     buildMenu() {
+        if (!this.$lastPost) return;
+
         let elLastPost = this.$lastPost.querySelector(`[data-id="${this.classlaodMore}"]`);
         let elMostViewed = this.$mostViewed.querySelector(`[data-id="${this.classlaodMore}"]`);
-
-        if (!this.$lastPost) return;
 
         if (document.contains(elLastPost)) {
             elLastPost.addEventListener('click', () => {
@@ -96,7 +96,7 @@ export class WbForm {
         const self = this;
 
         this.$btSend.addEventListener('click', () => {
-            if (objWfForm.validateEmpty([self.$formFieldEmail, self.$formFieldMessage])) {
+            if (form.validateEmpty([self.$formFieldEmail, self.$formFieldMessage])) {
                 self.send();
             }
         });
@@ -106,7 +106,7 @@ export class WbForm {
         const self = this;
         const ajax = new XMLHttpRequest();
         const url = objWbUrl.getController({
-            'folder': 'form',
+            'folder': 'contact',
             'file': 'FormAjax'
         });
         let parameter =
@@ -145,7 +145,10 @@ export class WbForm {
                 break;
         }
 
-        objWfNotification.add(response, color, this.$form);
+        notification.add({
+            'text': response,
+            'color': color
+        });
     }
 }
 export class WbTranslation {

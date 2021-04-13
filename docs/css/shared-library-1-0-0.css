@@ -1031,7 +1031,7 @@ small {
   pointer-events: none;
   position: absolute;
   transition: 0.3s;
-  z-index: 7; }
+  z-index: 5; }
   .drop-down-text .drop-down__content--opened,
   .drop-down .drop-down__content--opened {
     height: auto;
@@ -1766,13 +1766,13 @@ small {
   right: 0;
   top: 0;
   transition: 0.3s;
-  z-index: 5; }
+  z-index: 7; }
   @media (min-width: 1024px) {
     .modal {
       padding: 20px; } }
   .modal__header {
     position: relative;
-    z-index: 6; }
+    z-index: 8; }
   .modal__header, .modal__footer {
     display: flex;
     padding: 10px;
@@ -1886,7 +1886,7 @@ small {
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 8; }
+    z-index: 9; }
   .notification .notification--grey {
     background-color: #eeeeee;
     border-color: #d5d5d5;
