@@ -852,8 +852,14 @@ export class Table {
 
     buildResponsive() {
         Array.prototype.forEach.call(this.elTable, (item) => {
-            window.helper.wrapItem(item, this.cssResponsive);
-            window.helper.wrapItem(item.parentNode.parentNode.querySelector(`.${this.cssResponsive}`), `wrapper-${this.cssResponsive}`);
+            window.helper.wrap({
+                'target': item,
+                'css': this.cssResponsive
+            });
+            window.helper.wrap({
+                'target': item.parentNode.parentNode.querySelector(`.${this.cssResponsive}`),
+                'css': `wrapper-${this.cssResponsive}`
+            });
         });
     }
 }
