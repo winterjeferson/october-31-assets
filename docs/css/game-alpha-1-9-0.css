@@ -2607,3 +2607,6 @@ input:-webkit-autofill:active {
     color: #000000;
     position: absolute;
     right: 10px; }
+
+.map__main .row {
+  display: flex; }

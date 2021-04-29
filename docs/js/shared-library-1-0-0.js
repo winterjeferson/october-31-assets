@@ -903,6 +903,23 @@ export class Translation {
     }
 }
 export class Helper {
+    constructor() {
+
+    }
+
+    addClass(target, classCss) {
+        if (this.validateVariable(target) === false) return;
+
+        if (classCss instanceof Array) {
+
+            for (let i in classCss) {
+                target.classList.add(classCss[i]);
+            }
+        } else {
+            target.classList.add(classCss);
+        }
+    }
+
     ajax(obj) {
         return new Promise((resolve, reject) => {
             const controller = typeof obj.controller === 'undefined' ? 'php/controller2.php' : obj.controller;
@@ -951,6 +968,26 @@ export class Helper {
         };
 
         return obj;
+    }
+
+    removeClass(target, classCss) {
+        if (this.validateVariable(target) === false) return;
+
+        if (classCss instanceof Array) {
+            for (let i in classCss) {
+                if (target.classList.contains(classCss[i])) {
+                    target.classList.remove(classCss[i]);
+                }
+            }
+        } else {
+            if (target.classList.contains(classCss)) {
+                target.classList.remove(classCss);
+            }
+        }
+    }
+
+    validateVariable(target) {
+        if (target === null || typeof target === 'undefined') return false;
     }
 
     verifyUrlRoute(target) {

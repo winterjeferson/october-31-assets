@@ -284,40 +284,37 @@ $color-white: #ffffff;*/
 * {
   scrollbar-color: #e6e6e6 #666666; }
 
-.extend-tile, #map span {
-  display: block;
-  float: left;
-  height: 50px;
-  width: 50px; }
-
-.extend-destak {
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.5), inset -2px -2px 0 rgba(0, 0, 0, 0.5); }
-
 #map_main {
   position: relative;
   z-index: 1; }
 
 #map_box {
-  width: 100%;
-  height: 100%; }
+  height: 100%;
+  width: 100%; }
 
 #map {
-  width: 2100px;
-  height: 1750px; }
+  height: 1750px;
+  width: 2100px; }
+  #map span {
+    display: inline-flex;
+    height: 50px;
+    opacity: 1;
+    width: 50px; }
   #map .content {
-    float: left; }
+    display: flex;
+    flex-wrap: wrap; }
 
 [id^="map_terrain_"] {
-  width: 500px;
-  height: 650px; }
+  height: 650px;
+  width: 500px; }
 
 [id^="map_walk_horizontal_"] {
-  width: 2100px;
-  height: 150px; }
+  height: 150px;
+  width: 2100px; }
 
 [id^="map_walk_vertical_"] {
-  width: 150px;
-  height: 650px; }
+  height: 650px;
+  width: 150px; }
 
 [id^="map_walk_vertical_middle"] {
   width: 150px; }
@@ -508,7 +505,7 @@ $color-white: #ffffff;*/
   transform: rotate(270deg); }
 
 .grass-soil-bush-3 {
-  background-color: #4b9a49;
+  background-color: #3a7739;
   background-position: -300px 0; }
 
 /**************************************** ************************************** SOIL RAVINE */
