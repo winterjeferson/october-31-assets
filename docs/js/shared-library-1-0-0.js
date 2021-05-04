@@ -773,13 +773,13 @@ export class Notification {
     }
 
     buildHtmlItem(obj) {
-        console.log(obj);
         const color = typeof obj.color !== 'undefined' ? obj.color : this.colorDefault;
+        const translation = typeof window.translation !== 'undefined' ? window.translation.translation.close : 'close';
 
         return `
-            <div class="${this.elNotificationId}__item ${this.elNotificationId}--regular ${this.elNotificationId}--${color}" id="${this.elNotificationId}${this.notificationId}">
+            <div class="${this.elNotificationId}__item ${this.elNotificationId}--regular ${this.elNotificationId}--${color}" id="${this.elNotificationId + this.notificationId}">
                 <span class="${this.elNotificationId}__text">${obj.text}</span>
-                <button type="button" class="button button--small button--small--proportional button--transparent" onclick="Notification.remove(this.parentNode, 0)" aria-label="${window.translation.translation.close}">
+                <button type="button" class="button button--small button--small--proportional button--transparent" onclick="this.parentNode.remove();" aria-label="${translation}">
                     <svg class="icon icon--regular rotate-45">
                         <use xlink:href="./assets/img/icon.svg#plus"></use>
                     </svg>
@@ -789,9 +789,7 @@ export class Notification {
     }
 
     add(obj) {
-        if (!obj.text) {
-            return;
-        }
+        if (!obj.text) return;
 
         this.placeItem(obj);
         this.remove(document.querySelector(`#${this.elNotificationId}${this.notificationId}`), obj.text.length);
@@ -829,9 +827,8 @@ export class Notification {
     }
 
     removeItem(item) {
-        if (item.parentNode === null) {
-            return;
-        }
+        if (typeof item === 'undefined') return;
+        if (item.parentNode === null) return;
 
         item.parentNode.removeChild(item);
     }
@@ -903,9 +900,9 @@ export class Translation {
     }
 }
 export class Helper {
-    constructor() {
+    // constructor() {
 
-    }
+    // }
 
     addClass(target, classCss) {
         if (this.validateVariable(target) === false) return;
