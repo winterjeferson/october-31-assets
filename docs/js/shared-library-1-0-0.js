@@ -900,10 +900,6 @@ export class Translation {
     }
 }
 export class Helper {
-    // constructor() {
-
-    // }
-
     addClass(target, classCss) {
         if (this.validateVariable(target) === false) return;
 
@@ -936,6 +932,10 @@ export class Helper {
             xhr.onerror = () => reject(xhr.statusText);
             xhr.send(token + obj.parameter);
         });
+    }
+
+    capitalize(target) {
+        return target.charAt(0).toUpperCase() + target.slice(1);
     }
 
     getUrlParameter(target) {

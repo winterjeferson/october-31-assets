@@ -1272,6 +1272,20 @@ $multiply-20: 100%;*/
         background-position: (-$tile * 29) (-$tile);
     }
 }*/
+.notify-item {
+  position: relative; }
+  .notify-item [class*='loot-'] {
+    bottom: 3px;
+    display: inline-block;
+    margin-bottom: -17px;
+    position: relative; }
+
+[class*='loot-'] {
+  background-position: 50px 50px;
+  height: 50px;
+  width: 50px;
+  /*deixa os slots vazios sem imagem*/ }
+
 [class*='loot-animal-'] {
   background: url("../img/game/alpha-1-9-0/loot/loot/animal.png") no-repeat; }
 
@@ -1879,54 +1893,62 @@ input:-webkit-autofill:active {
   max-width: 100% !important;
   width: 100% !important; }
 
-#modal table tbody td, #modal_left table tbody td, #modal_right table tbody td,
-#modal_left table tbody td,
-#modal_right table tbody td {
-  vertical-align: middle; }
+.modal {
+  bottom: auto;
+  padding: 0; }
 
-#modal [data-id="list_craft_item"] .responsive-column, #modal_left [data-id="list_craft_item"] .responsive-column, #modal_right [data-id="list_craft_item"] .responsive-column,
-#modal [data-id="recipe_item"] .responsive-column,
-#modal_left [data-id="recipe_item"] .responsive-column,
-#modal_right [data-id="recipe_item"] .responsive-column,
-#modal_left [data-id="list_craft_item"] .responsive-column,
-#modal_left [data-id="recipe_item"] .responsive-column,
-#modal_right [data-id="list_craft_item"] .responsive-column,
-#modal_right [data-id="recipe_item"] .responsive-column {
-  margin: auto; }
+.modal-box {
+  margin: 10px !important;
+  height: 100%; }
 
-#modal [data-id="recipe_item"], #modal_left [data-id="recipe_item"], #modal_right [data-id="recipe_item"],
-#modal [data-id="list_craft_item"],
-#modal_left [data-id="list_craft_item"],
-#modal_right [data-id="list_craft_item"],
-#modal_left [data-id="recipe_item"],
-#modal_left [data-id="list_craft_item"],
-#modal_right [data-id="recipe_item"],
-#modal_right [data-id="list_craft_item"] {
-  text-align: center;
-  width: 100%; }
-
-#modal [data-item="main"], #modal_left [data-item="main"], #modal_right [data-item="main"], #modal [data-id="recipe_item"], #modal_left [data-id="recipe_item"], #modal_right [data-id="recipe_item"],
-#modal [data-id="list_craft_item"],
-#modal_left [data-id="list_craft_item"],
-#modal_right [data-id="list_craft_item"],
-#modal_left [data-item="main"],
-#modal_left [data-id="recipe_item"],
-#modal_left [data-id="list_craft_item"],
-#modal_right [data-item="main"],
-#modal_right [data-id="recipe_item"],
-#modal_right [data-id="list_craft_item"] {
-  margin-bottom: 10px; }
-
-#modal [data-id="detail_menu"], #modal_left [data-id="detail_menu"], #modal_right [data-id="detail_menu"],
-#modal_left [data-id="detail_menu"],
-#modal_right [data-id="detail_menu"] {
-  margin-top: 10px; }
-
-#modal [data-id="list_craft_text_quantity"], #modal_left [data-id="list_craft_text_quantity"], #modal_right [data-id="list_craft_text_quantity"],
-#modal_left [data-id="list_craft_text_quantity"],
-#modal_right [data-id="list_craft_text_quantity"] {
-  color: #999999;
-  padding: 10px; }
+#modal, #modal_left,
+#modal_right,
+#modal_left,
+#modal_right {
+  margin-top: 0; }
+  #modal table tbody td, #modal_left table tbody td, #modal_right table tbody td,
+  #modal_left table tbody td,
+  #modal_right table tbody td {
+    vertical-align: middle; }
+  #modal [data-id="list_craft_item"] .responsive-column, #modal_left [data-id="list_craft_item"] .responsive-column, #modal_right [data-id="list_craft_item"] .responsive-column,
+  #modal [data-id="recipe_item"] .responsive-column,
+  #modal_left [data-id="recipe_item"] .responsive-column,
+  #modal_right [data-id="recipe_item"] .responsive-column,
+  #modal_left [data-id="list_craft_item"] .responsive-column,
+  #modal_left [data-id="recipe_item"] .responsive-column,
+  #modal_right [data-id="list_craft_item"] .responsive-column,
+  #modal_right [data-id="recipe_item"] .responsive-column {
+    margin: auto; }
+  #modal [data-id="recipe_item"], #modal_left [data-id="recipe_item"], #modal_right [data-id="recipe_item"],
+  #modal [data-id="list_craft_item"],
+  #modal_left [data-id="list_craft_item"],
+  #modal_right [data-id="list_craft_item"],
+  #modal_left [data-id="recipe_item"],
+  #modal_left [data-id="list_craft_item"],
+  #modal_right [data-id="recipe_item"],
+  #modal_right [data-id="list_craft_item"] {
+    text-align: center;
+    width: 100%; }
+  #modal [data-item="main"], #modal_left [data-item="main"], #modal_right [data-item="main"], #modal [data-id="recipe_item"], #modal_left [data-id="recipe_item"], #modal_right [data-id="recipe_item"],
+  #modal [data-id="list_craft_item"],
+  #modal_left [data-id="list_craft_item"],
+  #modal_right [data-id="list_craft_item"],
+  #modal_left [data-item="main"],
+  #modal_left [data-id="recipe_item"],
+  #modal_left [data-id="list_craft_item"],
+  #modal_right [data-item="main"],
+  #modal_right [data-id="recipe_item"],
+  #modal_right [data-id="list_craft_item"] {
+    margin-bottom: 10px; }
+  #modal [data-id="detail_menu"], #modal_left [data-id="detail_menu"], #modal_right [data-id="detail_menu"],
+  #modal_left [data-id="detail_menu"],
+  #modal_right [data-id="detail_menu"] {
+    margin-top: 10px; }
+  #modal [data-id="list_craft_text_quantity"], #modal_left [data-id="list_craft_text_quantity"], #modal_right [data-id="list_craft_text_quantity"],
+  #modal_left [data-id="list_craft_text_quantity"],
+  #modal_right [data-id="list_craft_text_quantity"] {
+    color: #999999;
+    padding: 10px; }
 
 #modal, #modal_left,
 #modal_right {
@@ -2007,8 +2029,7 @@ input:-webkit-autofill:active {
 .color-gray-lighten {
   color: #e6e6e6; }
 
-#main_content,
-#battlefield {
+#main_content {
   height: calc(100% - 70px);
   max-height: calc(100% - 70px); }
 
@@ -2056,9 +2077,9 @@ input:-webkit-autofill:active {
 
 #battle_box {
   position: absolute;
-  z-index: 7000; }
+  z-index: 7000;
+  margin-top: 10px; }
   #battle_box #battle {
-    left: -50%;
     position: relative;
     text-align: center; }
     #battle_box #battle .button {
@@ -2133,7 +2154,7 @@ input:-webkit-autofill:active {
 
 #battlefield {
   background: #4b9a49 url("../img/game/alpha-1-9-0//tile/battle.png") repeat;
-  height: 100vh;
+  height: 100%;
   left: 0;
   pointer-events: none;
   position: fixed;
