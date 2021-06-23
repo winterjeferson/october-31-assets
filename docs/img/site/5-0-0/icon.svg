@@ -1,37 +1,5 @@
-<svg version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" x="0px" y="0px" width="100px"
-	 height="100px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
-     <style>
-g{
-	display: none;
-}
-g:target{
-	display: block;
-}
-
-</style>
-	<g id="home">
-		<polygon fill-rule="evenodd" clip-rule="evenodd" points="69.55,12.59 82.382,12.59 82.382,35.103 94.585,45.943 82.382,45.943
-			50,17.186 17.618,45.943 5.415,45.943 50,6.354 69.55,23.708 		"/>
-		<polygon fill-rule="evenodd" clip-rule="evenodd" points="82.382,52.253 82.382,93.646 60.775,93.646 60.775,65.142
-			39.225,65.142 39.225,93.646 17.618,93.646 17.618,52.253 50,23.503 		"/>
-	</g>
-<g id="plus" viewBox="0 0 100 100">
-	<polygon fill-rule="evenodd" clip-rule="evenodd" points="5.864,57.053 5.864,42.947 42.947,42.947 42.947,5.864 57.053,5.864
-		57.053,42.947 94.137,42.947 94.137,57.053 57.053,57.053 57.053,94.137 42.947,94.137 42.947,57.053 	"/>
-</g>
-<g id="minus" viewBox="0 0 100 100">
-	<rect x="5.872" y="42.947" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/>
-</g>
-<g id="previous" viewBox="0 0 100 100">
-	<polygon fill-rule="evenodd" clip-rule="evenodd" points="76.814,16.189 66.905,6.28 23.185,50 66.905,93.72 76.814,83.811
-		43.013,50 	"/>
-</g>
-<g id="triangle" viewBox="0 0 100 100">
-	<polygon fill-rule="evenodd" clip-rule="evenodd" points="6.793,19.229 93.207,19.229 49.999,80.771 	"/>
-</g>
-<g id="menu" viewBox="0 0 100 100">
-	<rect x="5.872" y="42.947" display="inline" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/>
-	<rect x="5.872" y="12.947" display="inline" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/>
-	<rect x="5.872" y="72.947" display="inline" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/>
-</g>
-</svg>
+<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><style>g{ display: none; } g:target{ display: block; }</style><g id="home"><polygon fill-rule="evenodd" clip-rule="evenodd" points="69.55,12.59 82.382,12.59 82.382,35.103 94.585,45.943 82.382,45.943
+			50,17.186 17.618,45.943 5.415,45.943 50,6.354 69.55,23.708 		"/><polygon fill-rule="evenodd" clip-rule="evenodd" points="82.382,52.253 82.382,93.646 60.775,93.646 60.775,65.142
+			39.225,65.142 39.225,93.646 17.618,93.646 17.618,52.253 50,23.503 		"/></g><g id="plus"><polygon fill-rule="evenodd" clip-rule="evenodd" points="5.864,57.053 5.864,42.947 42.947,42.947 42.947,5.864 57.053,5.864
+		57.053,42.947 94.137,42.947 94.137,57.053 57.053,57.053 57.053,94.137 42.947,94.137 42.947,57.053 	"/></g><g id="minus"><rect x="5.872" y="42.947" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/></g><g id="previous"><polygon fill-rule="evenodd" clip-rule="evenodd" points="76.814,16.189 66.905,6.28 23.185,50 66.905,93.72 76.814,83.811
+		43.013,50 	"/></g><g id="triangle"><polygon fill-rule="evenodd" clip-rule="evenodd" points="6.793,19.229 93.207,19.229 49.999,80.771 	"/></g><g id="menu"><rect x="5.872" y="42.947" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/><rect x="5.872" y="12.947" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/><rect x="5.872" y="72.947" fill-rule="evenodd" clip-rule="evenodd" width="88.256" height="14.105"/></g></svg>
