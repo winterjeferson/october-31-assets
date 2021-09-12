@@ -1496,6 +1496,7 @@
 
 body {
   background-color: #3a7739;
+  overflow: hidden;
   user-select: none; }
   body * {
     font-family: "Chewy"; }
@@ -1569,6 +1570,8 @@ input:-webkit-autofill:active {
   @media only screen and (min-width: 992px) {
     .modal {
       height: auto; } }
+  .modal .modal-box {
+    width: unset !important; }
   .modal table tbody td {
     vertical-align: middle; }
   .modal [data-id="list_craft_item"] .responsive-column,
@@ -1847,18 +1850,41 @@ input:-webkit-autofill:active {
   margin: 10px auto; }
 
 .notification {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
   pointer-events: none;
-  width: 100%; }
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  width: 100%;
+  z-index: 999999999; }
   .notification__item {
-    display: flex; }
+    background-color: #eeeeee;
+    border: 2px solid #bbbbbb;
+    border-radius: 2px;
+    color: #626262;
+    display: flex;
+    margin-bottom: 5px;
+    padding: 5px;
+    width: fit-content; }
   .notification__text {
     align-items: center;
     display: flex; }
   .notification .button {
+    border: none;
     box-shadow: none;
+    padding: 10px;
     pointer-events: all; }
     .notification .button .fa {
-      color: #bbbbbb; }
+      color: #bbbbbb;
+      pointer-events: none; }
+
+.button-regular,
+select,
+label,
+input {
+  font-size: 16px; }
 
 .talk .card {
   cursor: pointer; }
