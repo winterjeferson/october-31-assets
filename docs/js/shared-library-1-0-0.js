@@ -491,22 +491,28 @@ export class Modal {
 
     buildKeyboard() {
         window.addEventListener('keyup', (event) => {
-            if (event.key === 'Escape') {
-                if (this.isModalOpen) this.closeModal();
-            }
+            const key = event.key;
 
-            if (event.key === 'ArrowLeft') {
-                if (!this.isModalOpen) return;
-                if (this.elModalNavigationArrowLeft.classList.contains(this.cssHide)) return;
-                this.elModalNavigationArrowLeft.click();
-            }
-
-            if (event.key === 'ArrowRight') {
-                if (!this.isModalOpen) return;
-                if (this.elModalNavigationArrowRight.classList.contains(this.cssHide)) return;
-                this.elModalNavigationArrowRight.click();
-            }
+            if (key === 'Escape') this.buildKeyboardEscape();
+            if (key === 'ArrowLeft') this.buildKeyboardArrowLeft();
+            if (key === 'ArrowRight') this.buildKeyboardArrowRight();
         });
+    }
+
+    buildKeyboardEscape() {
+        if (this.isModalOpen) this.closeModal();
+    }
+
+    buildKeyboardArrowLeft() {
+        if (!this.isModalOpen) return;
+        if (this.elModalNavigationArrowLeft.classList.contains(this.cssHide)) return;
+        this.elModalNavigationArrowLeft.click();
+    }
+
+    buildKeyboardArrowRight() {
+        if (!this.isModalOpen) return;
+        if (this.elModalNavigationArrowRight.classList.contains(this.cssHide)) return;
+        this.elModalNavigationArrowRight.click();
     }
 
     buildMenuGallery() {
@@ -515,46 +521,37 @@ export class Modal {
         this.elGallery.forEach((item) => {
             const elButton = item.querySelectorAll('a');
 
-            elButton.forEach((itemBt) => {
-                itemBt.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    this.buildModal('gallery', false, 'full');
-                    this.buildGalleryImage(itemBt.getAttribute('href'), itemBt.querySelector('img').getAttribute('data-description'));
-                    this.buildGalleryNavigation(itemBt);
-                });
+            elButton.forEach((target) => {
+                this.buildMenuGalleryButton(target);
             });
         });
 
-        this.elModalNavigationArrowLeft.addEventListener('click', () => {
-            this.targetBuildGalleryChange.previousElementSibling.click();
-        });
+        helper.addClick(this.elModalNavigationArrowLeft, this.handleClickArrowLeft.bind(this));
+        helper.addClick(this.elModalNavigationArrowRight, this.handleClickArrowRight.bind(this));
+    }
 
-        this.elModalNavigationArrowRight.addEventListener('click', () => {
-            this.targetBuildGalleryChange.nextElementSibling.click();
+    buildMenuGalleryButton(target) {
+        target.addEventListener('click', event => {
+            const href = target.getAttribute('href');
+            const description = target.querySelector('img').getAttribute('data-description');
+
+            event.preventDefault();
+            this.buildModal('gallery', false, 'full');
+            this.buildGalleryImage(href, description);
+            this.buildGalleryNavigation(target);
         });
     }
 
     buildMenu() {
-        this.elModalClose.addEventListener('click', () => {
-            this.closeModal();
-        });
+        const elButtonCancel = this.elModalFooter.querySelector('[data-id="cancel"]');
 
-        document.addEventListener('click', (event) => {
-            let isButton = event.target.matches('button *, a *');
-
-            if (isButton) {
-                return;
-            }
-        });
-
-        this.elModalFooter.querySelector('[data-id="cancel"]').addEventListener('click', () => {
-            this.closeModal();
-        });
+        helper.addClick(this.elModalClose, this.closeModal.bind(this));
+        helper.addClick(elButtonCancel, this.closeModal.bind(this));
     }
 
     buildGalleryNavigation(target) {
-        const elGallery = currentGallery.querySelectorAll('a');
         const currentGallery = target.parentNode.parentNode;
+        const elGallery = currentGallery.querySelectorAll('a');
         const siblingLength = elGallery.length - 1;
         let array = [];
 
@@ -562,26 +559,35 @@ export class Modal {
             array.push(item);
         });
 
-        let currentPosition = array.indexOf(target);
-
         if (siblingLength > 0) {
-            this.elModalNavigationArrow.classList.remove(this.cssHide);
-            this.targetBuildGalleryChange = target;
+            this.buildGalleryNavigationShow({
+                array,
+                target,
+                siblingLength
+            });
 
-            if (currentPosition <= 0) {
-                this.elModalNavigationArrowLeft.classList.add(this.cssHide);
-            } else {
-                this.elModalNavigationArrowLeft.classList.remove(this.cssHide);
-            }
+            return;
+        }
 
-            if (currentPosition >= siblingLength) {
-                this.elModalNavigationArrowRight.classList.add(this.cssHide);
-            } else {
-                this.elModalNavigationArrowRight.classList.remove(this.cssHide);
-            }
+        this.elModalNavigationArrow.classList.add(this.cssHide);
+    }
 
+    buildGalleryNavigationShow(obj) {
+        const currentPosition = obj.array.indexOf(obj.target);
+
+        this.elModalNavigationArrow.classList.remove(this.cssHide);
+        this.targetBuildGalleryChange = obj.target;
+
+        if (currentPosition <= 0) {
+            this.elModalNavigationArrowLeft.classList.add(this.cssHide);
         } else {
-            this.elModalNavigationArrow.classList.add(this.cssHide);
+            this.elModalNavigationArrowLeft.classList.remove(this.cssHide);
+        }
+
+        if (currentPosition >= obj.siblingLength) {
+            this.elModalNavigationArrowRight.classList.add(this.cssHide);
+        } else {
+            this.elModalNavigationArrowRight.classList.remove(this.cssHide);
         }
     }
 
@@ -596,15 +602,12 @@ export class Modal {
     buildModalKind(obj) {
         if (obj.kind === 'ajax') this.buildContentAjax(obj.content);
         if (obj.kind === 'confirmation') this.buildContentConfirmation(obj.content);
-
-        switch (obj.kind) {
-            case 'gallery':
-                this.elModalNavigationArrow.classList.remove('hide');
-                break;
-            default:
-                this.elModalNavigationArrow.classList.add('hide');
-                break;
+        if (obj.kind === 'gallery') {
+            this.elModalNavigationArrow.classList.remove('hide');
+            return;
         }
+
+        this.elModalNavigationArrow.classList.add('hide');
     }
 
     buildModalSize(size = 'regular') {
@@ -619,13 +622,12 @@ export class Modal {
     }
 
     buildContentAjax(target) {
-        let self = this;
         let ajax = new XMLHttpRequest();
 
-        ajax.onreadystatechange = function () {
+        ajax.onreadystatechange = () => {
             if (this.readyState === 4 && this.status === 200) {
-                self.elModalContent.innerHTML = this.responseText;
-                self.resetOtherClass();
+                this.elModalContent.innerHTML = this.responseText;
+                this.resetOtherClass();
             }
         };
 
@@ -634,17 +636,17 @@ export class Modal {
     }
 
     buildGalleryImage(image, description) {
-        const stringImage = `<img src="${image}" class="img-responsive" style="margin:auto;" title="" alt=""/>`;
+        const html = `<img src="${image}" class="img-responsive" style="margin:auto;" title="" alt=""/>`;
 
-        this.elModalContent.innerHTML = stringImage;
+        this.elModalContent.innerHTML = html;
         this.changeText(description);
     }
 
     buildContentConfirmation(content) {
-        const string = `<div class="center">${content}</div>`;
+        const html = `<div class="center">${content}</div>`;
 
         this.elModalFooter.classList.remove(this.cssHide);
-        this.elModalContent.innerHTML = string;
+        this.elModalContent.innerHTML = html;
     }
 
     buildContentConfirmationAction(action) {
@@ -652,15 +654,10 @@ export class Modal {
     }
 
     changeText(description) {
-        if (description === '' || description === null) {
-            return;
-        }
+        const html = `<p class="modal__description">${description}</p>`;
 
-        const string = `<p class="modal__description">${description}</p>`;
-
-        if (typeof description !== typeof 'undefined') {
-            this.elModalContent.insertAdjacentHTML('beforeend', string);
-        }
+        if (description === '' || description === null) return;
+        this.elModalContent.insertAdjacentHTML('beforeend', html);
     }
 
     closeModal() {
@@ -683,6 +680,14 @@ export class Modal {
         this.translate();
     }
 
+    handleClickArrowLeft() {
+        this.targetBuildGalleryChange.previousElementSibling.click();
+    }
+
+    handleClickArrowRight() {
+        this.targetBuildGalleryChange.nextElementSibling.click();
+    }
+
     openModal() {
         this.isModalOpen = true;
         this.elBody.classList.remove('overflow-y');
@@ -693,31 +698,19 @@ export class Modal {
     }
 
     resetOtherClass() {
-        if (typeof window.menuDropDown !== 'undefined') {
-            window.menuDropDown.reset();
-        }
-
-        if (typeof window.menuToggle !== 'undefined') {
-            window.menuToggle.init();
-        }
-
-        if (typeof window.menuTab !== 'undefined') {
-            window.menuTab.init();
-        }
-
-        if (typeof window.lazyLoad !== 'undefined') {
-            window.lazyLoad.init();
-        }
+        if (typeof menuDropDown !== 'undefined') menuDropDown.reset();
+        if (typeof menuToggle !== 'undefined') menuToggle.init();
+        if (typeof menuTab !== 'undefined') menuTab.init();
+        if (typeof lazyLoad !== 'undefined') lazyLoad.init();
     }
 
     translate() {
-        this.elModalFooterConfirm.innerHTML = window.translation.translation.confirm;
-        this.elModalFooterCancel.innerHTML = window.translation.translation.cancel;
+        this.elModalFooterConfirm.innerHTML = translation.translation.confirm;
+        this.elModalFooterCancel.innerHTML = translation.translation.cancel;
     }
 
     update() {
         this.targetBuildGalleryChange = '';
-
         this.elModal = document.querySelector('.modal');
         this.elModalFooter = this.elModal.querySelector('footer');
         this.elModalFooterConfirm = this.elModalFooter.querySelector('[data-id="confirm"]');
@@ -1181,11 +1174,11 @@ export class Helper {
         });
     }
 
-    wrap(args) {
+    wrapItem(target, cssClass) {
         const wrapper = document.createElement('div');
 
-        wrapper.className = args.css;
-        args.target.parentNode.insertBefore(wrapper, args.target);
-        wrapper.appendChild(args.target);
+        wrapper.className = cssClass;
+        target.parentNode.insertBefore(wrapper, target);
+        wrapper.appendChild(target);
     }
 }
