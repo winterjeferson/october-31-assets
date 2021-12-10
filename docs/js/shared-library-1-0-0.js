@@ -959,7 +959,7 @@ export class Helper {
             return;
         }
 
-        if (data === 'session_expired') objGameLayout.decodeMessage(data);
+        if (data === 'session_expired' || data === 'maintenance') objGameLayout.decodeMessage(data);
     }
 
     capitalize(target) {
