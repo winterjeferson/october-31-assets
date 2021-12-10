@@ -879,6 +879,7 @@ export class Translation {
 export class Helper {
     constructor() {
         this.cssDisplayNone = 'display-none';
+        this.origin;
     }
 
     addChange(el, action) {
@@ -938,7 +939,7 @@ export class Helper {
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    if (xhr.responseText === 'session_expired') objGameLayout.decodeMessage(xhr.responseText);
+                    this.ajaxLoaded(xhr.responseText);
                     resolve(xhr.responseText);
                 }
                 reject(xhr.statusText);
@@ -946,6 +947,19 @@ export class Helper {
             xhr.onerror = () => reject(xhr.statusText);
             xhr.send(`&n=${namespace}&t=${token + args.parameter}`);
         });
+    }
+
+    ajaxLoaded(data) {
+        const isParse = this.verifyParse(data);
+
+        if (isParse) {
+            const json = JSON.parse(data);
+
+            if (this.origin === 'game') objGamePageAchievement.varifyNotification(json);
+            return;
+        }
+
+        if (data === 'session_expired') objGameLayout.decodeMessage(data);
     }
 
     capitalize(target) {
@@ -1043,6 +1057,18 @@ export class Helper {
         this.addClass(el, this.cssDisplayNone);
     }
 
+    offset(element) {
+        let rect = element.getBoundingClientRect();
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const args = {
+            'top': rect.top + scrollTop,
+            'left': rect.left + scrollLeft,
+        };
+
+        return args;
+    }
+
     randomInArray(array) {
         const random = Math.random() * array.length;
         const math = Math.floor(random);
@@ -1056,40 +1082,6 @@ export class Helper {
         const math = Math.floor(random);
 
         return math;
-    }
-
-    sortSelect(target) {
-        const length = target.options.length;
-        let newArray = [];
-
-        for (let i = 0; i < length; i++) {
-            newArray[i] = [];
-            newArray[i][0] = target.options[i].text;
-            newArray[i][1] = target.options[i].value;
-        }
-
-        newArray.sort();
-
-        while (target.options.length > 0) {
-            target.options[0] = null;
-        }
-
-        for (let i = 0; i < newArray.length; i++) {
-            let op = new Option(newArray[i][0], newArray[i][1]);
-            target.options[i] = op;
-        }
-    }
-
-    offset(element) {
-        let rect = element.getBoundingClientRect();
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const args = {
-            'top': rect.top + scrollTop,
-            'left': rect.left + scrollLeft,
-        };
-
-        return args;
     }
 
     remove(target) {
@@ -1129,6 +1121,28 @@ export class Helper {
         this.removeClass(el, this.cssDisplayNone);
     }
 
+    sortSelect(target) {
+        const length = target.options.length;
+        let newArray = [];
+
+        for (let i = 0; i < length; i++) {
+            newArray[i] = [];
+            newArray[i][0] = target.options[i].text;
+            newArray[i][1] = target.options[i].value;
+        }
+
+        newArray.sort();
+
+        while (target.options.length > 0) {
+            target.options[0] = null;
+        }
+
+        for (let i = 0; i < newArray.length; i++) {
+            let op = new Option(newArray[i][0], newArray[i][1]);
+            target.options[i] = op;
+        }
+    }
+
     trigger(el, kind) {
         const event = new Event(kind);
 
@@ -1156,6 +1170,15 @@ export class Helper {
 
         if (string.indexOf(' ') !== -1) return true;
         return false;
+    }
+
+    verifyParse(data) {
+        try {
+            JSON.parse(data);
+        } catch (e) {
+            return false;
+        }
+        return true;
     }
 
     verifyUrlRoute(target) {
