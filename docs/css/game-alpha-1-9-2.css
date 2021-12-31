@@ -2144,14 +2144,15 @@ input:-webkit-autofill:active {
   position: relative;
   width: 150px; }
   .box-item .progress {
-    border-color: #c8c8c8;
-    border-radius: 3px 0 0 0;
-    height: 10px;
+    background-color: #d5d5d5;
+    border-color: #d5d5d5;
+    border-radius: 4px 0 0 0;
+    height: 9px;
     left: calc(-50% + 28px);
     position: absolute;
     top: 1px;
     transform: rotate(-90deg) translateX(-50%);
-    width: calc(100% - 36px); }
+    width: calc(100% - 35px); }
 
 .g-recaptcha {
   margin: 10px auto; }
@@ -2348,6 +2349,9 @@ input {
 .page-inventory-item {
   text-align: center;
   width: 100%; }
+
+.page-inventory-equipment .equipment {
+  display: inline-flex; }
 
 .page-transition {
   align-content: flex-start;
