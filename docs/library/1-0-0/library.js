@@ -1,1 +1,955 @@
-export class Code{constructor(){this.colors=[{id:0,color:"red"},{id:1,color:"green"},{id:2,color:"orange"}],this.codes=[{id:"default",translation:"default",color:0},{id:"emailInvalid",translation:"email_invalid",color:0},{id:"emailNotFound",translation:"email_not_found",color:0},{id:"emailSent",translation:"email_sent",color:1},{id:"emailAlreadyActivated",translation:"email_already_activated",color:2},{id:"emailAlreadyRegistered",translation:"email_already_registered",color:2},{id:"emailOrPasswordInvalid",translation:"email_or_password_invalid",color:0},{id:"emailInactive",translation:"email_inactive",color:0},{id:"fieldInvalid",translation:"field_invalid",color:0},{id:"passwordExpired",translation:"password_expired",color:0},{id:"captchaInvalid",translation:"captcha_invalid",color:0},{id:"checkboxInvalid",translation:"checkbox_invalid",color:0},{id:"userNameInvalid",translation:"user_name_invalid",color:2},{id:"userNotFound",translation:"user_not_found",color:0},{id:"userAlreadyRegistered",translation:"user_already_registered",color:0},{id:"specialCharactersNotAllowed",translation:"special_characters_not_allowed",color:0},{id:"registerDone",translation:"register_done",color:1}]}getCode(t){const e=((t,e)=>this[t].find((t=>t.id===e)))("codes",t),n=e.color,i=e.translation;return{translation:libTranslate.translation.default.code[i],color:n}}}export class Component{constructor(){this.entityBlank="&nbsp;"}buildAttributeClass(t){const e=t=>void 0!==t?i+=t+n:"",n=" ";let i="";return e(t.css),e(t.cssSize),e(t.cssStyle),e(t.cssComponent),i.slice(-1)===n&&(i=i.slice(0,-1)),t.css?` class="${i}" `:""}buildAttributeChange(t){return void 0!==t.change?` onchange="${t.change}" `:""}buildAttributeClick(t){return t.onclick?` onclick="${t.onclick}" `:""}buildAttributeData(t){const e=t.dataCustom;let n=" ";if(!e)return n;return Object.entries(e).forEach((([,t])=>{const e=t.label,i=t.value;n+=` data-${e}="${i}" `})),n}buildAttributeFor(t){return void 0!==t.id?` for="${t.prefix}_${t.id}" `:""}buildAttributeId(t){return void 0!==t.id?` id="${t.prefix}_${t.id}" `:""}buildAttributeLabel(t){const e=this.buildAttributeFor(t);return void 0!==t.label?`<label ${e}>${t.label}</label>`:this.entityBlank}buildAttributeMax(t){return void 0!==t.max?` max="${t.max}" `:""}buildAttributeMin(t){return void 0!==t.min?` min="${t.min}" `:""}buildAttributeType(t){return` type="${void 0!==t.type?t.type:"text"}" `}buildAttributeValue(t){return void 0!==t.value?` value="${t.value}" `:""}buildButton(t){t.prefix=t.prefix||"ds-button",t.css=t.prefix,t.cssSize=void 0!==t.cssSize?`${t.prefix}--${t.cssSize}`:`${t.prefix}--regular`,t.cssStyle=void 0!==t.cssStyle?`${t.prefix}--${t.cssStyle}`:"",t.cssComponent=t?.cssComponent||"";const e=this.buildAttributeId(t),n=this.buildAttributeClick(t),i=this.buildAttributeData(t),o=this.buildAttributeClass(t),s=t?.text||"",a=t?.icon||"";return`<button type="button" ${o} ${e} ${i} ${t?.attribute||""} ${n}>${a}${s}</button>`}drawCloseButton(t){const e=t?.color||"grey",n=t?.size||"extra-small";return t.cssSize=n,t.cssStyle=` ds-button--proportional ds-button--${e} ds-button--close ds-button--rounded`,t.ariaLabel=layout.translation?.close?layout.translation?.close:"close",t.text="X",this.buildButton(t)}buildCard(t){const e=void 0!==t.header&&t.header,n=void 0!==t.content?t.content:this.entityBlank,i=void 0!==t.footer&&t.footer;return`\n            <div class="card">\n                ${e?`\n            <header>\n                <h4 class="card-title">${e}</h4>\n            </header>\n        `:""}\n                <div class="card-body">\n                    <div class="responsive-row">\n                        <div class="responsive-column-regular-12">\n                            ${n}\n                        </div>\n                    </div>\n                </div>\n                ${i?`\n            <footer>\n                ${i}\n            </footer>\n        `:""}\n            </div>\n        `}buildMenuTab(t){const e=Object.entries(t);let n="";return n+='\n            <div class="responsive-row">\n                <div class="responsive-column-regular-12">\n                    <nav class="menu-tab menu menu-horizontal menu-drop-down">\n                        <ul>\n        ',e.forEach((([,t])=>{n+=`<li>${t}</li>`})),n+="\n                        </ul>\n                    </nav>\n                </div>\n            </div>\n        ",n}buildMenuTabContent(t){const e=Object.entries(t);let n="";return n+='\n            <div class="responsive-row">\n                <div class="responsive-column-regular-12">\n                    <div class="menu-tab-box">\n        ',e.forEach((([,t])=>{n+=t})),n+="\n                    </div>\n                </div>\n            </div>\n        ",n}buildIcon(t){const e=t.rotate?`rotate-${t.rotate}`:"",n=t.color?`icon--${t.color}`:"",i=t.size||"regular",o=t.icon||"",s=this.buildIconSVG({rotate:e,color:n,size:i,icon:o}),a=`<span class="fa fa fa-${o} icon icon--${i} ${e} ${n}" aria-hidden="true"></span>`;return!!t.isFA&&t.isFA?a:s}buildIconSVG(t){const e=t.rotate?`ds-${t.rotate}`:"",n=t.color?`ds-${t.color}`:"",i=t.size||"regular",o=t.icon;return`\n            <svg class="ds-icon ds-icon--${i} ${e} ${n}">\n                <use xlink:href="${`${globalPathAssets}wf/${globalVersion.wf}/icon.svg#`+o}"></use>\n            </svg>\n        `}buildInput(t){t.prefix="input";const e=this.buildAttributeId(t),n=this.buildAttributeChange(t),i=this.buildAttributeData(t),o=this.buildAttributeType(t),s=t.attribute?t.attribute:"";return`<input ${e} ${i} ${o} ${this.buildAttributeValue(t)} ${n} ${this.buildAttributeMax(t)} ${this.buildAttributeMin(t)} class="input" ${s}>`}buildLoading(t){const e=t=>`<div class="loading loading-2 loading-2--${t.size} loading-2--${t.color} animate"></div>`,n=t?.color?t.color:"grey",i=t?.size?t.size:"regular";return`\n            <div class="loading ${t?.alignment?t.alignment:"center"}">\n                ${e({size:i,color:n})}\n                ${e({size:i,color:n})}\n                ${e({size:i,color:n})}\n            </div>\n        `}buildSelect(t){t.prefix="select";const e=this.buildAttributeId(t),n=this.buildAttributeLabel(t),i=this.buildAttributeData(t),o=void 0!==t.optionDefault,s=void 0!==t.option&&t.option;let a=`\n            <div class="form-field responsive-row">\n                <div class="responsive-column-regular-4">\n                    ${n}\n                </div>\n                <div class="responsive-column-regular-8">\n                    <select ${e} ${i} ${this.buildAttributeChange(t)} class="input">\n        `;if(!o){t.value=!1;const e="Selecione",n=this.buildAttributeValue(t);a+=`<option selected="true" ${n}>${e}</option>`}if(s){Object.entries(s).forEach((([,e])=>{const n=[{label:"price",value:e.dataPrice}];t.dataCustom=n,t.value=e.value;const i=this.buildAttributeValue(t),o=this.buildAttributeData(t);a+=`<option ${i} ${o}>${e.text}</option>`}))}return a+="\n                    </select>\n                </div>\n            </div>\n        ",a}}export class ComponentModal{drawModal(t){const e=t.size?t.size:"regular",n=t.content?t.content:"",i=t.color?t.color:"grey";return`\n            <div class="ds-modal" style="z-index:${this.drawModalZIndex()}">\n                <div class="ds-modal__box ds-modal--${e} ds-modal--${i} ds-content-theme">\n                    ${n}\n                </div>\n            </div>\n        `}drawModalZIndex(){const t=window.libModal?.getElModal();let e=5;if(t.length>0){const n=t[0];e=Number(n.style.zIndex)+1}return e}drawModalContent(t){return`\n            ${this.drawModalHeader(t)}\n            <div class="ds-row">\n                <div class="ds-modal__content">\n                    ${t?.content||""}\n                </div>\n            </div>\n        `}drawModalDresciption(t){const e=t.description;if(!e)return"";return`<p class="ds-modal__description">${e}</p>`}drawModalFooter(t){return`\n            <footer class="ds-button-wrapper ds-modal__footer ds-right">\n                ${t.content?t.content:""}\n            </footer>\n        `}drawModalHeader(t){const e=t?.title||!1,n=this.component.drawCloseButton({onclick:"window.libModal.close(this)",color:"red"});let i="";return e&&(i+=`\n            <header class="ds-page__header">\n                <div class="ds-content__close">\n                    ${n}\n                </div>\n                <div class="ds-center">\n                    <div class="ds-ribbon">\n                        <div class="ds-ribbon__content">\n                            <div class="ds-center">\n                                <div class="ds-content__title">\n                                    <h2 class="ds-title">${e}</h2>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </header>\n        `),i}drawModalNavigation(t){const e=t?.target;if(!e)return;const n=libGallery.currentGalleryItens,i=libGallery.currentGalleryIndex,o=0===i,s=n.length===i+1,a=this.component.buildIcon({size:"extra-big",icon:"previous",color:"white"}),r=this.component.buildIcon({rotate:"180",size:"extra-big",icon:"previous",color:"white"});return`\n            <div class="navigation-change button-wrapper row center">\n                ${this.component.buildButton({size:"big",ariaLabel:layout.translation.previous,icon:a,css:o?"hide":"",onclick:"libGallery.handlePrevious();"})}\n                ${this.component.buildButton({size:"big",ariaLabel:layout.translation.next,icon:r,css:s?"hide":"",onclick:"libGallery.handleNext();"})}\n            </div>\n        `}init(){this.update()}update(){this.component=window.libComponent}}export class DataLayerModify{constructor(){this.textDefault="nao-definido"}addPageView(){const t=window.location,e=t.href,n=t.origin,i=t.href,o=this.validateText(t.pathname.split("/")[1]),s=this.validateText(e.replace(n,"")),a=this.validateText(document.referrer),r=this.validateText(document.title);this.push({event:"pageview",location:i,pagetype:o,path:s,referrer:a,title:r})}push(t){dataLayer.push(t)}update(t){const e=this.validateText(t.action),n=this.validateText(t.label),i=this.validateText(t.category);this.push({event:"gaEvent",eventCategory:i,eventAction:e,eventLabel:n})}validateText(t){return void 0===t||""===t||"/"===t?this.textDefault:String(t)}}export class Helper{constructor(){this.elBody=document.querySelector("body"),this.cssDisplayNone="display-none",this.origin,this.isDebug=!0,this.idCaptcha="captcha",this.modalSizeDefault="extra-small"}addChange(t,e){t&&this.addEvent({el:t,action:e,event:"change"})}addClick(t,e){t&&this.addEvent({el:t,action:e,event:"click"})}addEvent(t){const e=t.action,n=t.el,i=t.event;n&&(n.removeEventListener(i,e),n.addEventListener(i,e))}addClass(t,e){t&&e&&(e instanceof Array?e.forEach((e=>{t.classList.add(e)})):t.classList.add(e))}fetchData(t){if(!t.endpoint)return;const e=t.endpoint,n=`${window.urls.endpoints+e}/`;return new Promise((e=>{fetch(n,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(t)}).then((t=>{if(!t.ok)throw new Error("Network response was not ok");return t.json()})).then((t=>{e(t)})).catch((t=>{console.error("Error:",t)}))}))}ajax(t){return new Promise(((e,n)=>{const i=window?.urls?.game||"",o=t.controller?i+t.controller:`${i}php/controller.php`,s=t.namespace||"Game",a=t?.token||gameLayout?.token,r=t.kind||"POST";let l=new XMLHttpRequest;l.open(r,o,!0),l.setRequestHeader("Content-type","application/x-www-form-urlencoded"),l.onload=()=>{l.status>=200&&l.status<300&&(this.ajaxLoaded(l.responseText),e(l.responseText)),n(l.statusText)},l.onerror=()=>n(l.statusText),l.send(`&n=${s}&t=${a+t.parameter}`)}))}ajaxLoaded(t){const e="session_expired"===t||"maintenance"===t;if(this.verifyParse(t)){const e=JSON.parse(t);if("game"===this.origin)return gamePageAchievement.verifyNotification(e)}e&&gameLayout.decodeMessage(t)}capitalize(t){return t.charAt(0).toUpperCase()+t.slice(1)}drawCaptcha(t=""){return`<div id="${this.idCaptcha+t}"></div>`}debug(t){const e="object"==typeof t;this.isDebug&&(e?console.table(t):console.log(t))}findInObject(t){const e=t.target,n=t.search,i=t.value,o=t.get,s=e.length;for(let t=0;t<s;t++){const s=e[t];if(s[n]===i)return!1!==o?s[o]:t}}getCaptchaResponse(){return grecaptcha.getResponse()}getSelectValue(t){return t?.options?.[t.selectedIndex]?.value}getSize(t){return parseFloat(getComputedStyle(t.el,null)[t.value].replace("px",""))}getTranslateValue(t){if(void 0===t)return;const e=window.getComputedStyle(t).transform;if("none"===e)return{x:0,y:0,z:0};const n=e.includes("3d")?"3d":"2d",i=e.match(/matrix.*\((.+)\)/)[1].split(", ");return"2d"===n?{x:Number(i[4]),y:Number(i[5]),z:0}:"3d"===n?{x:Number(i[12]),y:Number(i[13]),z:Number(i[14])}:void 0}getUrlParameter(t){const e=top.location.search.substring(1).split("&");for(let n=0;n<e.length;n++){const i=e[n].split("=");if(i[0]===t)return i[1]}}getUrlWord(t){return new RegExp("\\b"+t+"\\b","i").test(window.location.href)}height(t){return this.getSize({el:t,value:"height"})}hide(t){this.addClass(t,this.cssDisplayNone)}async handleResponse(t){const e=t?.isError||!1,n=t?.isNotification||!1,i=t?.code||!1,o=t?.size||this.modalSizeDefault,s=t.title||!1,a=!!i&&libCode.getCode(i),r=a?a.color:"grey",l=a?a.translation:"",c={};return o&&(c.size=o),r&&(c.color=r),s&&(c.title=s),l&&(c.content=l),e&&libModal.open(c),n&&libModal.open(c),e}isElementVisible(t){return null!==t?.offsetParent}isLocalHost(){return this.getUrlWord("localhost")}isStringEmpty(t){return""===t||void 0===t||null===t}isJson(t){try{const e=JSON.parse(t);return e instanceof Array||e instanceof Object}catch(t){return!1}}offset(t){let e=t.getBoundingClientRect();const n=window.pageXOffset||document.documentElement.scrollLeft,i=window.pageYOffset||document.documentElement.scrollTop;return{top:e.top+i,left:e.left+n}}randomInArray(t){const e=Math.random()*t.length;return t[Math.floor(e)]}randomNumber(t){const e=Math.random()*t;return Math.floor(e)}remove(t){t&&null!==t.parentNode&&t.parentNode.removeChild(t)}removeClass(t,e){t&&e&&(e instanceof Array?e.forEach((e=>{this.removeClassExecute(t,e)})):this.removeClassExecute(t,e))}removeClassExecute(t,e){t.classList.contains(e)&&t.classList.remove(e)}removeInArray(t){const e=t.arr,n=e.indexOf(t.value);e.splice(n,1)}renderCaptcha(t=""){const e=document.getElementById(this.idCaptcha+t),n=libVariable.recaptcha;e&&(e.setAttribute("class","g-recaptcha"),e.setAttribute("data-sitekey",n),e.setAttribute("data-action","LOGIN"),grecaptcha.render&&grecaptcha.render(e,{sitekey:n,action:"LOGIN"}))}resetCaptcha(){grecaptcha.reset()}setInputValue(t,e){t&&(t.value=e)}show(t){this.removeClass(t,this.cssDisplayNone)}sortSelect(t){const e=t.options.length;let n=[];for(let i=0;i<e;i++)n[i]=[],n[i][0]=t.options[i].text,n[i][1]=t.options[i].value;for(n.sort();t.options.length>0;)t.options[0]=null;for(let e=0;e<n.length;e++){let i=new Option(n[e][0],n[e][1]);t.options[e]=i}}toggleButtonEnabled(t){const e=t.button,n=t.action,i="disabled";if(n)return e.setAttribute(i,n);e.removeAttribute(i)}toggleClass(t,e){if(t.classList.contains(e))return t.classList.remove(e);t.classList.add(e)}trigger(t,e){const n=new Event(e);t.dispatchEvent(n)}useStorage(t){const e=t.target,n=`october_31_${globalVersion.game?globalVersion.game:""}_`;switch(t.action){case"set":window.localStorage.setItem(n+e,t.value);break;case"get":return window.localStorage.getItem(n+e);case"remove":window.localStorage.removeItem(n+e)}}validateCaptcha(){const t={isError:!0,code:"captchaInvalid"};return!(!grecaptcha||0===this.getCaptchaResponse().length)||(t.size=this.modalSizeDefault,t.title=layout.translation.interface.response.response,this.handleResponse(t),this.resetCaptcha(),!1)}validateEmptySpace(t){return-1!==t.value.indexOf(" ")}validateEmail(t){const e=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t.value);return this.validateFormField(t,e),e}validateFormFieldEmpty(t){const e=""!==t.value;return this.validateFormField(t,e),e}validateFormField(t,e){const n="form__input--invalid";e?this.removeClass(t,n):this.addClass(t,n)}verifyParse(t){try{JSON.parse(t)}catch(t){return!1}return!0}verifyUrlRoute(t){return window.location.pathname.split("/").indexOf(t)>-1}width(t){return this.getSize({el:t,value:"width"})}wrapItem(t,e){const n=document.createElement("div");n.className=e,t.parentNode.insertBefore(n,t),n.appendChild(t)}}export class MenuDropDown{update(){this.isClickBuild=!1,this.classMenu="ds-drop-down",this.classMenuText=`${this.classMenu}-text`,this.cssDropDownContent=`${this.classMenu}__content`,this.cssOpend=`${this.cssDropDownContent}--opened`,this.cssMobileShow="ds-mobile-show",this.cssActive="ds-button--active",this.elMenu=document.querySelectorAll(`.${this.classMenu}, .${this.classMenuText}`),this.addClickAction=this.addClickAction.bind(this),this.close=this.close.bind(this)}addClick(){this.elMenu.forEach((t=>{const e=t.querySelectorAll(".ds-button:first-child, .ds-link:first-child")[0];libHelper.addClick(e,this.addClickAction)}))}addClickAction(t){const e=t.target.parentNode.querySelector(`.${this.cssDropDownContent}`),n=t.target;null!==e&&(libHelper.addClass(e,this.cssOpend),libHelper.addClass(n,this.cssActive))}close(){const t=window.libMenuDropDown;"string"!==t?.elMenu&&t?.elMenu.forEach((e=>{const n=e.querySelector(`.${t.cssDropDownContent}`),i=e.querySelector(".ds-button");null!==n&&(libHelper.removeClass(n,this.cssOpend),libHelper.removeClass(i,this.cssActive))}))}init(){this.update(),this.elMenu&&(this.isClickBuild||(this.isClickBuild=!0,this.addClick()),document.addEventListener("click",this.close,!0))}listener(t){const e=document.querySelectorAll(`.${window.libMenuDropDown.cssMobileShow}`);t.toElement.classList.contains("button")||t.toElement.classList.contains("link")||e.forEach((t=>{libHelper.removeClass(t,window.libMenuDropDown.cssMobileShow)}))}reset(){document.removeEventListener("click",this.listener,!0),window.libMenuDropDown.init()}}export class Modal{constructor(){this.cssButtonClose="ds-button--close"}close(t){t.parentNode.parentNode.parentNode.parentNode.remove()}closeByKey(){const t=this.getElModal(),e=t.length,n=t[0],i=n?.querySelector(`.${this.cssButtonClose}`);e<1||i.click()}async draw(t){const e=t?.title||layout.translation.interface.response.response,n="ajax"===t?.kind||!1?await window.libHelper.ajax({controller:t.content}):t.content,i=window.libComponentModal,o=i.drawModalContent({title:e,content:n}),s=i.drawModal({size:t.size,content:o});this.show(s)}getElModal(){return document.querySelectorAll(".ds-modal")}async open(t){await this.draw(t),void 0!==window.libMenuDropDown&&window.libMenuDropDown.reset()}show(t){window.libHelper.elBody.insertAdjacentHTML("afterbegin",t)}}export class Notification{constructor(){this.elBody=document.querySelector("body"),this.id="notification",this.colorDefault="grey",this.notificationId=0}add(t){if(!t.content)return;this.placeItem(t);const e=document.querySelector(`#${this.id+this.notificationId}`);this.remove(e,t.content.length),this.notificationId++}buildHtml(t){const e=t.id?`id="${this.id}_${t.id}"`:"",n=t.position?t.position:"left",i=t.content?t.content:"";return`<div ${e} class="${this.id} ${this.id}--${n}">${i}</div>`}buildHtmlDefault(){let t="";["center","left","right"].forEach((e=>{t+=this.buildHtml({id:e,position:e})})),this.elBody.insertAdjacentHTML("beforeend",t)}buildHtmlItem(t){const e=void 0!==t.color?t.color:this.colorDefault,n=void 0!==t.size?t.size:"regular",i=window?.translation?.translation?.close?window?.translation?.translation?.close:"close",o=libComponent.buildIcon({rotate:"45",size:"regular",icon:"plus"});return`\n            <div class="${this.id}__item ${this.id}--${n} ${this.id}--${e}" id="${this.id}${this.notificationId}">\n                <span class="${this.id}__text">${t.content}</span>\n                <button type="button" \n                    class="button button--small button--small--proportional button--transparent" \n                    onclick="wfpNotification.remove(this.parentNode, 0)" \n                    aria-label="${i}"\n                >\n                    ${o}\n                </button>\n            </div>\n        `}init(){this.buildHtmlDefault()}placeItem(t){const e=void 0!==t.place,n=void 0!==t.position?t.position:"right";let i=this.buildHtmlItem(t),o="";if(e){let e=document.querySelector(t.place).querySelector(`.${this.id}`);if(null===e){i=this.buildHtml({content:i,position:n}),o=document.querySelector(t.place)}else e.style.position="relative",o=e}else o=document.getElementById(`${this.id}_${n}`);o&&o.insertAdjacentHTML("beforeend",i)}remove(t,e){setTimeout((()=>{this.removeItem(t)}),150*e)}removeItem(t){null!==t.parentNode&&t.parentNode.removeChild(t)}}export class Translate{constructor(){this.node="translation",this.translation={},this.init()}getLocalStorage(t){const e=libHelper.useStorage({action:"get",target:t});return JSON.parse(e)}getTranslation(){return this.getLocalStorage(this.node)}init(){const t=this.getLocalStorage(this.node),e=globalVersion.translation,n=globalLanguage,i={version:e,language:n};t?(n!==t?.language||e!==t?.version)&&this.setLocalStorage(this.node,i):this.setLocalStorage(this.node,i)}setLocalStorage(t,e){const n=JSON.stringify(e);libHelper.useStorage({action:"set",target:t,value:n})}async translate(t){const e=this.getLocalStorage(this.node),n=void 0!==e[t]?e[t]:await this.requestFile(t);return this.translation[t]=n,n}async requestFile(t){const e=globalPathAssets,n=globalLanguage,i=`${e}translation/${globalVersion.translation}/${n}/${t}.json`;return new Promise((async(e,n)=>{try{const n=this.getLocalStorage(this.node),o=await fetch(i),s=await o.json();n[t]=s,this.setLocalStorage(this.node,n),e(s)}catch(t){n(t)}}))}}export class Variable{constructor(){this.account={guest:{email:"guest@october31.com.br",password:"AcC4654@!jjsdf"}},this.recaptcha="6LfggRMaAAAAAGtcCInz0HXWEKcnJYxaeQTKrPnT"}}
+class Code {
+    static colors = [
+        { id: 0, color: 'red' },
+        { id: 1, color: 'green' },
+        { id: 2, color: 'orange' },
+    ];
+    static codes = [
+        { id: 'default', translation: 'default', color: 0 },
+        { id: 'emailInvalid', translation: 'email_invalid', color: 0 },
+        { id: 'emailNotFound', translation: 'email_not_found', color: 0 },
+        { id: 'emailSent', translation: 'email_sent', color: 1 },
+        { id: 'emailAlreadyActivated', translation: 'email_already_activated', color: 2 },
+        { id: 'emailAlreadyRegistered', translation: 'email_already_registered', color: 2 },
+        { id: 'emailOrPasswordInvalid', translation: 'email_or_password_invalid', color: 0 },
+        { id: 'emailInactive', translation: 'email_inactive', color: 0 },
+        { id: 'fieldInvalid', translation: 'field_invalid', color: 0 },
+        { id: 'passwordExpired', translation: 'password_expired', color: 0 },
+        { id: 'captchaInvalid', translation: 'captcha_invalid', color: 0 },
+        { id: 'checkboxInvalid', translation: 'checkbox_invalid', color: 0 },
+        { id: 'userNameInvalid', translation: 'user_name_invalid', color: 2 },
+        { id: 'userNotFound', translation: 'user_not_found', color: 0 },
+        { id: 'userAlreadyRegistered', translation: 'user_already_registered', color: 0 },
+        { id: 'specialCharactersNotAllowed', translation: 'special_characters_not_allowed', color: 0 },
+        { id: 'registerDone', translation: 'register_done', color: 1 },
+    ];
+
+    static getCode(id) {
+        const getValue = (target, item) => this[target].find(index => index.id === item);
+        const code = getValue('codes', id);
+        const color = code.color;
+        const codeTranslation = code.translation;
+        const translation = Translation.translation.default.code[codeTranslation];
+        const response = { translation, color };
+
+        return response;
+    }
+}
+class Components {
+    static styleCache = {};
+
+    static dispatch(props) {
+        const { event, context, detail } = props;
+
+        context.dispatchEvent(new CustomEvent(event, {
+            detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    static loadStyles(shadowRoot, file) {
+        let fileStyle = this.styleCache[file];
+        if (fileStyle) return fileStyle;
+        const globalStyles = Array.from(document.styleSheets).find(
+            sheet => sheet.href && sheet.href.includes(file)
+        );
+        const isValid = globalStyles && shadowRoot;
+        let style = '';
+
+        if (isValid) {
+            try {
+                const cssRules = Array.from(globalStyles.cssRules).map(rule => rule.cssText).join(' ');
+
+                style = cssRules;
+                fileStyle = style;
+            } catch (error) {
+                console.error('Failed to apply global styles:', error);
+            }
+        }
+        return style;
+    }
+
+    static render(props, component) {
+        const {
+            fileCss
+        } = props;
+        const shadowRoot = props.context.shadowRoot;
+        const stylesDs = Components.loadStyles(shadowRoot, gbFileDesignSystem);
+        const stylesGame = Components.loadStyles(shadowRoot, gbFileGame);
+        const stylesGameDs = Components.loadStyles(shadowRoot, gbFileGameDs);
+        const stylesCustom = fileCss ? Components.loadStyles(shadowRoot, fileCss) : '';
+        let response = `
+            <style>
+                ${stylesDs}
+                ${stylesGame}
+                ${stylesGameDs}
+                ${stylesCustom}
+            </style>
+            ${component}
+        `;
+        response = response.replace(new RegExp('__replace_folder_assets__', 'g'), gbFolderGameAssetsImg);
+        shadowRoot.innerHTML = response;
+    }
+}
+class Helper {
+    static addClass(target, classCss) {
+        if (!target || !classCss) return;
+
+        if (Array.isArray(classCss)) {
+            target.classList.add(...classCss);
+        } else {
+            target.classList.add(classCss);
+        }
+    }
+
+    //@deprecated
+    static ajax(props) {
+        return new Promise((resolve, reject) => {
+            const url = window?.urls?.game || '';
+            const controller = props.controller ? url + props.controller : `${url}php/controller.php`;
+            const namespace = props.namespace || 'Game';
+            const token = props?.token || gameLayout?.token;
+            const kind = props.kind || 'POST';
+            let xhr = new XMLHttpRequest();
+
+            xhr.open(kind, controller, true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    this.ajaxLoaded(xhr.responseText);
+                    resolve(xhr.responseText);
+                }
+                reject(xhr.statusText);
+            };
+            xhr.onerror = () => reject(xhr.statusText);
+            xhr.send(`&n=${namespace}&t=${token + props.parameter}`);
+        });
+    }
+
+    //@deprecated
+    static ajaxLoaded(data) {
+        const isParse = this.validateParse(data);
+        const isSessionExpired = data === 'session_expired';
+        const isMaintenance = data === 'maintenance';
+        const isProblem = isSessionExpired || isMaintenance;
+
+        if (isParse) {
+            const json = JSON.parse(data);
+            const isGame = this.origin === 'game';
+
+            if (isGame) return gamePageAchievement.verifyNotification(json);
+        }
+        if (isProblem) gameLayout.decodeMessage(data);
+    }
+
+    static buildId(target) {
+        const removeEmptySpaces = Helper.removeEmptySpaces(target);
+        const convertToLowerCase = Helper.convertToLowerCase(removeEmptySpaces);
+
+        return convertToLowerCase;
+    }
+
+    static buildJSON(target) {
+        const response = undefined;
+
+        if (typeof target !== 'string') return response;
+        try {
+            return JSON.parse(target);
+        } catch {
+            return response;
+        }
+    }
+
+    static buildBoolenFromHTML(target) {
+        let response = undefined;
+        if (target === 'true') response = true;
+        if (target === 'false') response = false;
+        return response;
+    }
+
+    static buildJSONToHTML(target) {
+        if (typeof target === 'undefined') return;
+        const response = String(JSON.stringify(target));
+
+        return response;
+    }
+
+    static capitalizeString(target) {
+        if (target) return this.convertToUpperCase(target.charAt(0)) + target.slice(1);
+    }
+
+    static convertToLowerCase(target) {
+        return target.toLowerCase();
+    }
+
+    static convertToUpperCase(target) {
+        return target.toUpperCase();
+    }
+
+    static isStringEmpty(target) {
+        const isEmpty = target === '';
+        const isUndefined = typeof target === 'undefined';
+        const isNull = target === null;
+        const response = isEmpty || isUndefined || isNull;
+        return response;
+    }
+
+    static async fetchData(props) {
+        const {
+            controller,
+            method = 'POST',
+            ...params
+        } = props;
+
+        const shouldUseJson = Object.values(params).some(
+            val => typeof val === 'object' && val !== null
+        );
+        const headers = {
+            'Content-Type': shouldUseJson
+                ? 'application/json'
+                : 'application/x-www-form-urlencoded'
+        };
+        const body = shouldUseJson
+            ? JSON.stringify({ controller, ...params })
+            : new URLSearchParams({ controller, ...params });
+
+        const endpoint = gbUrlApp;
+        return new Promise((resolve) => {
+            fetch(endpoint, {
+                method,
+                headers,
+                body
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    const response = Helper.fetchDataResponse(data);
+                    resolve(response);
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    }
+
+    static async fetchDataResponse(props) {
+        const {
+            isError,
+            isMaintenance,
+            data,
+            errorMessage
+        } = props;
+        if (isError) return alert(errorMessage);
+        if (isMaintenance) return alert('isMaintenance');
+        return data;
+    }
+
+    static findById(itens, target) {
+        return itens.find(index => index.id === target);
+    }
+
+    static getAttributeAsNumber(target, attribute) {
+        return Number(target.getAttribute(attribute));
+    }
+
+    static getPositionX(target) {
+        return this.getAttributeAsNumber(target, Layout.attributePositionX);
+    }
+
+    static getPositionY(target) {
+        return this.getAttributeAsNumber(target, Layout.attributePositionY);
+    }
+
+    static getCaptchaResponse() {
+        return grecaptcha.getResponse();
+    }
+
+    static getRandomBetween(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    static getTranslateValue(target) {
+        const response = { x: 0, y: 0, z: 0 };
+        if (typeof target === 'undefined') return response;
+
+        const style = window.getComputedStyle(target);
+        const matrix = style.transform;
+
+        if (!matrix || matrix === 'none') return response;
+
+        const matrixType = matrix.includes('3d') ? '3d' : '2d';
+        const matrixValues = matrix.match(/matrix.*\((.+)\)/);
+
+        if (matrixValues) {
+            const values = matrixValues[1].split(', ');
+            if (matrixType === '2d') {
+                return {
+                    x: Number(values[4]),
+                    y: Number(values[5]),
+                    z: 0
+                };
+            } else if (matrixType === '3d') {
+                return {
+                    x: Number(values[12]),
+                    y: Number(values[13]),
+                    z: Number(values[14])
+                };
+            }
+        }
+        return response;
+    }
+
+    static getUrlParameter(target) {
+        const url = top.location.search.substring(1);
+        const parameter = url.split('&');
+
+        for (let i = 0; i < parameter.length; i++) {
+            const parameterName = parameter[i].split('=');
+            const found = parameterName[0] === target;
+
+            if (found) return parameterName[1];
+        }
+    }
+
+    static async handleResponse(props) {
+        const isError = props?.isError || false;
+        const isNotification = props?.isNotification || false;
+        const code = props?.code || false;
+        const size = props?.size || this.modalSizeDefault;
+        const title = props?.title || false;
+        const getCode = code ? Code.getCode(code) : false;
+        const color = getCode ? getCode.color : 'grey';
+        const content = getCode ? getCode.translation : '';
+        const args = {};
+        if (size) args.size = size;
+        if (color) args.color = color;
+        if (title) args.title = title;
+        if (content) args.content = content;
+        if (isError) alert(content);
+        if (isNotification) alert(content);
+        // if (isError) libModal.open(args);
+        // if (isNotification) libModal.open(args);
+        return isError;
+    }
+
+    static isElementVisible(el) {
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    static isObjectContent(data) {
+        const length = Object.entries(data).length;
+        return length > 0;
+    }
+
+    static isString(target) {
+        const response = typeof target === 'string';
+        return response;
+    }
+
+    static removeClass(target, css) {
+        if (!target || !css) return;
+
+        if (Array.isArray(css)) {
+            css.forEach((className) => target.classList.remove(className));
+        } else if (target.classList.contains(css)) {
+            target.classList.remove(css);
+        }
+    }
+
+    static removeEmptySpaces(str) {
+        return str.replace(/\s+/g, '');
+    }
+
+    static renderCaptcha(id = '') {
+        const el = document.getElementById(Layout.idCaptcha + id);
+        const recaptcha = Variable.recaptcha;
+
+        if (!el) return;
+        el.setAttribute('class', 'g-recaptcha');
+        el.setAttribute('data-sitekey', recaptcha);
+        el.setAttribute('data-action', 'LOGIN');
+        if (grecaptcha.render) grecaptcha.render(el, {
+            'sitekey': recaptcha,
+            'action': 'LOGIN',
+        });
+    }
+
+    static replaceRule(text) {
+        const props = {
+            text,
+            isRule: true
+        };
+
+        return this.replaceInText(props);
+    }
+
+    static replaceInText(props) {
+        let {
+            text,
+            isRule = false
+        } = props;
+
+        if (!text || typeof text !== 'string') {
+            throw new Error('text must be a string');
+        }
+
+        const regex = /\{\{(.*?)\}\}/g;
+        text = text.replace(regex, (_, rulePath) => {
+            let replaceBy = rulePath.split('.').reduce((obj, key) => {
+                return obj && obj[key] !== undefined ? obj[key] : undefined;
+            }, Rule);
+
+            // if (replaceBy === undefined) {
+            //     console.warn(`Rule for key "${rulePath}" not found.`);
+            // }
+
+            return isRule ? `<span>${replaceBy}</span>` : replaceBy;
+        });
+        return text;
+    }
+
+    static resetCaptcha() {
+        grecaptcha.reset();
+    }
+
+    static shuffle(array) {
+        const length = array.length;
+        for (let i = length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    static toggleButtonEnabled(props) {
+        const elButton = props.button;
+        const action = props.action;
+        const attribute = 'disabled';
+
+        if (action) return elButton.setAttribute(attribute, action);
+        elButton.removeAttribute(attribute);
+    }
+
+    static toggleClass(target, classCss) {
+        if (!target || !classCss) return;
+
+        if (Array.isArray(classCss)) {
+            classCss.forEach((className) => target.classList.toggle(className));
+        } else {
+            target.classList.toggle(classCss);
+        }
+    }
+
+    static validateCaptcha() {
+        const isCaptcha = grecaptcha && Helper.getCaptchaResponse().length !== 0;
+        const props = {
+            content: {
+                isError: true,
+                code: 'captchaInvalid'
+            }
+        };
+        const content = props.content;
+
+        if (isCaptcha) return true;
+        content.size = this.modalSizeDefault;
+        content.title = Translation.translation.interface.response.response;
+        Helper.handleResponse(content);
+        Helper.resetCaptcha();
+        return false;
+    }
+
+    static validateEmail(target) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValid = regex.test(target.value);
+
+        Helper.validateFormField(target, isValid);
+        return isValid;
+    }
+
+    //@deprecated
+    static validateParse(data) {
+        try {
+            JSON.parse(data);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
+    static validateFormEmptyValue(target, value) {
+        const isValid = value !== '';
+
+        Helper.validateFormField(target, isValid);
+        return isValid;
+    }
+
+    static validateFormFieldEmpty(target) {
+        const isValid = target.value !== '';
+
+        Helper.validateFormField(target, isValid);
+        return isValid;
+    }
+
+    static validateFormField(target, isValid) {
+        const css = 'ds-form__input--invalid';
+
+        if (isValid) {
+            Helper.removeClass(target, css);
+        } else {
+            Helper.addClass(target, css);
+        }
+    }
+}
+class Layout {
+    static attributeActive = 'is-active';
+    static attributeDisabled = 'is-disabled';
+    static attributeOpen = 'is-open';
+    static attributePositionX = 'data-position-x';
+    static attributePositionY = 'data-position-y';
+    static attributePositionXInitial = `${this.attributePositionX}-initial`;
+    static attributePositionYInitial = `${this.attributePositionY}-initial`;
+
+    static cssNamespace = 'ds-';
+    static cssAnimationPrepare = `${this.cssNamespace}animation-prepare`;
+    static cssDisplay = `${this.cssNamespace}display-none`;
+    static cssButtonActive = `${this.cssNamespace}button--active`;
+    static cssAnimationFadeIn = `${this.cssNamespace}animation--fade-in`;
+    static cssAnimationFadeOut = `${this.cssNamespace}animation--fade-out`;
+    static cssAnimationFromLeft = `${this.cssNamespace}animation--from-left`;
+    static cssAnimationFromRight = `${this.cssNamespace}animation--from-right`;
+    static cssFormField = `${this.cssNamespace}column ${this.cssNamespace}form__field`;
+    static cssTile = `${this.cssNamespace}tile`;
+
+    static idCaptcha = 'captcha';
+
+    static tileSize = 50;
+    static tileSizeHalf = this.tileSize / 2;
+    static game = {
+        height: 0,
+        width: 0
+    };
+    static screen = {
+        height: 0,
+        width: 0
+    };
+    static durabilityColors = ['green', 'orange', 'red'];
+
+    //accepted: data-handler-props='["param1", 123, true, "$this"]'
+    static addEventListeners(context, target) {
+        const itens = context.shadowRoot.querySelectorAll(target);
+
+        itens.forEach((item) => {
+            const isDisabled = item.getAttribute(this.attributeDisabled) === 'true';
+            if (isDisabled) return;
+
+            const handler = item.getAttribute('data-handler');
+            const params = item.getAttribute('data-handler-props');
+
+            if (handler && typeof context[handler] === 'function') {
+                let parsedParams = [];
+
+                if (params) {
+                    try {
+                        parsedParams = JSON.parse(params).map(param => param === "$this" ? context : param);
+                    } catch (e) {
+                        if (params === "$this") {
+                            parsedParams = [context];
+                        } else {
+                            console.error('Invalid JSON in data-handler-props:', params);
+                        }
+                    }
+                }
+
+                item.addEventListener('click', () => context[handler](...parsedParams));
+            }
+        });
+    }
+
+    static buildAttribute(props) {
+        const label = props.label;
+        const value = props.value;
+
+        if (!value) return '';
+        return `${label}="${value}"`;
+    }
+
+    static buildCss(props) {
+        const context = props?.context;
+        const prefix = `${this.cssNamespace}${props?.cssPrefix}`;
+        const attributeTheme = context ? context.getAttribute('theme') : props?.theme;
+        const attributeIsProportional = context ? context.getAttribute('is-proportional') : props?.isProportional;
+        const attributeIsRounded = context ? context.getAttribute('is-rounded') : props?.isRounded;
+        const attributeSize = context ? context.getAttribute('size') : props?.size;
+        let attributeCssCustom = context ? context.getAttribute('css-custom') : props?.cssCustom;
+
+        const cssActive = props.cssActive;
+        if (cssActive) attributeCssCustom += ` ${prefix}--active`;
+
+        const cssCustom = attributeCssCustom ? `${attributeCssCustom}` : '';
+        const rounded = attributeIsRounded ? `${prefix}--rounded` : '';
+        const proportional = attributeIsProportional ? `${prefix}--proportional` : '';
+        const theme = attributeTheme ? `${prefix}--${attributeTheme}` : '';
+        const size = attributeSize ? `${prefix}--${attributeSize}` : '';
+        const value = `${prefix} ${theme} ${size} ${proportional} ${rounded} ${cssCustom}`;
+        const args = {
+            label: 'class',
+            value,
+        };
+        return this.buildAttribute(args);
+    }
+
+    static buildProgressColor(props) {
+        const { value, valueMax, isReverse = false } = props;
+        const math = this.buildProgressSize();
+        const colors = this.durabilityColors;
+        const size = this.calculatePercentage(value, valueMax);
+
+        if (size <= math) return isReverse ? colors[2] : colors[0];
+        if (size <= math * 2) return colors[1];
+        return isReverse ? colors[0] : colors[2];
+    }
+
+    static buildProgressSize() {
+        const length = this.durabilityColors.length;
+        const math = 100 / length;
+
+        return math;
+    }
+
+    static buildPixel(target) {
+        return `${target}px`;
+    }
+
+    static drawCaptcha(id = '') {
+        return `<div id="${Layout.idCaptcha + id}"></div>`;
+    }
+
+    static init() {
+        this.resize();
+    }
+
+    static setActiveButton(target, isActive = true) {
+        const elMenu = target.parentNode.querySelectorAll('[data-kind="button"]');
+
+        elMenu.forEach((index) => {
+            index.setAttribute(this.attributeActive, 'false');
+        });
+        if (isActive) target.setAttribute(this.attributeActive, 'true');
+    }
+}
+class Notification {
+    static css = 'notification';
+    static id = `game_${this.css}`;
+    static colorDefault = 'grey';
+    static notificationId = 0;
+
+    static add(props) {
+        if (!props.content) return;
+
+        this.placeItem(props);
+
+        const el = document.querySelector(`#${this.id + this.notificationId}`);
+        this.remove(el, props.content.length);
+        this.notificationId++;
+    }
+
+    static buildHtml(props) {
+        const id = props.id ? `id="${this.id}_${props.id}"` : '';
+        const position = props.position ? props.position : 'left';
+        const content = props.content ? props.content : '';
+
+        return `<div ${id} class="${Layout.cssNamespace}${this.css} ${Layout.cssNamespace}${this.css}--${position}">${content}</div>`;
+    }
+
+    static buildHtmlDefault() {
+        const positions = ['center', 'left', 'right'];
+        const elBody = document.querySelector('body');
+        let html = '';
+
+        positions.forEach((item) => {
+            html += this.buildHtml({ id: item, position: item });
+
+        });
+        elBody.insertAdjacentHTML('beforeend', html);
+    }
+
+    static buildHtmlItem(props) {
+        const color = typeof props.color !== 'undefined' ? props.color : this.colorDefault;
+        const size = typeof props.size !== 'undefined' ? props.size : 'regular';
+        const icon = !HTML ? 'X' : HTML.drawIcon({
+            icon: 'close',
+            size: 'small'
+        });
+
+        return `
+            <div 
+                class="${Layout.cssNamespace}${this.css}__item ${Layout.cssNamespace}${this.css}--${size} ${Layout.cssNamespace}${this.css}--${color}" 
+                id="${this.id}${this.notificationId}"
+                >
+                <span class="${Layout.cssNamespace}${this.css}__text">${props.content}</span>
+                <button type="button" 
+                    class="${Layout.cssNamespace}button ${Layout.cssNamespace}button--extra-small ${Layout.cssNamespace}button--proportional ${Layout.cssNamespace}button--transparent" 
+                    onclick="Notification.remove(this.parentNode, 0)" 
+                >
+                    ${icon}
+                </button>
+            </div>
+        `;
+    }
+
+    static init() {
+        this.buildHtmlDefault();
+    }
+
+    static placeItem(props) {
+        const isPlaceId = typeof props.place !== 'undefined';
+        const position = typeof props.position !== 'undefined' ? props.position : 'right';
+        let string = this.buildHtmlItem(props);
+        let elPlace = '';
+
+        if (isPlaceId) {
+            let elList = document.querySelector(props.place).querySelector(`.${this.id}`);
+
+            if (elList === null) {
+                let newString = this.buildHtml({ content: string, position });
+
+                string = newString;
+                elPlace = document.querySelector(props.place);
+            } else {
+                elList.style.position = 'relative';
+                elPlace = elList;
+            }
+        } else {
+            elPlace = document.getElementById(`${this.id}_${position}`);
+        }
+        if (elPlace) elPlace.insertAdjacentHTML('beforeend', string);
+    }
+
+    static remove(item, messageLength) {
+        const time = messageLength * 150;
+
+        setTimeout(() => {
+            this.removeItem(item);
+        }, time);
+    }
+
+    static removeItem(item) {
+        if (item.parentNode === null) return;
+        item.parentNode.removeChild(item);
+    }
+}
+class Storage {
+    static get prefix() {
+        const version = gbVersion.game || '';
+        return `october_31_${version}_`;
+    }
+
+    static getValue(target) {
+        return window.localStorage.getItem(this.prefix + target);
+    }
+
+    static removeValue(target) {
+        window.localStorage.removeItem(this.prefix + target);
+    }
+
+    static setValue(props) {
+        const { target, value } = props;
+        const label = this.prefix + target;
+        window.localStorage.setItem(label, value);
+    }
+}
+class Translation {
+    static node = 'translation';
+    static translation = {};
+
+    static get dialog() {
+        return this.translation?.dialog;
+    }
+
+    static get dialogDefault() {
+        return this.dialog?.default;
+    }
+
+    static get game() {
+        return this.translation?.game;
+    }
+
+    static get gameAchievements() {
+        return this.game?.achievements;
+    }
+
+    static get gameBattle() {
+        return this.game?.battle;
+    }
+
+    static get gameEquipment() {
+        return this.game?.equipment;
+    }
+
+    static get gameGeneric() {
+        return this.game?.generic;
+    }
+
+    static get gameLoot() {
+        return this.game?.loot;
+    }
+
+    static get gameMonster() {
+        return this.game?.monster;
+    }
+
+    static get gamePlayer() {
+        return this.game?.player;
+    }
+
+    static get gameQuests() {
+        return this.game?.quest;
+    }
+
+    static get gameTip() {
+        return this.game?.tip;
+    }
+
+    static get interface() {
+        return this.translation?.interface;
+    }
+
+    static get interfaceDefault() {
+        return this.interface?.default;
+    }
+
+    static get login() {
+        return this.translation?.login;
+    }
+
+    static buildTranslationButtonClose() {
+        const hotkey = Hotkeys.getKey('esc');
+        const translation = this.interfaceDefault?.close;
+        const tooltip = this.buildTextAndHotkey(translation, hotkey);
+
+        return tooltip;
+    }
+
+    static buildTextAndHotkey(text, hotkey) {
+        const translationHotkey = this.interfaceDefault?.shortcut;
+        const html = `
+            ${text}. 
+            <br/> 
+            ${translationHotkey} <span>${hotkey}</span>
+        `;
+
+        return html;
+    }
+
+    static buildPlayerClass(target) {
+        return this.gamePlayer[`class_${target}`];
+    }
+
+    static buildPlayerClassDescription(target) {
+        return this.gamePlayer[`class_${target}_description`];
+    }
+
+    static init() {
+        const getLocalStorage = this.getLocalStorage(this.node);
+        const version = gbVersion.translation;
+        const language = gbLanguage;
+        const isDifferenteData = language !== getLocalStorage?.language || version !== getLocalStorage?.version;
+        const obj = { version, language };
+
+        if (getLocalStorage) {
+            if (isDifferenteData) {
+                this.setLocalStorage(this.node, obj);
+            }
+        } else {
+            this.setLocalStorage(this.node, obj);
+        }
+    }
+
+    static getTranslationPage(target) {
+        if (target === 'attributes') target = 'attribute';
+        if (target === 'quests') target = 'quest';
+        if (target === 'achievements') target = 'achievement';
+        if (target === 'settings') target = 'setting';
+
+        const response = this.interface?.[`page_${target}`];
+        return response;
+    }
+
+    static getLocalStorage(target) {
+        const data = Storage.getValue(target);
+        const json = JSON.parse(data);
+        return json;
+    }
+
+    static replaceTexts(target) {
+        for (const key in target) {
+            const index = target[key];
+            if (typeof index === 'object') {
+                Translation.replaceTexts(index);
+            } else {
+                target[key] = Helper.replaceRule(index);
+            }
+        }
+        return target;
+    }
+
+    static getTranslation() {
+        return Storage.getValue(this.node);
+    }
+
+    static setLocalStorage(target, value) {
+        const replaced = this.replaceTexts(value);
+        const json = JSON.stringify(replaced);
+        const args = {
+            target,
+            value: json
+        };
+        Storage.setValue(args);
+    }
+
+    static async translate(target) {
+        const translation = this.getLocalStorage(this.node);
+        const isLocalStorage = typeof translation[target] !== 'undefined';
+        const response = isLocalStorage ? translation[target] : await this.requestFile(target);
+
+        this.translation[target] = response;
+        return response;
+    }
+
+    static async requestFile(target) {
+        const language = gbLanguage;
+        const version = gbVersion.translation;
+        const url = `${gbUrlAssets}translation/${version}/${language}/${target}.json`;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                const data = this.getLocalStorage(this.node);
+                const response = await fetch(url);
+                const responseJson = await response.json();
+
+                data[target] = responseJson;
+                this.setLocalStorage(this.node, data);
+                resolve(responseJson);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+}
+class Variable {
+    static account = {
+        guest: {
+            email: 'guest@october31.com.br',
+            password: 'AcC4654@!jjsdf'
+        }
+    };
+    static recaptcha = '6LfggRMaAAAAAGtcCInz0HXWEKcnJYxaeQTKrPnT';
+}

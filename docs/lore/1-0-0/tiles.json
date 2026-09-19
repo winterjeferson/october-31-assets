@@ -1,0 +1,2039 @@
+[
+    {
+        "id": 0,
+        "css": "grass-soil-grass-1-d",
+        "is_door": 1,
+        "is_walk": 1,
+        "kind": 1
+    },
+    {
+        "id": 1,
+        "css": "grass-soil-grass-1",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 8
+    },
+    {
+        "id": 2,
+        "css": "grass-soil-grass-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 8
+    },
+    {
+        "id": 3,
+        "css": "grass-plant-gathering-10",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 8
+    },
+    {
+        "id": 4,
+        "css": "grass-soil-bush-1-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 5,
+        "css": "grass-soil-bush-1-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 6,
+        "css": "grass-soil-bush-1-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 7,
+        "css": "grass-soil-bush-1-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 8,
+        "css": "grass-soil-bush-2-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 9,
+        "css": "grass-soil-bush-2-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 10,
+        "css": "grass-soil-bush-2-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 11,
+        "css": "grass-soil-bush-2-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 12,
+        "css": "grass-soil-bush-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 13,
+        "css": "grass-soil-way-1-1",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 14,
+        "css": "grass-soil-way-1-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 15,
+        "css": "grass-soil-way-1-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 16,
+        "css": "grass-soil-way-1-4",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 17,
+        "css": "grass-soil-way-2-1",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 18,
+        "css": "grass-soil-way-2-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 19,
+        "css": "grass-soil-way-2-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 20,
+        "css": "grass-soil-way-2-4",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 21,
+        "css": "grass-soil-way-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 7
+    },
+    {
+        "id": 22,
+        "css": "grass-plant-tree-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 23,
+        "css": "grass-fence-wood-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 24,
+        "css": "grass-fence-wood-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 25,
+        "css": "grass-fence-wood-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 26,
+        "css": "grass-fence-wood-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 27,
+        "css": "grass-fence-wood-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 28,
+        "css": "grass-fence-wood-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 29,
+        "css": "grass-fence-wood-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 30,
+        "css": "grass-fence-wood-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 31,
+        "css": "grass-fence-wood-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 32,
+        "css": "grass-fence-wood-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 33,
+        "css": "grass-fence-wood-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 135,
+        "css": "grass-interactive-table-3-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 136,
+        "css": "grass-interactive-table-3-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 137,
+        "css": "grass-interactive-table-2-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 138,
+        "css": "grass-interactive-table-2-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 139,
+        "css": "grass-interactive-table-1-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 140,
+        "css": "grass-house-roof-clay-0-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 141,
+        "css": "grass-house-roof-clay-0-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 142,
+        "css": "grass-house-roof-clay-0-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 143,
+        "css": "grass-house-roof-clay-0-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 144,
+        "css": "grass-house-roof-clay-0-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 145,
+        "css": "grass-house-roof-clay-0-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 146,
+        "css": "grass-house-roof-clay-0-12",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 147,
+        "css": "grass-house-roof-clay-0-13",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 148,
+        "css": "grass-house-roof-clay-0-14",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 149,
+        "css": "grass-house-roof-stone-0-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 150,
+        "css": "grass-house-roof-stone-0-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 151,
+        "css": "grass-house-roof-stone-0-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 152,
+        "css": "grass-house-roof-stone-0-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 153,
+        "css": "grass-house-roof-stone-0-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 154,
+        "css": "grass-house-roof-stone-0-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 155,
+        "css": "grass-house-roof-stone-0-12",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 156,
+        "css": "grass-house-roof-stone-0-13",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 157,
+        "css": "grass-house-roof-stone-0-14",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 158,
+        "css": "grass-house-roof-steel-0-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 159,
+        "css": "grass-house-roof-steel-0-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 160,
+        "css": "grass-house-roof-steel-0-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 161,
+        "css": "grass-house-roof-steel-0-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 162,
+        "css": "grass-house-roof-steel-0-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 163,
+        "css": "grass-house-roof-steel-0-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 164,
+        "css": "grass-house-roof-steel-0-12",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 165,
+        "css": "grass-house-roof-steel-0-13",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 166,
+        "css": "grass-house-roof-steel-0-14",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 167,
+        "css": "grass-interactive-table-1-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 168,
+        "css": "grass-interactive-table-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 169,
+        "css": "grass-interactive-table-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 170,
+        "css": "grass-house-roof-bamboo-0-12",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 171,
+        "css": "grass-house-roof-bamboo-0-13",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 172,
+        "css": "grass-house-roof-bamboo-0-14",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 173,
+        "css": "grass-house-roof-bamboo-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 174,
+        "css": "grass-house-roof-bamboo-0-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 175,
+        "css": "grass-house-roof-bamboo-0-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 176,
+        "css": "grass-house-roof-bamboo-0-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 177,
+        "css": "grass-house-roof-bamboo-0-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 178,
+        "css": "grass-house-roof-bamboo-0-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 179,
+        "css": "grass-house-roof-bamboo-0-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 180,
+        "css": "grass-decoration-board-top-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 10
+    },
+    {
+        "id": 181,
+        "css": "grass-decoration-board-right-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 10
+    },
+    {
+        "id": 182,
+        "css": "grass-decoration-board-bottom-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 10
+    },
+    {
+        "id": 183,
+        "css": "grass-decoration-board-left-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 10
+    },
+    {
+        "id": 184,
+        "css": "grass-plant-gathering-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 185,
+        "css": "grass-plant-gathering-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 186,
+        "css": "grass-plant-gathering-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 187,
+        "css": "grass-plant-gathering-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 188,
+        "css": "grass-plant-gathering-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 189,
+        "css": "grass-plant-gathering-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 190,
+        "css": "grass-plant-gathering-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 191,
+        "css": "grass-plant-gathering-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 192,
+        "css": "grass-plant-tree-2-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 194,
+        "css": "grass-plant-tree-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 195,
+        "css": "grass-plant-tree-4-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 197,
+        "css": "grass-plant-gathering-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 198,
+        "css": "grass-plant-tree-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 199,
+        "css": "grass-plant-tree-6-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 201,
+        "css": "grass-plant-tree-8-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 203,
+        "css": "grass-plant-tree-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 8
+    },
+    {
+        "id": 204,
+        "css": "water-soil-ravine-1-1",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 3
+    },
+    {
+        "id": 205,
+        "css": "water-soil-ravine-1-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 3
+    },
+    {
+        "id": 206,
+        "css": "water-soil-ravine-1-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 207,
+        "css": "water-soil-ravine-1-4",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 3
+    },
+    {
+        "id": 208,
+        "css": "water-soil-ravine-2-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 209,
+        "css": "water-soil-ravine-2-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 210,
+        "css": "water-soil-ravine-2-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 211,
+        "css": "water-soil-ravine-2-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 212,
+        "css": "water-soil-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 213,
+        "css": "water-soil-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 214,
+        "css": "water-plant-gathering-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 3
+    },
+    {
+        "id": 215,
+        "css": "grass-soil-rock-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 6
+    },
+    {
+        "id": 216,
+        "css": "grass-soil-rock-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 6
+    },
+    {
+        "id": 217,
+        "css": "grass-soil-rock-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 6
+    },
+    {
+        "id": 225,
+        "css": "grass-house-wall-steel-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 226,
+        "css": "grass-house-wall-steel-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 227,
+        "css": "grass-soil-hill-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 228,
+        "css": "grass-soil-hill-1-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 229,
+        "css": "grass-soil-hill-1-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 230,
+        "css": "grass-soil-hill-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 231,
+        "css": "grass-soil-hill-2-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 232,
+        "css": "grass-soil-hill-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 233,
+        "css": "grass-soil-hill-3-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 234,
+        "css": "grass-soil-hill-3-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 235,
+        "css": "grass-soil-hill-3-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 236,
+        "css": "grass-soil-hill-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 237,
+        "css": "grass-soil-hill-4-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 238,
+        "css": "grass-soil-hill-4-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 239,
+        "css": "grass-soil-hill-4-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 240,
+        "css": "grass-soil-hill-4-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 241,
+        "css": "grass-soil-hill-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 242,
+        "css": "grass-soil-hill-5-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 243,
+        "css": "grass-soil-hill-5-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 244,
+        "css": "grass-soil-hill-5-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 245,
+        "css": "grass-soil-hill-5-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 4
+    },
+    {
+        "id": 246,
+        "css": "grass-soil-hill-1-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 247,
+        "css": "grass-soil-hill-1-4",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 248,
+        "css": "grass-soil-hill-1-5",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 249,
+        "css": "grass-soil-hill-1-6",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 4
+    },
+    {
+        "id": 250,
+        "css": "grass-soil-bridge-1",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 251,
+        "css": "grass-soil-bridge-1-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 252,
+        "css": "grass-soil-bridge-1-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 253,
+        "css": "water-soil-bridge-1-4",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 254,
+        "css": "water-soil-bridge-1-5",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 255,
+        "css": "grass-soil-bridge-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 256,
+        "css": "grass-soil-bridge-2-2",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 257,
+        "css": "grass-soil-bridge-2-3",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 258,
+        "css": "grass-soil-bridge-2-4",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 259,
+        "css": "grass-soil-bridge-2-5",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 260,
+        "css": "water-soil-bridge-1-6",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 261,
+        "css": "water-soil-bridge-2-6",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 262,
+        "css": "water-soil-bridge-1-7",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 263,
+        "css": "water-soil-bridge-2-7",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 5
+    },
+    {
+        "id": 264,
+        "css": "grass-tent-1-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 265,
+        "css": "grass-tent-1-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 266,
+        "css": "grass-tent-1-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 267,
+        "css": "grass-tent-1-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 268,
+        "css": "grass-tent-1-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 269,
+        "css": "grass-tent-1-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 270,
+        "css": "grass-tent-1-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 271,
+        "css": "grass-tent-1-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 272,
+        "css": "grass-tent-1-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 273,
+        "css": "grass-tent-2-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 274,
+        "css": "grass-tent-2-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 275,
+        "css": "grass-tent-2-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 276,
+        "css": "grass-tent-2-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 277,
+        "css": "grass-tent-2-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 278,
+        "css": "grass-tent-2-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 279,
+        "css": "grass-tent-2-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 280,
+        "css": "grass-tent-2-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 281,
+        "css": "grass-tent-2-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 282,
+        "css": "grass-tent-1-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 283,
+        "css": "grass-tent-1-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 284,
+        "css": "grass-tent-1-12",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 285,
+        "css": "grass-tent-3-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 286,
+        "css": "grass-tent-3-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 287,
+        "css": "grass-tent-3-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 288,
+        "css": "grass-tent-3-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 289,
+        "css": "grass-tent-3-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 290,
+        "css": "grass-tent-3-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 291,
+        "css": "grass-tent-3-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 292,
+        "css": "grass-tent-3-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 293,
+        "css": "grass-tent-3-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 294,
+        "css": "grass-tent-3-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 295,
+        "css": "grass-tent-3-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 296,
+        "css": "grass-tent-3-12",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 297,
+        "css": "grass-tent-3-13",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 298,
+        "css": "grass-tent-3-14",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 299,
+        "css": "grass-tent-3-15",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 300,
+        "css": "grass-tent-3-16",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 301,
+        "css": "grass-tent-3-17",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 302,
+        "css": "grass-tent-3-18",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 303,
+        "css": "grass-tent-3-19",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 304,
+        "css": "grass-tent-3-20",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 305,
+        "css": "grass-tent-3-21",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 306,
+        "css": "grass-tent-3-22",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 307,
+        "css": "grass-tent-3-23",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 11
+    },
+    {
+        "id": 308,
+        "css": "grass-interactive-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 309,
+        "css": "grass-interactive-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 310,
+        "css": "grass-interactive-3-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 311,
+        "css": "grass-interactive-3-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 312,
+        "css": "grass-interactive-4-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 313,
+        "css": "grass-interactive-4-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 314,
+        "css": "grass-interactive-4-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 315,
+        "css": "grass-interactive-4-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 316,
+        "css": "grass-decoration-1-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 317,
+        "css": "grass-decoration-1-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 318,
+        "css": "grass-decoration-1-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 319,
+        "css": "grass-decoration-1-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 320,
+        "css": "grass-decoration-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 321,
+        "css": "grass-decoration-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 322,
+        "css": "grass-decoration-4-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 323,
+        "css": "grass-decoration-4-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 324,
+        "css": "grass-decoration-5-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 325,
+        "css": "grass-decoration-5-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 326,
+        "css": "grass-decoration-6-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 327,
+        "css": "grass-decoration-6-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 328,
+        "css": "grass-interactive-table-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 329,
+        "css": "grass-interactive-table-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 330,
+        "css": "grass-interactive-5-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 331,
+        "css": "grass-interactive-5-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 332,
+        "css": "grass-interactive-5-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 333,
+        "css": "grass-interactive-5-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 334,
+        "css": "grass-interactive-6-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 335,
+        "css": "grass-interactive-6-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 336,
+        "css": "grass-interactive-6-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 12
+    },
+    {
+        "id": 337,
+        "css": "grass-house-roof-bamboo-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 338,
+        "css": "grass-house-roof-bamboo-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 339,
+        "css": "grass-house-roof-bamboo-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 340,
+        "css": "grass-house-wall-bamboo-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 341,
+        "css": "grass-house-wall-bamboo-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 342,
+        "css": "grass-house-wall-bamboo-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 343,
+        "css": "grass-house-wall-bamboo-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 344,
+        "css": "grass-house-wall-bamboo-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 345,
+        "css": "grass-house-wall-bamboo-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 346,
+        "css": "grass-fence-bamboo-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 347,
+        "css": "grass-fence-bamboo-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 348,
+        "css": "grass-fence-bamboo-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 349,
+        "css": "grass-fence-bamboo-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 350,
+        "css": "grass-fence-bamboo-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 351,
+        "css": "grass-fence-bamboo-6",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 352,
+        "css": "grass-fence-bamboo-7",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 353,
+        "css": "grass-fence-bamboo-8",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 354,
+        "css": "grass-fence-bamboo-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 355,
+        "css": "grass-fence-bamboo-10",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 356,
+        "css": "grass-fence-bamboo-11",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 9
+    },
+    {
+        "id": 357,
+        "css": "grass-house-wall-steel-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 358,
+        "css": "grass-house-wall-steel-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 359,
+        "css": "grass-house-wall-steel-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 360,
+        "css": "grass-house-roof-clay-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 361,
+        "css": "grass-house-roof-clay-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 362,
+        "css": "grass-house-roof-clay-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 363,
+        "css": "grass-house-roof-clay-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 364,
+        "css": "grass-house-roof-clay-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 365,
+        "css": "grass-house-roof-clay-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 366,
+        "css": "grass-house-wall-wood-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 367,
+        "css": "grass-house-wall-wood-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 368,
+        "css": "grass-house-wall-wood-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 369,
+        "css": "grass-house-roof-steel-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 370,
+        "css": "grass-house-roof-steel-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 371,
+        "css": "grass-house-roof-steel-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 372,
+        "css": "grass-house-wall-wood-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 373,
+        "css": "grass-house-wall-wood-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 374,
+        "css": "grass-house-wall-stone-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 375,
+        "css": "grass-house-wall-stone-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 376,
+        "css": "grass-house-wall-steel-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 377,
+        "css": "grass-house-roof-steel-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 378,
+        "css": "grass-house-roof-steel-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 379,
+        "css": "grass-house-roof-steel-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 380,
+        "css": "grass-house-roof-bamboo-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 381,
+        "css": "grass-house-roof-bamboo-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 382,
+        "css": "grass-house-roof-bamboo-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 383,
+        "css": "grass-house-roof-stone-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 384,
+        "css": "grass-house-roof-stone-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 385,
+        "css": "grass-house-roof-stone-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 386,
+        "css": "grass-house-roof-stone-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 387,
+        "css": "grass-house-roof-stone-0-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 388,
+        "css": "grass-house-roof-stone-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 389,
+        "css": "grass-house-wall-stone-0-0",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 390,
+        "css": "grass-house-wall-stone-0-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 391,
+        "css": "grass-house-wall-wood-0-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 392,
+        "css": "grass-house-wall-stone-0-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 393,
+        "css": "grass-house-wall-stone-0-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 15
+    },
+    {
+        "id": 394,
+        "css": "grass-decoration-8-1",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 395,
+        "css": "grass-decoration-8-2",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 396,
+        "css": "grass-decoration-8-3",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 397,
+        "css": "grass-decoration-8-4",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 398,
+        "css": "grass-decoration-8-5",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 400,
+        "css": "grass-decoration-0-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 402,
+        "css": "grass-decoration-1-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 403,
+        "css": "grass-decoration-2-9",
+        "is_door": 0,
+        "is_walk": 0,
+        "kind": 13
+    },
+    {
+        "id": 404,
+        "css": "grass-decoration-3-9",
+        "is_door": 0,
+        "is_walk": 1,
+        "kind": 13
+    }
+]

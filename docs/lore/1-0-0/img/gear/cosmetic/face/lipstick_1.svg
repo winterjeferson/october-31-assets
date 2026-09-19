@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="150px" height="450px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1500 4500"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#A000A0;stroke-width:10.0006;stroke-linecap:round}
+    .str0 {stroke:#A000A0;stroke-width:10.0006;stroke-linecap:round;stroke-linejoin:round}
+    .fil0 {fill:#A000A0}
+   ]]>
+  </style>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <ellipse class="fil0 str0" cx="750" cy="758" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="750" cy="3258" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="750" cy="2258" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="250" cy="758" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="250" cy="3258" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="1250" cy="758" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="1250" cy="3258" rx="27" ry="8"/>
+  <ellipse class="fil0 str0" cx="250" cy="2258" rx="18" ry="11"/>
+  <ellipse class="fil0 str0" cx="1250" cy="2258" rx="18" ry="21"/>
+  <path class="fil0 str1" d="M340 1261c8,-1 8,-17 -1,-15 -10,2 -26,6 -26,9 1,3 12,9 27,6z"/>
+  <path class="fil0 str1" d="M840 1261c8,-1 8,-17 -1,-15 -10,2 -26,6 -26,9 1,3 12,9 27,6z"/>
+  <path class="fil0 str1" d="M1340 1261c8,-1 8,-17 -1,-15 -10,2 -26,6 -26,9 1,3 12,9 27,6z"/>
+  <path class="fil0 str1" d="M160 1761c-8,-2 -7,-17 1,-16 10,3 27,7 26,10 -1,3 -12,8 -27,6z"/>
+  <path class="fil0 str1" d="M160 4261c-8,-2 -7,-17 1,-16 10,3 27,7 26,10 -1,3 -12,8 -27,6z"/>
+  <path class="fil0 str1" d="M660 1761c-8,-2 -7,-17 1,-16 10,3 27,7 26,10 -1,3 -12,8 -27,6z"/>
+  <path class="fil0 str1" d="M660 4261c-8,-2 -7,-17 1,-16 10,3 27,7 26,10 -1,3 -12,8 -27,6z"/>
+  <path class="fil0 str1" d="M1160 1761c-8,-2 -7,-17 1,-16 10,3 27,7 26,10 -1,3 -12,8 -27,6z"/>
+  <path class="fil0 str1" d="M1160 4261c-8,-2 -7,-17 1,-16 10,3 27,7 26,10 -1,3 -12,8 -27,6z"/>
+  <path class="fil0 str1" d="M340 3761c8,-1 8,-17 -1,-15 -10,2 -26,6 -26,9 1,3 12,9 27,6z"/>
+  <path class="fil0 str1" d="M840 3761c8,-1 8,-17 -1,-15 -10,2 -26,6 -26,9 1,3 12,9 27,6z"/>
+  <path class="fil0 str1" d="M1340 3761c8,-1 8,-17 -1,-15 -10,2 -26,6 -26,9 1,3 12,9 27,6z"/>
+ </g>
+</svg>

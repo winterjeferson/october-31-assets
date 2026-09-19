@@ -1,0 +1,369 @@
+{
+    "1": {
+        "translation": "1",
+        "kind": 1,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": 6,
+                "quantity": null,
+                "translation": "boots"
+            },
+            {
+                "id_item": null,
+                "id_task": 9,
+                "quantity": null,
+                "translation": "gloves"
+            },
+            {
+                "id_item": null,
+                "id_task": 12,
+                "quantity": null,
+                "translation": "ring"
+            },
+            {
+                "id_item": null,
+                "id_task": 15,
+                "quantity": null,
+                "translation": "skin"
+            },
+            {
+                "id_item": null,
+                "id_task": 1,
+                "quantity": null,
+                "translation": "amulet"
+            },
+            {
+                "id_item": null,
+                "id_task": 4,
+                "quantity": null,
+                "translation": "bracelet"
+            },
+            {
+                "id_item": null,
+                "id_task": 7,
+                "quantity": null,
+                "translation": "eye"
+            },
+            {
+                "id_item": null,
+                "id_task": 10,
+                "quantity": null,
+                "translation": "hair"
+            },
+            {
+                "id_item": null,
+                "id_task": 13,
+                "quantity": null,
+                "translation": "rune"
+            },
+            {
+                "id_item": null,
+                "id_task": 16,
+                "quantity": null,
+                "translation": "pants"
+            },
+            {
+                "id_item": null,
+                "id_task": 2,
+                "quantity": null,
+                "translation": "armor"
+            },
+            {
+                "id_item": null,
+                "id_task": 5,
+                "quantity": null,
+                "translation": "belt"
+            },
+            {
+                "id_item": null,
+                "id_task": 8,
+                "quantity": null,
+                "translation": "face"
+            },
+            {
+                "id_item": null,
+                "id_task": 11,
+                "quantity": null,
+                "translation": "helmet"
+            },
+            {
+                "id_item": null,
+                "id_task": 14,
+                "quantity": null,
+                "translation": "shield"
+            },
+            {
+                "id_item": null,
+                "id_task": 17,
+                "quantity": null,
+                "translation": "weapon"
+            },
+            {
+                "id_item": null,
+                "id_task": 3,
+                "quantity": null,
+                "translation": "backpack"
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 5,
+                "translation": null
+            }
+        ]
+    },
+    "2": {
+        "translation": "2",
+        "kind": 1,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": 1,
+                "quantity": null,
+                "translation": "npc"
+            },
+            {
+                "id_item": null,
+                "id_task": 2,
+                "quantity": null,
+                "translation": "battle"
+            },
+            {
+                "id_item": null,
+                "id_task": 3,
+                "quantity": null,
+                "translation": "changeMap"
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 1,
+                "translation": null
+            },
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 3,
+                "translation": null
+            }
+        ]
+    },
+    "3": {
+        "translation": "3",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 100,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 3,
+                "translation": null
+            }
+        ]
+    },
+    "4": {
+        "translation": "4",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 1000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 5,
+                "translation": null
+            }
+        ]
+    },
+    "5": {
+        "translation": "5",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 10000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 10,
+                "translation": null
+            }
+        ]
+    },
+    "6": {
+        "translation": "6",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 100000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 15,
+                "translation": null
+            }
+        ]
+    },
+    "7": {
+        "translation": "7",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": 4,
+                "id_task": null,
+                "quantity": 1000000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 20,
+                "translation": null
+            }
+        ]
+    },
+    "8": {
+        "translation": "8",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": null,
+                "quantity": 100,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 3,
+                "translation": null
+            }
+        ]
+    },
+    "9": {
+        "translation": "9",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": null,
+                "quantity": 1000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 5,
+                "translation": null
+            }
+        ]
+    },
+    "10": {
+        "translation": "10",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": null,
+                "quantity": 10000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 10,
+                "translation": null
+            }
+        ]
+    },
+    "11": {
+        "translation": "11",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": null,
+                "quantity": 100000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 15,
+                "translation": null
+            }
+        ]
+    },
+    "12": {
+        "translation": "12",
+        "kind": 2,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": null,
+                "quantity": 1000000,
+                "translation": ""
+            }
+        ],
+        "rewards": [
+            {
+                "id_item": 76,
+                "id_task": null,
+                "quantity": 20,
+                "translation": null
+            }
+        ]
+    },
+    "13": {
+        "translation": "13",
+        "kind": 3,
+        "needs": [
+            {
+                "id_item": null,
+                "id_task": null,
+                "quantity": 10,
+                "translation": ""
+            }
+        ],
+        "rewards": []
+    }
+}
