@@ -13,7 +13,7 @@ export class Analytics {
 }
 
 export class Blog {
-    static results = 12;
+    static results = 15;
     static limit;
     static offset;
     static filter = '';
