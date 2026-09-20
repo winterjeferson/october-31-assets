@@ -1,1 +1,16349 @@
-const nameSpace="gm";let ds,lo,deps={};export class Analytics{static send(t){ds.Analytics.gameEvent(t)}}export class Animation{static animatePosition(t){const{target:e,vertical:a,horizontal:s,speed:i,easing:n="linear"}=t;if(isNaN(a)||isNaN(s))return;const r=new Promise(t=>{const r=Data.player.attributes.speed,o=ds.Helper.getTranslateValue(e),d=Math.floor(o.y),l=Math.floor(o.x),c=!1===a?d:Math.floor(a),u=!1===s?l:Math.floor(s),h=void 0!==i?i:r,p=(t,e)=>`translate(${t}px, ${e}px)`,m=[{transform:p(l,d)},{transform:p(u,c)}],g={duration:h,iterations:1,easing:n,fill:"both"};e.animate(m,g).onfinish=e=>t(e)});return r}}export class Audio{static categories=["effects","music"];static audios={};static addAudio(t,e){const a=document.createElement("audio");a.src=e,a.loop=!0,a.style.display="none",a.dataset.type=t,document.body.appendChild(a),this.audios[t]=a}static buildEffectFade(t){const{from:e=null,to:a=null,targetVolume:s=1,duration:i=1e3}=t,n=i/20,r=s/20,o=ds.Helper.isString(e)?this.getAudio(e):e,d=ds.Helper.isString(a)?this.getAudio(a):a;d&&(d.volume=0,d.play());const l=o?o.volume/20:0;let c=0;const u=setInterval(()=>{if(c>=20)return clearInterval(u),o&&(o.pause(),o.volume=s),void(d&&(d.volume=s));o&&(o.volume=Math.max(0,o.volume-l)),d&&(d.volume=Math.min(s,d.volume+r)),c++},n)}static buildFile(t){return`${gbUrlAssets}audio/${gbVersion.audio}/`+t+".mp3"}static buildMusic(){if(!AudioMusic.isPlay)return;const t=this.isBattle,e={from:t?"music":"battle",to:t?"battle":"music",targetVolume:Settings.data.music.value};this.buildEffectFade(e)}static createAudioElements(){[{id:"effects",src:AudioEffects.audioEffects},{id:"music",src:AudioMusic.audioTorgotes},{id:"battle",src:AudioMusic.audioBattle}].forEach(t=>{this.addAudio(t.id,t.src)})}static getAudio(t){return this.audios[t]}static get audioEffects(){return this.getAudio("effects")}static get isBattle(){return Battle.isBattle}static init(){this.createAudioElements(),this.updateVolumeFromSettings()}static play(t){let e=t;"music"!==t&&"battle"!==t||(e=this.isBattle?"battle":"music");const a=this.getAudio(e);a&&"effects"!==t&&a.play()}static pause(t){const e=this.getAudio(t);e&&e.pause()}static setVolume(t,e){const a=this.getAudio(t);a&&(a.volume=e)}static updateVolumeFromSettings(){this.categories.forEach(t=>{const e=Settings.data[t],a=this.getAudio(t);if(a)if(e.isPlay){if("music"===t){const t={to:a,targetVolume:e.value};this.buildEffectFade(t)}}else a.pause()})}}export class AudioEffects{static buildEffectMonster(t){const e={default:"#t=0.1,0.4",worm:"#t=6.0,6.3",rat:"#t=4.1,4.7"};return e[t]?e[t]:e.default}static buildEffectWeapon(){const t=Data.player.equipments.weapon.il,e={target:t},a=Storage.getProperties(e),s=t?a.itemLoot.kind:0,i={0:"#t=0.1,0.4",2:"#t=1.0,1.5",3:"#t=2.9,3.5",4:"#t=2.2,2.8",20:"#t=5.1,5.4",21:"#t=5.1,5.4"};return i[s]?i[s]:i[0]}static get audioEffects(){return Audio.buildFile("sound-effect")}static get isPlay(){return Data.settings.effects.isPlay}static play(t){if(!this.isPlay)return;const e=t.dataset,a="player"===e.id?this.buildEffectWeapon():this.buildEffectMonster(e.kind),s=Audio.audioEffects;s.setAttribute("src",this.audioEffects+a),s.play()}}export class AudioMusic{static get audioBattle(){return Audio.buildFile("theme-battle")}static get audioTorgotes(){return Audio.buildFile("theme-torgotes")}static get isPlay(){return Data.settings.music.isPlay}}export class Camera{static limit={top:0,right:0,bottom:0,left:0};static player={top:0,left:0};static center(t=!1){this.update();const e=Data.player.attributes.speed,a=this.centerVertical(),s=this.centerHorizontal(),i=!1!==t?t:e,n={target:HTML.elMapGame,vertical:a,horizontal:s,speed:i};Animation.animatePosition(n)}static centerVertical(){return Layout.game.height/2-this.player.top-ds.Layout.tileSizeHalf}static centerHorizontal(){return Layout.game.width/2-this.player.left-ds.Layout.tileSizeHalf}static update(){Layout.resize();const t=HTML?.elMapGame?.getPosition(HTML.elGamePlayer);t&&(this.player.top=t.top,this.player.left=t.left)}}export class Character{static buildEquipments(t,e){const a=Storage.getEquipments(e,t);return a.clothes=t.clothes,a}static buildEquipmentById(t,e){const a=e?.reduce((t,e)=>(t[e.id]=e,t),{});return Object.keys(t).reduce((e,s)=>{const i=t[s];return e[s]=a?.[i]||null,e},{})}static get characters(){return Object.entries(Data.login?.characters??[])}static getItemById(t){const{data:e,filterBy:a,value:s}=t;return e.filter(t=>t[a]===s)[0]}static getEquipmentById(t,e){const a={data:t,filterBy:"id",value:e};return this.getItemById(a)}static getEquipmentIdLoreById(t,e){const a=this.getEquipmentById(t,e)?.id_lore;return a}static getItemQuantityByIdLore(t,e){const a={data:t,filterBy:"id_lore",value:e};return this.getItemById(a)?.quantity??0}static getStorageByCharcaterId(t){const e=Data.storage;return Object.values(e).filter(e=>null===e.id_character||e.id_character===t)}}export class Collectibles{static prefix="collectable";static addClick(){const t=HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id='${this.prefix}']`);HTML.elMapGame.addClick(t)}static decode(t){return ds.Helper.findById(Statics.collectibles,t)}static draw(t){const e=ds.Translation.gameLoot,a=ds.Translation.interfaceDefault.collectable;let s="";return t.forEach(t=>{const i=t.idItem,n=this.decode(i);if(!n)return;const r=n.name,o=`\n                <span>${ds.Helper.escapeHTML(e[r])}</span>. <br/>\n                ${a}.\n            `,d=Layout.buildId(this.prefix,t.id);s+=`\n                <${lo.Components.collectable}\n                    id="${d}"\n                    class="lo-collectable ds-tile"\n                    ${ds.Layout.attributePositionX}=""\n                    ${ds.Layout.attributePositionY}=""\n                    data-tooltip="${o}"\n                    data-id="${this.prefix}"\n                    data-loot="${i}"\n                    data-kind="${ds.Helper.escapeHTML(r)}"\n                    kind="${this.prefix}"\n                ></${lo.Components.collectable}>\n            `}),s}static async pickUp(t){const e=await FetchData.pickUpCollectable(t);if(!e.id)return;const a=this.decode(e.idItem);Analytics.send({event_name:"collectible_pickup",collectible_id:e.id,item_id:e.idItem,item_name:a?.name});const s=Layout.buildId(this.prefix,t);HTML.elMapGame.shadowRoot.getElementById(s).remove(),this.pickUpAddNotification()}static pickUpAddNotification(){const t=ds.Translation.gameGeneric?.item_collected,e=ds.Translation.interface.response?.check_inventory,a={content:`${t} ${e}`};Notification.add(a)}static setPosition(){const t=HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id="${this.prefix}"]`);MapGame.setPositionEntity(t)}static unBuildId(t){return Layout.unBuildId(this.prefix,t)}}export class Components{static get battle(){return this.#t("battle")}static get characterCustomization(){return this.#t("character-customization")}static get characterRotation(){return this.#t("character-rotation")}static get cHud(){return this.#t("hud")}static get cHudActionPoints(){return this.#t("hud-action-points")}static get cHudContentMoney(){return this.#t("hud-content-money")}static get cHudMenu(){return this.#t("hud-menu")}static get cHudPageAbout(){return this.buildHudPageName("about")}static get cHudPageAchievements(){return this.buildHudPageName("achievements")}static get cHudPageAdvertising(){return this.buildHudPageName("advertising")}static get cHudPageApplyCustomization(){return this.buildHudPageName("apply-customization")}static get cHudPageAttributes(){return this.buildHudPageName("attributes")}static get cHudPageBattle(){return this.buildHudPageName("battle")}static get cHudPageBuy(){return this.buildHudPageName("buy")}static get cHudPageBuyCustomization(){return this.buildHudPageName("buy-customization")}static get cHudPageCombat(){return this.buildHudPageName("combat")}static get cHudPageCraft(){return this.buildHudPageName("craft")}static get cHudPageDeposit(){return this.buildHudPageName("deposit")}static get cHudPageDetail(){return this.buildHudPageName("detail")}static get cHudPageEquipments(){return this.buildHudPageName("equipments")}static get cHudPageInventory(){return this.buildHudPageName("inventory")}static get cHudPageMap(){return this.buildHudPageName("map")}static get cHudPageMenu(){return this.buildHudPageName("menu")}static get cHudPageNPC(){return this.buildHudPageName("npc")}static get cHudPageQuest(){return this.buildHudPageName("quest")}static get cHudPageQuests(){return this.buildHudPageName("quests")}static get cHudPageRepairCombat(){return this.buildHudPageName("repair-combat")}static get cHudPageRepairMagic(){return this.buildHudPageName("repair-magic")}static get cHudPageSelectCharacter(){return this.buildHudPageName("select-character")}static get cHudPageSelectClass(){return this.buildHudPageName("select-class")}static get cHudPageSelectCustomization(){return this.buildHudPageName("select-customization")}static get cHudPageSell(){return this.buildHudPageName("sell")}static get cHudPageSettings(){return this.buildHudPageName("settings")}static get cHudPageStatistics(){return this.buildHudPageName("statistics")}static get cHudPageStore(){return this.buildHudPageName("store")}static get cHudPageStory(){return this.buildHudPageName("story")}static get cHudPageUser(){return this.buildHudPageName("user")}static get cHudPageUserDeleteAccount(){return this.buildHudPageName("user-delete-account")}static get cHudPageUserEdit(){return this.buildHudPageName("user-edit")}static get cHudPageWithdraw(){return this.buildHudPageName("withdraw")}static get cHudReferral(){return this.#t("hud-referral")}static get cHudStatus(){return this.#t("hud-status")}static get cHudTransition(){return this.#t("hud-transition")}static get components(){return[[this.game,Game],[this.battle,Battle],[this.map,MapGame],[this.characterRotation,CharacterRotation],[this.characterCustomization,CharacterCustomization],[this.cHud,Hud],[this.cHudContentMoney,HudContentMoney],[this.cHudMenu,HudMenu],[this.cHudStatus,HudStatus],[this.cHudTransition,HudTransition],[this.cHudActionPoints,HudActionPoints],[this.cHudPageAbout,HudPageAbout],[this.cHudPageAchievements,HudPageAchievements],[this.cHudPageAdvertising,HudPageAdvertising],[this.cHudPageApplyCustomization,HudPageApplyCustomization],[this.cHudPageAttributes,HudPageAttributes],[this.cHudPageBattle,HudPageBattle],[this.cHudPageBuy,HudPageBuy],[this.cHudPageBuyCustomization,HudPageBuyCustomization],[this.cHudPageCombat,HudPageCombat],[this.cHudPageCraft,HudPageCraft],[this.cHudPageDetail,HudPageDetail],[this.cHudPageEquipments,HudPageEquipments],[this.cHudPageInventory,HudPageInventory],[this.cHudPageMap,HudPageMap],[this.cHudPageMenu,HudPageMenu],[this.cHudPageNPC,HudPageNPC],[this.cHudPageQuest,HudPageQuest],[this.cHudPageQuests,HudPageQuests],[this.cHudPageRepairCombat,HudPageRepairCombat],[this.cHudPageRepairMagic,HudPageRepairMagic],[this.cHudPageSelectCharacter,HudPageSelectCharacter],[this.cHudPageSelectClass,HudPageSelectClass],[this.cHudPageSelectCustomization,HudPageSelectCustomization],[this.cHudPageSell,HudPageSell],[this.cHudPageSettings,HudPageSettings],[this.cHudPageStatistics,HudPageStatistics],[this.cHudPageStore,HudPageStore],[this.cHudPageStory,HudPageStory],[this.cHudPageUser,HudPageUser],[this.cHudPageUserDeleteAccount,HudPageUserDeleteAccount],[this.cHudPageUserEdit,HudPageUserEdit],[this.cHudPageDeposit,HudPageDeposit],[this.cHudPageWithdraw,HudPageWithdraw],[this.cHudReferral,HudReferral]]}static get game(){return this.prefixComponent}static get map(){return this.#t("map")}static get prefixComponent(){return`${ds.Components.prefixComponent}gm`}static get prefixComponentDash(){return`${this.prefixComponent}-`}static buildHudPageName(t){return this.#t(`hud-page-${t}`)}static#t(t){return ds.Components.buildName(this.prefixComponentDash,t)}}export class Data{static storage=null;static miniMap=null;static customizations=null;static map=null;static opponent=null;static player=null;static rules=null;static settings=null;static init(){Data.storage=DataProxyFactory.createDeep({},()=>Data.#e()),Data.miniMap=DataProxyFactory.createDeep({},()=>Data.updateMiniMap()),Data.customizations=DataProxyFactory.createDeep({},()=>Data.updateCustomizations()),Data.map=DataProxyFactory.createMap(()=>MapGame.updateMap());const t={onSet:t=>Data.#a(t),onDelete:(t,e)=>DataScheduler.batchDebounce(`${t}.${e}`,()=>Data.#s(t,e))},e={...t,basePath:"opponent",properties:["attributes"]};Data.opponent=DataProxyFactory.createGroup(e);const a={...t,basePath:"player",properties:["achievements","attributes","buffs","craft","customizations","equipments","map","quests","statistics","attacks","defenses","skills","stories"]};Data.player=DataProxyFactory.createGroup(a);const s={...t,basePath:"rules",properties:["skills","battle","npcs","user","achievements","reward"]};Data.rules=DataProxyFactory.createGroup(s);const i={...t,basePath:"settings",properties:["effects","music"]};Data.settings=DataProxyFactory.createGroup(i)}static getNextStorageKey(t){const e=Object.keys(t).map(Number),a=e.length?Math.max(...e):-1;return String(a+1)}static setCustomizations(t){if(!t||"object"!=typeof t)return;const e={target:Data.customizations,source:t,wrap:t=>DataProxyFactory.createDeep(t,()=>Data.updateCustomizations())};Data.#i(e),Data.updateCustomizations()}static setData(t){if(!t||"object"!=typeof t)return;const e={storage:t=>Data.setStorage(t),storageUpdated:t=>Data.setStorageUpdated(t),statisticsUpdated:t=>Data.setStatisticsUpdated(t),achievementsUpdated:t=>Data.setAchievementsUpdated(t),miniMap:t=>Data.setMiniMap(t),miniMapUpdated:t=>Data.setMiniMapUpdated(t),customizations:t=>Data.setCustomizations(t),equipments:t=>Data.setPlayerEquipments(t),capacity:t=>Data.setPlayerCapacity(t),map:t=>Data.setMap(t),isInventoryFull:()=>Data.setInventoryFull(),isLevelUp:t=>t&&Data.setLevelUp(),quests:t=>Data.setPlayerQuests(t),opponent:t=>t&&t!==[]&&Data.setOpponent(t),player:t=>Data.setPlayer(t),rules:t=>Data.setRules(t),statics:t=>Statics.updateVariables(t),characters:t=>Data.setLoginCharacters(t),user:t=>Data.setLoginUser(t)};Object.entries(e).forEach(([e,a])=>{void 0!==t[e]&&a(t[e])})}static setLoginCharacters(t){Array.isArray(t)&&(Data.#n(),Data.login.characters=t)}static setLoginUser(t){t&&"object"==typeof t&&(Data.#n(),Object.entries(t).forEach(([t,e])=>{Data.login[t]=e}))}static async setMap(t){t&&"object"==typeof t&&(HTML.elTransition.openByKind("tip"),await MapGame.updateDataMap({mapData:t}),Player.updateLayout(),Camera.center(),HTML.elTransition.close())}static setMiniMap(t){if(!t||"object"!=typeof t)return;const e={target:Data.miniMap,source:t,wrap:t=>DataProxyFactory.createDeep({doors:t},()=>Data.updateMiniMap())};Data.#i(e),Data.updateMiniMap()}static setMiniMapUpdated(t){t&&"object"==typeof t&&0!==Object.keys(t).length&&(Object.entries(t).forEach(([t,e])=>{Data.miniMap[t]?Data.miniMap[t].doors=e:Data.miniMap[t]=DataProxyFactory.createDeep({doors:e},()=>Data.updateMiniMap())}),Data.updateMiniMap())}static setOpponent(t){if(!t||"object"!=typeof t)return;const{attributes:e}=t;e&&"object"==typeof e&&Data.#r(Data.opponent,{attributes:e})}static setPlayer(t){Data.#r(Data.player,t)}static setPlayerCapacity(t){if(!t||"object"!=typeof t)return;const{capacity:e,weight:a}=t,s=Data.player.attributes;void 0!==e&&(s.capacity=e),void 0!==a&&(s.weight=a)}static setAchievementsUpdated(t){if(!Array.isArray(t)||0===t.length)return;const e=ds.Translation.gameAchievements;t.forEach(t=>{const a=e?.[`a_${t}_title`];if(!a)return;const s={content:a,color:Notification.colorDefault};Notification.add(s)}),Data.updatePlayerAchievements()}static setInventoryFull(){const t=ds.Translation.interface.response?.inventory_full;if(!t)return;const e={content:t,color:Notification.colorError};Notification.add(e)}static setLevelUp(){const t=ds.Translation.gameGeneric?.level_up,e=Data.player?.attributes?.level,a={content:`${t} ${e}`,color:Notification.colorDefault};Notification.add(a)}static setPlayerEquipments(t){Data.#o(Data.player.equipments,t),Player.updateLayout()}static setPlayerQuests(t){Data.#o(Data.player.quests,t)}static setRules(t){const{skills:e,battle:a,npcs:s,user:i,achievements:n,reward:r}=t;Data.#r(Data.rules,{skills:e,battle:a,npcs:s,user:i,achievements:n,reward:r})}static setStorage(t){DataScheduler.cancel("storage"),Object.keys(Data.storage).forEach(t=>delete Data.storage[t]),Object.entries(t).forEach(([t,e])=>{Data.storage[t]=DataProxyFactory.createDeep(e,()=>Data.#e())}),Data.#e()}static setStorageUpdated(t){const e={currentData:Data.storage,updates:t,getId:t=>t?.id,onCreate:t=>DataProxyFactory.createDeep(t,()=>Data.#e()),onFinish:()=>Data.#e()};Data.setUpdatedData(e)}static setStatisticsUpdated(t){if(!t||"object"!=typeof t||0===Object.keys(t).length)return;const e=Data.player.statistics;Object.entries(t).forEach(([t,a])=>{"object"!=typeof e[t]||null===e[t]?e[t]=a:e[t].value=a?.value??a}),Data.updatePlayerStatistics()}static setUpdatedData({currentData:t,updates:e,getId:a,onCreate:s,onUpdate:i,onFinish:n}){e&&"object"==typeof e&&(Object.values(e).forEach(e=>{if(!e||"object"!=typeof e)return;const n=a(e),r=Object.keys(t).find(e=>a(t[e])===n);if(void 0!==r){const a=t[r];return Object.entries(e).forEach(([t,e])=>{a[t]=e}),void i?.(a,e)}t[Data.getNextStorageKey(t)]=s?s(e):e}),n?.())}static updateCustomizations(){}static updateDataPlayer(t){const e=Data.login.characters.find(e=>e.id===t);Object.entries(e).forEach(([t,e])=>{const a=Data.player[t];a&&"object"==typeof a&&Object.entries(e).forEach(([t,e])=>{void 0===a[t]&&(a[t]=e)})}),Player.updateLayout()}static updateMiniMap(){ds.Helper.isElementVisible(HTML.elHudPageMap)&&HTML.elHudPageMap?.updateData?.()}static updateOpponentAttributes(t,e){const a={entity:"opponent",category:"attributes",targets:[HTML.elHudModalBattle],property:t,value:e};DataUpdater.dispatchToTargets(a)}static updatePlayerAchievements(t,e){const a={entity:"player",category:"achievements",targets:[HTML.elHudPageAchievements],property:t,value:e};DataUpdater.dispatchToTargets(a)}static updatePlayerAttributes(t,e){const a={entity:"player",category:"attributes",targets:[HTML.elHudStatus,HTML.elHudPageAttribute,HTML.elHudPageInventory,HTML.elHudModalBattle],property:t,value:e};DataUpdater.dispatchToTargets(a)}static updatePlayerCustomizations(){Player.updateLayout()}static updatePlayerMap(t,e){const a={entity:"player",category:"map",targets:[HTML.elHudPageMap],property:t,value:e};DataUpdater.dispatchToTargets(a)}static updatePlayerQuests(t,e){const a={entity:"player",category:"quests",targets:[HTML.elHudPageQuests],property:t,value:e};DataUpdater.dispatchToTargets(a)}static updatePlayerStatistics(t,e){const a={entity:"player",category:"statistics",targets:[HTML.elHudPageStatistics],property:t??"statistics",value:e??!0};DataUpdater.dispatchToTargets(a)}static updateRulesSkills(t,e){const a={el:HTML.elHudModalBattle,category:"rules",property:t,value:e};DataUpdater.scheduleComponentUpdate(a)}static updateRulesAchievements(){ds.Helper.isElementVisible(HTML.elHudPageAchievements)&&HTML.elHudPageAchievements?.updateData?.()}static updateSettings(t,e){const a={el:HTML.elHudPageSettings,category:"settings",property:t,value:e};DataUpdater.scheduleComponentUpdate(a)}static updateSettingsEffects(t,e){const a={el:HTML.elHudPageSettings,category:"settings.effects",property:t,value:e};DataUpdater.scheduleComponentUpdate(a)}static updateSettingsMusic(t,e){const a={el:HTML.elHudPageSettings,category:"settings.music",property:t,value:e};DataUpdater.scheduleComponentUpdate(a)}static updateStorage(){ds.Helper.isElementVisible(HTML.elHudPageInventory)&&HudPageInventory?.pageDetail?.redraw(),ds.Helper.isElementVisible(HTML.elHudPageEquipments)&&HudPageEquipments?.pageDetail?.redraw(),ds.Helper.isElementVisible(HTML.elHudPageNPC)&&(HudPageNPC?.pageDetail?.redraw(),HTML.elHudContentMoney?.redraw())}static#r(t,e){Object.entries(e).forEach(([e,a])=>{const s=t[e];s&&("object"!=typeof a||null===a||Array.isArray(a)?t[e]=a:Object.entries(a).forEach(([t,e])=>{s[t]=e}))})}static#i({target:t,source:e,wrap:a}){Object.keys(t).forEach(e=>delete t[e]),Object.entries(e).forEach(([e,s])=>{t[e]=a(s,e)})}static#n(){Data.login||(Data.login=DataProxyFactory.createDeep({},()=>{}))}static#s(t,e){const a=`update${ds.Helper.capitalizeString(t)}${ds.Helper.capitalizeString(e)}`;"function"==typeof Data[a]&&Data[a]()}static#e(){DataScheduler.debounce("storage",()=>Data.updateStorage())}static#a({basePath:t,property:e,target:a,prop:s,value:i}){if("object"==typeof i&&null!==i)s in a||(a[s]={}),a[s]=DataProxyFactory.createNestedObservable(i,()=>{DataScheduler.batchDebounce(`${t}.${e}`,()=>Data.#s(t,e))}),DataScheduler.batchDebounce(`${t}.${e}`,()=>Data.#s(t,e));else{a[s]=i;const n=`update${ds.Helper.capitalizeString(t)}${ds.Helper.capitalizeString(e)}`;"function"==typeof Data[n]&&Data[n](s,i)}return!0}static#o(t,e){const a=Object.keys(e||{});Object.keys(t).forEach(e=>{a.includes(e)||delete t[e]}),Object.entries(e||{}).forEach(([e,a])=>{t[e]=a})}}export class DataProxyFactory{static createDeep(t,e){return"object"!=typeof t||null===t?t:new Proxy(t,{set:(t,a,s)=>(t[a]=DataProxyFactory.createDeep(s,e),e(a,s),!0),deleteProperty:(t,a)=>(delete t[a],e(a,void 0),!0)})}static createGroup({basePath:t,properties:e,onSet:a,onDelete:s}){const i={};return e.forEach(e=>{i[e]=new Proxy({},{set:(s,i,n)=>a({basePath:t,property:e,target:s,prop:i,value:n}),deleteProperty:(a,i)=>(delete a[i],s(t,e),!0)})}),i}static createMap(t){return new Proxy({},{set:(e,a,s)=>(e[a]=s,t(),!0)})}static createNestedObservable(t,e){return new Proxy(t,{set:(t,a,s)=>(t[a]=s,e(),!0)})}}export class DataScheduler{static#d=new Map;static#l=new Map;static batchDebounce(t,e){DataScheduler.#l.set(t,e),DataScheduler.debounce("__batch__",()=>DataScheduler.#c())}static cancel(t){DataScheduler.#d.has(t)&&(clearTimeout(DataScheduler.#d.get(t)),DataScheduler.#d.delete(t))}static debounce(t,e){DataScheduler.#d.has(t)&&clearTimeout(DataScheduler.#d.get(t)),DataScheduler.#d.set(t,setTimeout(()=>{e(),DataScheduler.#d.delete(t)},0))}static#c(){DataScheduler.#l.forEach(t=>t()),DataScheduler.#l.clear()}}export class DataUpdater{static#u=new Map;static dispatchToTargets(t){const{entity:e,category:a,targets:s,property:i,value:n}=t;s.forEach(t=>{const s={el:t,category:`${e}.${a}`,property:i,value:n};DataUpdater.scheduleComponentUpdate(s)})}static flush(){DataUpdater.#u.forEach((t,e)=>{e.updates||(e.updates={}),Object.entries(t).forEach(([t,a])=>{const s=t.split(".").reduce((t,e)=>(t[e]||(t[e]={}),t[e]),e.updates);Object.assign(s,a)}),"function"==typeof e?.updateData&&e.updateData()}),DataUpdater.#u.clear()}static scheduleComponentUpdate(t){const{el:e,category:a,property:s,value:i}=t;if(!s||!e)return;DataUpdater.#u.has(e)||DataUpdater.#u.set(e,{});const n=DataUpdater.#u.get(e);n[a]||(n[a]={}),n[a][s]=i,DataScheduler.debounce("__components__",()=>DataUpdater.flush())}}export class Emoji{static agressive=[128520,128530,128544,128545,128548,128127,128128,128170];static neutral=[128512,128513,128514,128515,128516,128517,128518,128521,128522,128523,128524,128525,128526,128527,128535,128536,128537,128538,128539,128540,128541,128559,128563,128566,128406,128077,9996,129304,129305,129311,129655];static scared=[128519,128528,128529,128531,128532,128533,128534,128542,128543,128546,128547,128549,128550,128551,128552,128553,128554,128555,128556,128557,128558,128560,128561,128562,128565,128567,128078,128064,128169];static sleepy=[128564];static activate(t){const e=this.getRandomEmoji(t);this.addEmoji(t,e);const a=()=>{t.removeEventListener("mouseenter",a),this.removeEmoji(t)};t.addEventListener("mouseenter",a),setTimeout(a,3e3)}static activateChance(t,e,a=1){if(100*Math.random()>a)return;const s=this[e]??this.neutral,i=s[Math.floor(Math.random()*s.length)],n=this.buildEmoji(i);this.addEmoji(t,n),setTimeout(()=>{this.removeEmoji(t)},2e3)}static activateSleepyPlayer(){const t=MapGame.player;if(!t)return;this.sleepyPrevious=t.getAttribute("action"),t.setAttribute("action","sleep");const e=this.buildEmoji(this.sleepy[0]);this.addEmoji(t,e)}static addEmoji(t,e){const a=JSON.stringify(e);t.setAttribute(ds.Prefix.ATTR_EMOJI,a)}static buildEmoji(t){return`&#${t};`}static buildReactionEntities(){const t=this.getRandomEntity();t&&this.activate(t)}static getRandomEmoji(t){const e=this[t.getAttribute(ds.Prefix.ATTR_BEHAVIOR)]??this.neutral,a=e[Math.floor(Math.random()*e.length)];return this.buildEmoji(a)}static getRandomEntity(){const t=HTML.elMapGame.map;if(!t||!t.monsters||!t.npcs)return;const e=t.monsters.map(t=>({type:ds.Prefix.MONSTER,id:t.id})),a=t.npcs.map(t=>({type:"npc",id:t.id})),s=e.concat(a);if(!s.length)return null;const i=s[Math.floor(Math.random()*s.length)];return i.type===ds.Prefix.MONSTER?MapGame.getMonsterById(i.id):MapGame.getNPCById(i.id)}static removeSleepyPlayer(){const t=MapGame.player;if(!t)return;const e=this.sleepyPrevious??"stand";t.setAttribute("action",e),this.removeEmoji(t)}static removeEmoji(t){t.removeAttribute(ds.Prefix.ATTR_EMOJI)}}export class FetchData{static namespaceGame="Game/";static namespaceLogin="Login/";static controller={game:{advertising:`${this.namespaceGame}Advertising`,battle:`${this.namespaceGame}Battle`,character:`${this.namespaceGame}Character`,item:`${this.namespaceGame}Item`,map:`${this.namespaceGame}Map`,npc:`${this.namespaceGame}NPC`,store:`${this.namespaceGame}Store`,user:`${this.namespaceGame}User`},login:`${this.namespaceLogin}Login`};static async acceptQuest(t){const e=this.controller.game.npc,{id:a,npc:s}=t,i={controller:e,action:"acceptQuest",id:a,npc:s};return await this.fetchData(i)}static async applyCustomization(t){const e=this.controller.game.npc,{npc:a,customizations:s}=t,i={controller:e,action:"applyCustomization",npc:a,customizations:s};return await this.fetchData(i)}static async buildBattle(t){const{id:e}=t,a={controller:this.controller.game.battle,action:"buildBattle",idMonster:e};return await this.fetchData(a)}static async buyItem(t){const e=this.controller.game.npc,{id:a,il:s,npc:i,quantity:n}=t,r={controller:e,action:"buyItem",id:a,il:s,npc:i,quantity:n};return await this.fetchData(r)}static async buyCustomization(t){const e=this.controller.game.npc,{npc:a,customizations:s}=t,i={controller:e,action:"buyCustomization",npc:a,customizations:s};return await this.fetchData(i)}static async changeMap(t){const e={controller:this.controller.game.map,action:"changeMap",door:t.door};return await this.fetchData(e)}static async createNewCharacter(t){const{name:e,customizations:a,classId:s}=t,i={controller:this.controller.game.character,action:"createNewCharacter",name:e,customizations:a,classId:s};return await this.fetchData(i)}static async deleteCharacter(t){const{id:e}=t,a={controller:this.controller.game.character,action:"deleteCharacter",id:e};return await this.fetchData(a)}static async createStoreTransaction(t){const{packageId:e,paymentMethod:a}=t,s={controller:this.controller.game.store,action:"createTransaction",packageId:e,paymentMethod:a};return await this.fetchData(s)}static async getSlotPackages(){const t={controller:this.controller.game.store,action:"getSlotPackages"};return await this.fetchData(t)}static async deleteAccount(t){const{password:e}=t,a={controller:this.controller.game.user,action:"deleteAccount",password:e};return await this.fetchData(a)}static async deleteItem(t){const{id:e,il:a,quantity:s}=t,i={controller:this.controller.game.item,action:"delete",id:e,il:a,quantity:s};return await this.fetchData(i)}static async depositItem(t){const e=this.controller.game.npc,{id:a,il:s,npc:i,quantity:n}=t,r={controller:e,action:ds.Prefix.DEPOSIT,id:a,il:s,npc:i,quantity:n};return await this.fetchData(r)}static async equipItem(t){const{id:e,il:a}=t,s={controller:this.controller.game.item,action:"equip",id:e,il:a};return await this.fetchData(s)}static async fetchData(t){const e=await this.reloadOnInvalidToken(()=>ds.DataLoader.fetchData(t));return e&&Data.setData(e),e}static async reloadOnInvalidToken(t){const e=await t();return e?.isError&&e?.errorMessage===ds.Prefix.TOKEN_INVALID&&location.reload(),e}static async finishQuest(t){const e=this.controller.game.npc,{id:a,npc:s}=t,i={controller:e,action:"finishQuest",id:a,npc:s};return await this.fetchData(i)}static async getCharacter(t){const e={controller:this.controller.game.character,action:"getCharacter",id:t};return await this.fetchData(e)}static async getCraftReward(t){const e={controller:this.controller.game.npc,action:"getCraftReward",npc:t};return await this.fetchData(e)}static async getLoginData(){const t={controller:this.controller.game.user,action:"getData"};return await this.fetchData(t)}static async getMap(t){const{map:e,door:a,position:s=0}=t,i={controller:this.controller.game.map,action:"getMap",map:e,door:a,position:s};return await this.fetchData(i)}static async getNPC(t){const e={controller:this.controller.game.npc,action:"talk",name:t};return await this.fetchData(e)}static async getSkill(t){const{action:e,id:a,il:s,quantity:i}=t,n={controller:this.controller.game.battle,action:`getSkill${ds.Helper.capitalizeString(e)}`};return a&&(n.id=a),s&&(n.il=s),i&&(n.quantity=i),await this.fetchData(n)}static async getSkillOpponent(){const t={controller:this.controller.game.battle,action:"getSkillOpponent"};return await this.fetchData(t)}static async getStorePackages(){const t={controller:this.controller.game.store,action:"getPackages"};return await this.fetchData(t)}static async getStorePaymentMethods(){const t={controller:this.controller.game.store,action:"getPaymentMethods"};return await this.fetchData(t)}static async getStoreTransactionStatus(t){const e=this.controller.game.store,{transactionId:a,paymentMethod:s}=t,i={controller:e,action:"getTransactionStatus",transactionId:a,paymentMethod:s};return await this.fetchData(i)}static async logOut(){const t={controller:this.controller.login,action:"logOut"};return await this.fetchData(t)}static async pickUpCollectable(t){const e={controller:this.controller.game.map,action:"pickUpCollectable",id:t};return await this.fetchData(e)}static async repairCombat(t){const e=this.controller.game.npc,{ids:a,npc:s}=t,i={controller:e,action:"repairCombat",ids:a,npc:s};return await this.fetchData(i)}static async repairMagic(t){const e=this.controller.game.npc,{ids:a,npc:s}=t,i={controller:e,action:"repairMagic",ids:a,npc:s};return await this.fetchData(i)}static async sellItem(t){const e=this.controller.game.npc,{id:a,il:s,npc:i,quantity:n}=t,r={controller:e,action:ds.Prefix.SELL,id:a,il:s,npc:i,quantity:n};return await this.fetchData(r)}static async speedUpCraft(t){const e=this.controller.game.npc,{npc:a}=t,s={controller:e,action:"speedUpCraft",npc:a};return await this.fetchData(s)}static async submitAdvertising(t){const e=this.controller.game.advertising,{kind:a,link:s}=t,i={controller:e,action:"submit",kind:a,link:s};return await this.fetchData(i)}static async setCharacterStory(t){const e=this.controller.game.character,{idCharacter:a,act:s,scene:i}=t,n={controller:e,action:"setStory",idCharacter:a,act:s,scene:i};return await this.fetchData(n)}static async setEmail(t){const{email:e,password:a}=t,s={controller:this.controller.game.user,action:"setEmail",email:e,password:a};return await this.fetchData(s)}static async setUsername(t){const{username:e,password:a}=t,s={controller:this.controller.game.user,action:"setUsername",username:e,password:a};return await this.fetchData(s)}static async setPassword(t){const{password:e,passwordNew:a}=t,s={controller:this.controller.game.user,action:"setPassword",password:e,passwordNew:a};return await this.fetchData(s)}static async setNewsletter(t){const{newsletter:e}=t,a={controller:this.controller.game.user,action:"setNewsletter",newsletter:e};return await this.fetchData(a)}static async setUserDataEmail(){const t={controller:this.controller.login,action:"setUserEmail"};return await this.fetchData(t)}static async startCraft(t){const e=this.controller.game.npc,{id:a,il:s,npc:i,quantity:n}=t,r={controller:e,action:"startCraft",id:a,il:s,npc:i,quantity:n};return await this.fetchData(r)}static async unequipItem(t){const{id:e,il:a}=t,s={controller:this.controller.game.item,action:"unequip",id:e,il:a};return await this.fetchData(s)}static async useItem(t){const{id:e,il:a,quantity:s}=t,i={controller:this.controller.game.item,action:"useItem",id:e,il:a,quantity:s};return await this.fetchData(i)}static async withdrawItem(t){const e=this.controller.game.npc,{id:a,il:s,npc:i,quantity:n}=t,r={controller:e,action:ds.Prefix.WITHDRAW,id:a,il:s,npc:i,quantity:n};return await this.fetchData(r)}static async openBank(){const t={controller:this.controller.game.npc,action:"openBank"};return await this.fetchData(t)}}export class Hotkeys{static addEventListeners(){document.addEventListener("keydown",t=>{if(Hotkeys.isInputFocused(t))return;const e=t.key.toLowerCase(),a=Battle.isBattle;if(["F5"===t.key,t.ctrlKey&&"r"===e,t.ctrlKey&&t.shiftKey&&"r"===e,t.ctrlKey&&"F5"===t.key,t.ctrlKey&&t.shiftKey&&"F5"===t.key,t.metaKey&&"r"===e,t.metaKey&&t.shiftKey&&"r"===e,t.ctrlKey&&"w"===e,t.metaKey&&"w"===e].some(Boolean)&&a)return t.preventDefault(),void t.stopPropagation();const s=this.getData(t.key,"key"),i=s?.action,n=s?.isGameKey,r=HTML?.elGame?.isPlaying;this.isValidAction({isGameKey:n,isPlaying:r})&&this.runAction(i)},!0),window.addEventListener("beforeunload",t=>{Battle.isBattle&&(t.preventDefault(),t.returnValue="")})}static buildAction(t){return()=>{t?.callback?.()}}static buildActionOpenPage(t,e){return this.buildAction({callback:()=>{HTML.elHud.openPage({detail:{pageTarget:t,pagePosition:e}})}})}static getAction(t){const e=this.getData(t)?.action;return e}static getData(t,e="id"){return Statics.hotkeys.find(a=>a[e]===t)}static getKey(t){const e=this.getData(t)?.key;return e}static init(){this.addEventListeners()}static isInputFocused(t){return(t.composedPath?t.composedPath():[t.target,document.activeElement]).some(t=>{if(!t||!t.tagName)return!1;const e=t.tagName.toLowerCase();return"input"===e||"textarea"===e||t.isContentEditable})}static isValidAction(t){const e=t?.isGameKey,a=t?.isPlaying;let s=!0;return e&&!a&&(s=!1),s}static runAction(t){"function"==typeof t&&t()}}export class HTML{static idHud="hud";static idHudModal="hud_modal";static idHudMenu="hud_menu";static idTransition="hud_transition";static idHudPageLeft="hud_page_left";static idHudPageRight="hud_page_right";static idHudProgressExperience="hud_progress_experience";static idHudProgressLife="hud_progress_life";static idHudProgressMana="hud_progress_mana";static idHudStatus="hud_status";static idHudFooter="hud_footer";static idTooltipArrow="tooltip_arrow";static idGame="game";static idGameBattle="game_battle";static idGameMain="game_main";static idMapGame="game_map";static idGamePlayer="game_player";static get elGame(){return this.elHud.shadowRoot.getElementById(this.idGame)}static get elGamePlayer(){return this.elMapGame.shadowRoot.getElementById(this.idGamePlayer)}static get elGameBattle(){return this.elGame.shadowRoot.getElementById(this.idGameBattle)}static get elGameMain(){return this.elGame.shadowRoot.getElementById(this.idGameMain)}static get elHudContentMoney(){const t=`[data-id="${ds.Page.dataIdPage}"]`,e=Components.cHudContentMoney,a=this.elHudPageNPC.shadowRoot.querySelector(t)?.shadowRoot.querySelector(e);return a}static get elHudPageAchievements(){return this.getPage("achievements")}static get elHudPageAttributes(){return this.getPage("attributes")}static get elHudPageBattle(){return this.getPage("battle")}static get elHudPageDetail(){return this.getPage("detail")}static get elHudPageEquipments(){return this.getPage("equipments")}static get elHudPageInventory(){return this.getPage("inventory")}static get elHudPageMap(){return this.getPage("map")}static get elHudPageNPC(){return this.getPage("npc")}static get elHudPageQuests(){return this.getPage("quests")}static get elHudPageSettings(){return this.getPage("settings")}static get elHudPageStatistics(){return this.getPage("statistics")}static get elHud(){return document.getElementById(this.idHud)}static get elHudMenu(){return this.elHud.shadowRoot.getElementById(this.idHudMenu)}static get elHudPageLeft(){return this.elHud.shadowRoot.getElementById(this.idHudPageLeft)}static get elHudPageRight(){const t=this.elHud?.shadowRoot.getElementById(this.idHudPageRight);return t}static get elHudProgressExperience(){return this.elHud.shadowRoot.getElementById(this.idHudProgressExperience)}static get elHudProgressLife(){return this.elHud.shadowRoot.getElementById(this.idHudProgressLife)}static get elHudProgressMana(){return this.elHud.shadowRoot.getElementById(this.idHudProgressMana)}static get elHudModal(){return this.elHud.shadowRoot.getElementById(this.idHudModal)}static get elHudStatus(){return this.elHud.shadowRoot.getElementById(this.idHudStatus)}static get elHudFooter(){return this.elHud.shadowRoot.getElementById(this.idHudFooter)}static get elMapGame(){return this.elGame.shadowRoot.getElementById(this.idMapGame)}static get elMapGameTiles(){return this.elMapGame.shadowRoot.getElementById(this.idMapGame)}static get elTransition(){return this.elHud.shadowRoot.getElementById(this.idTransition)}static getPage(t){const e=ds.Components.prefixComponent.length,a=Components.buildHudPageName(t).slice(e);return this.elHud.shadowRoot.querySelector(`[page="${a}"]`)}}export class Interval{static interval=1e3;static idleTime=6e4;static countEmoji=0;static lastActivity=Date.now();static lastActivityEvent=0;static sleepyActive=!1;static init(){this.registerActivity(),setInterval(()=>{this.update()},this.interval)}static registerActivity(){const t=()=>{const t=Date.now();t-this.lastActivityEvent<500||(this.lastActivityEvent=t,this.lastActivity=t,this.sleepyActive&&(this.sleepyActive=!1,Emoji.removeSleepyPlayer()))};document.addEventListener("pointermove",t),document.addEventListener("keydown",t),document.addEventListener("mousedown",t)}static update(){Battle.isBattle||(this.updateEmoji(),this.updateSleepy())}static updateEmoji(){this.countEmoji++,this.countEmoji<5||(this.countEmoji=0,Emoji.buildReactionEntities())}static updateSleepy(){Date.now()-this.lastActivity<this.idleTime||this.sleepyActive||(this.sleepyActive=!0,Emoji.activateSleepyPlayer())}}export class Layout{static game={height:0,width:0};static screen={height:0,width:0};static idSeparator="_";static addEventListeners(){window.addEventListener("resize",()=>{this.resize(),Camera.center(),ds.Tooltip?.elTooltipWrapper?.handleMouseOut()})}static buildCardItem(t){const{item:e,id:a,index:s,isPrice:i,isFooter:n}=t,r=Storage.getItemDurabilityById(a),o=Storage.buildItem(s).quantity,d=e?.id_lore?e.id_lore:e,l=a??e?.id??e?.id_lore??s?.id??s?.[0]??d,c={target:d,quantity:o},u=Storage.getProperties(c),h=u?.isDurability,p=c.quantity,m={isDurability:h,quantity:p,id:l,item:u?.idLore??d,id_lore:u?.idLore??d,idLore:u?.idLore??d,kind:u?.itemLoot?.kind},g={item:e,isDurability:h,durabilityStorage:r},y={dataHandlerProps:`[${ds.Helper.buildJSONToHTML(m)}]`,icon:lo.HTML.drawLoot(g),quantity:p,isPrice:i,isFooter:n};return this.drawCardItem(y)}static buildEffectTime(t){const e=ds.Translation.gameGeneric;let a=t,s=e?.time_second;a>=86400&&e?.time_day?(a=Math.floor(a/86400),s=e.time_day):a>=3600?(a=Math.floor(a/3600),s=e?.time_hour??s):a>=60&&(a=Math.floor(a/60),s=e?.time_minute??s);const i=s.replace("(s)","");return`${a} ${1===a?i:`${i}s`}`}static buildId(t,e){return`${t+this.idSeparator+e}`}static changeThemeButton(t,e=ds.Layout.theme.menuDefault){const a=Statics.buttons[t];return a.theme=e,a}static drawButtonComponent(t){const{id:e,label:a,handler:s,handlerProps:i,theme:n,isDisabled:r=!1}=t,o=ds.Components.componentButton;return`\n            <${o}\n                data-id="${e}"\n                theme="${n}"\n                size="small"\n                label="${a}"\n                data-handler="${s}"\n                data-handler-props='${i}'\n                data-kind='button'\n                is-disabled="${r}"\n            ></${o}>\n        `}static drawCardItem(t){const{icon:e,quantity:a,dataHandlerProps:s,isPrice:i,isFooter:n=!0}=t;return`\n            <button\n                class="ds-card--small gm-card__item ${ds.Layout.theme.card}"\n                type="button"\n                data-handler="handleOpenDetails"\n                data-handler-props='${s}'\n                data-kind='button'\n            >\n                <div class="ds-card__header">\n                </div>\n                <div class="ds-card__body">\n                    ${e}\n                </div>\n                ${n?`\n            <div class="ds-card__footer ds-right">\n                <div class="ds-truncate">\n                    ${i?'<span class="ds-color-black--light">$</span> ':""}\n                    ${a}\n                </div>\n            </div>\n        `:""}\n            </button>\n        `}static drawCardItemList(t,e=!0){let a="";return t.forEach(t=>{const s=t.id_lore,i=t.id,n={target:s,quantity:t.quantity},r=Storage.getProperties(n).itemLoot.kind;if(e||!Storage.getItemKind(r).isMoney){const e={item:s,index:t,id:i};a+=this.buildCardItem(e)}}),this.drawCardWrapper(a)}static drawCardWrapper(t){return`\n            <div class="ds-row ds-card-wrapper">\n                ${t}\n            </div>\n        `}static drawEmpty(t){return`\n            <div class="ds-row gm-text-empty gm-text-destak">\n                ${t||ds.Translation.gameGeneric.no_data_yet}\n            </div>\n        `}static drawEmptyContent(){const t=ds.Translation.interfaceDefault.no_items;return this.drawEmpty(t)}static drawEmptyQuest(){const t=ds.Translation.getTranslationPage("quest").empty;return this.drawEmpty(t)}static drawSubtitle(t){return`\n            <div class="ds-row ds-center">\n                <h2 class="ds-title">${t}</h2>\n            </div>\n        `}static drawTable(t,e){const a=this.drawTableTr(t);return`\n            <table class="${ds.Layout.theme.table}">\n                <thead>\n                    ${a}\n                </thead>\n                <tbody>\n                    ${e}\n                </tbody>\n            </table>\n        `}static drawTableTr(t){return`<tr>${t}</tr>`}static drawTextItemQuantity(t,e){const a=`${Storage.getProperties({target:t}).translationName} (${e}). `;return ds.Layout.buildSpan(a)}static resize(){this.game.width=HTML.elGame?.offsetWidth,this.game.height=HTML.elGame?.offsetHeight,this.screen.width=window.innerWidth,this.screen.height=window.innerHeight}static toggleButtonDisabled(t,e){e&&(t?e.removeAttribute(ds.Prefix.ATTR_IS_DISABLED):e.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true"))}static replaceInText(t,e=!1){const a={text:t,isRuleLayout:e,ruleList:Data.rules};return ds.Helper.replaceInText(a)}static unBuildId(t,e){const a=t.length+this.idSeparator.length;return e.substring(a)}}export class Management{static temp={};static applyTranslation(){HTML.elHudStatus.updateData?.(),HTML.elHudMenu.updateData?.()}static async buildGameByCharacterId(t){HTML.elGame.setIsPlaying(!0),HTML.elTransition.openByKind("tip");const e=await FetchData.getCharacter(t),a={character:t,map:e.map,door:0};(e.player.isDeathPenalty??!1)&&Battle.showDeathPenalty(),await MapGame.updateDataMap(a),Player.id=t,Data.updateDataPlayer(t),Camera.center(),HTML.elTransition.close(),Tutorial.showAct1Scene1()}static init(t){deps=t,ds=deps.ds,lo=deps.lo,ds.Helper.addEventListenerDOM(this),ds.Tooltip.init(),ds.Notification.init(),ds.Analytics.load(),Data.init(),Layout.addEventListeners(),this.initComponents()}static initClasses(){HTML.elTransition?.init(),Hotkeys.init(),Settings.init(),Interval.init()}static initComponents(){const t=Components.cHud,e={html:`\n            <${t}\n                id="${HTML.idHud}"\n            ></${t}>\n        `};ds.Components.insert(e),ds.Components.init(Components.components)}static async handleLoaded(){this.initClasses(),await Statics.update(),await this.translate(),await FetchData.getLoginData(),HTML.elHud?.openModalSelectCharacter(!1),this.removeTransition()}static removeTransition(){setTimeout(()=>{HTML.elTransition&&(HTML.elTransition.isInitial=!1),HTML.elHud&&HTML.elHud.close(HTML.elTransition)},HTML.elTransition?.timeout)}static play(t){const e=t?.currentTarget?.id??t;ds.Page.currentFilter=void 0,HTML.elHudModal.setAttribute("is-close-button",!0),HTML.elHud.closeModal(),HTML.elHud.closeHudPages(),Audio.init();const a=Data.login?.characters?.find(t=>t.id===Number(e));Analytics.send({event_name:"game_start",character_id:e,character_level:a?.attributes?.level,character_class:a?.attributes?.class}),Management.buildGameByCharacterId(Number(e))}static async translate(){await ds.Translation.translate("game"),await ds.Translation.translate("dialog"),await ds.Translation.translate("interface"),await ds.Translation.translate("login"),this.applyTranslation()}}export class Monsters{static prefix="monster";static addClick(){const t=HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id='${this.prefix}']`);HTML.elMapGame.addClick(t)}static getById(t){return ds.Helper.findById(ds.Modules.monsters,t)}static draw(t){const e=ds.Translation.gameMonster,a=ds.Translation.interface.page_attribute.level;let s="";return t.forEach(t=>{const i=t.attributes,n=i.behavior,r=t.level,o=this.getById(t.idMonster),d=o?.translation,l=o?.walk,c=e[d],u=`\n                ${ds.Helper.escapeHTML(c)}. <br/>\n                ${a}: <span>${r}</span>\n            `,h=Layout.buildId(this.prefix,t.id),p=`\n                <${lo.Components.entity}\n                    id="${h}"\n                    class="gm-alive gm-monster"\n                    ${ds.Layout.attributePositionX}=""\n                    ${ds.Layout.attributePositionY}=""\n                    data-level="${r}"\n                    data-id="${this.prefix}"\n                    data-kind="${ds.Helper.escapeHTML(d)}"\n                    data-tooltip="${u}"\n                    data-behavior="${n}"\n                    data-walk-steps="${l}"\n                    data-speed="${i.speed??300}"\n                    kind="${this.prefix}"\n                    entity="${this.prefix}"\n                    direction="down"\n                    action="stand"\n                    is-walk-back="false"\n                    tabindex="-1"\n                ></${lo.Components.entity}>\n            `;s+=p}),s}static setPosition(){const t=HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id="${this.prefix}"]`);MapGame.setPositionEntity(t)}static unBuildId(t){return Layout.unBuildId(this.prefix,t)}}export class Notification{static colorDefault="orange";static colorError="red";static add(t){const{content:e,color:a=Notification.colorDefault,position:s="right",size:i="regular"}=t;if(Notification.#h(e))return;const n={content:e,color:a,position:s,size:i};ds.Notification.add(n)}static#h(t){const e=document.querySelectorAll(".ds-notification__text");for(const a of e)if(a.textContent.trim()===t)return!0;return!1}}export class NPCs{static prefix="npc";static addClick(){HTML.elMapGame.shadowRoot.querySelectorAll(`[kind='${this.prefix}']`).forEach(t=>{this.addListener(t)})}static addListener(t){const e=t.getAttribute("data-name"),a=t.getAttribute("data-id");t.addEventListener("click",()=>{if(this.isValidDistance(t)){if(this.isInMaintenance(e))return void this.showMaintenanceError();HudPageNPC.id=Number(a);const t={detail:{pageTarget:`${this.prefix}-${e}`,pagePosition:"left",isNPC:!0,name:e}};HTML.elHud.openPage(t)}else this.showDistanceError()})}static buildPosition(t){return t.npcs.map(t=>({id:t.id_npc,position:[t.position_x,t.position_y]}))}static draw(t){let e="";return t.forEach(t=>{const a=t.id,s=Layout.buildId(this.prefix,t.id),i=t.position,n=i[0],r=i[1],o=ds.Helper.buildJSONToHTML(t.customizations),d=ds.Helper.buildJSONToHTML(t.equipments),l=ds.Helper.escapeHTML(t.name),c=`${l}`,u=t.steps,h=t.walkRadius;e+=`\n                <${lo.Components.entity}\n                    id="${s}"\n                    class="gm-alive gm-person gm-npcs"\n                    ${ds.Layout.attributePositionX}="${n}"\n                    ${ds.Layout.attributePositionY}="${r}"\n                    ${ds.Layout.attributePositionXInitial}="${n}"\n                    ${ds.Layout.attributePositionYInitial}="${r}"\n                    data-tooltip="${c}"\n                    data-id="${a}"\n                    data-walk-steps="${u}"\n                    data-speed="300"\n                    data-name="${l}"\n                    data-walk-radius="${h}"\n                    kind="${this.prefix}"\n                    entity="person"\n                    direction="down"\n                    action="stand"\n                    is-walk-back="true"\n                    customizations=${o}\n                    equipments=${d}\n                    tabindex="-1"\n                ></${lo.Components.entity}>\n            `}),e}static getData(t){return ds.Modules.npcs.find(e=>e.id===Number(t))}static getTranslationDistance(){const t=ds.Translation.dialogDefault?.need_be_close;return t}static getTranslationMaintenance(){const t=ds.Translation.dialogDefault?.npc_unavailable;return t}static get isBankLevel(){const t=Data.rules.npcs.bank.level;return Player.attributes.level>=t}static isInMaintenance(t){const e=Data.rules?.npcs?.maintenanceNPCS;return!!e&&Boolean(e[t?.toLowerCase()])}static isValidDistance(t){const e=(t,e)=>Number(t.getAttribute((t=>ds.Layout[`attributePosition${t}`])(e))),a=HTML.elGamePlayer,s=e(t,"X"),i=e(t,"Y"),n=e(a,"X"),r=e(a,"Y"),o=Math.abs(s-n),d=Math.abs(i-r);return o<=5&&d<=5}static setPosition(t){t.forEach(t=>{const e=t.id,a=HTML.elMapGame.shadowRoot.getElementById(`${this.prefix}_${e}`),s={target:a,positionX:a.getAttribute(ds.Layout.attributePositionX),positionY:a.getAttribute(ds.Layout.attributePositionY)};HTML.elMapGame.setPosition(s)})}static showDistanceError(){const t={content:this.getTranslationDistance(),color:"orange",position:"right",size:"regular"};ds.Notification.add(t)}static showMaintenanceError(){const t={content:this.getTranslationMaintenance(),color:"orange",position:"right",size:"regular"};ds.Notification.add(t)}static updateDataNPC(t){return t.npcs.forEach(t=>{const e=t.id,a=NPCs.getData(e);t.name=a?.name,t.customizations=a?.customizations,t.equipments=a?.equipments,t.steps=a?.steps,t.walkRadius=a?.walk_radius}),t}static validateBankLevel(){const t=this.isBankLevel;if(!t){const t=ds.Translation.gameGeneric.level_bank,e={content:Layout.replaceInText(t),color:"red"};Notification.add(e)}return t}}export class PageCustomizations extends HTMLElement{_selectedKeys=new Set;static _selectsMap=new Map;addEventListenersCustomization(){const t=ds.Helper.getElementByDataId(this.shadowRoot,HudPageSelectCustomization.idCharacterCustomization);t.addEventListener(CharacterCustomization.eventCustomizationChange,e=>{this.handleCustomizationChange(e.detail),this.trackSelectedKey(e.detail),this.updateFieldPrice(t),this.toggleActionButton()})}countSelectedOptions(){const t=ds.Helper.getElementByDataId(this.shadowRoot,HudPageSelectCustomization.idCharacterCustomization);return[...t?.shadowRoot?.querySelectorAll("select")??[]].filter(t=>""!==t.value).length}static drawButton(t){return Layout.drawButtonComponent(t)}static drawNPC(t,e){this.setData();const a=CharacterCustomization.getData(e),s=Components.characterCustomization,i=Components.characterRotation,n=`\n            <div class="ds-row gm-character-customizarion">\n                <div class="ds-column gm-column--1 ds-card-wrapper">\n                    <${i}\n                        class="gm-character"\n                    ></${i}>\n                </div>\n                <div class="ds-column gm-column--2">\n                    <${s}\n                        data="${a}"\n                        data-id="${HudPageSelectCustomization.idCharacterCustomization}"\n                    ></${s}>\n                    <div class="ds-row ds-right">\n                        ${t}\n                    </div>\n                </div>\n            </div>\n        `;return HudPageNPC.drawWrapper(n)}static get cost(){return Data.rules.npcs.customization.cost}get totalCost(){return this.cost*this._selectedKeys.size}static get selectsValue(){return[...PageCustomizations._selectsMap.entries()].map(([t,e])=>({id:t,value:e}))}async handleAction(t){if(!this.isAffordable())return;this.elActionButton.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true");const e={npc:HudPageNPC.id,customizations:PageCustomizations.selectsValue},a=await t(e);return this.elActionButton.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"false"),a||void 0}handleCustomizationChange({key:t,value:e}){const a=Components.characterRotation,s=this.shadowRoot.querySelector(a);s&&s.updateCustomizations({key:t,value:e})}isAffordable(){return this.inventoryDiamonds>=this.totalCost}resetCustomizations(){const t=ds.Helper.getElementByDataId(this.shadowRoot,HudPageSelectCustomization.idCharacterCustomization);this.resetSelects(t),CharacterRotation.customizations=CharacterRotation.customizationsCurrent,CharacterRotation.equipments=CharacterRotation.equipmentsCurrent;const e=Components.characterRotation,a=this.shadowRoot.querySelector(e);a&&a.render(),this.updateFieldPrice(t),this.toggleActionButton()}resetSelects(t){(t?.shadowRoot?.querySelectorAll(ds.Components.componentSelect)??[]).forEach(t=>{t.setValue("")}),this._selectedKeys.clear(),PageCustomizations.resetMap()}static resetMap(){PageCustomizations._selectsMap.clear()}static setData(){CharacterRotation.customizations=Player.customizations,CharacterRotation.customizationsCurrent=Player.customizations,CharacterRotation.equipments=Player.equipmentsForHTML,CharacterRotation.equipmentsCurrent=Player.equipmentsForHTML}toggleActionButton(){const t=PageCustomizations._selectsMap.size>0&&this.isAffordable();Layout.toggleButtonDisabled(t,this.elActionButton)}trackSelectedKey({key:t,value:e}){""!==e&&null!=e?(this._selectedKeys.add(t),PageCustomizations._selectsMap.set(t,e)):(this._selectedKeys.delete(t),PageCustomizations._selectsMap.delete(t))}updateFieldPrice(t){const e=t.shadowRoot.getElementById(CharacterCustomization.idFieldPrice);e&&e.setAttribute("input-value",this.totalCost)}}export class PageDetail{static calculateQuantity(t,e){return{min:1,max:e?1:Player.getStorageQuantity(t)}}static calculateQuantityBuy(t,e){const a=Player.getInventoryByCurrency(e);let s=0;return t>0&&a>0&&(s=Math.floor(a/t)),{min:s>0?1:0,max:s}}static calculateQuantityWithdraw(t,e){return{min:1,max:e?1:Player.getBankStorageById(t)}}static get isBuy(){return HudPageDetail.npcAction===ds.Prefix.BUY}static get isCraft(){return HudPageDetail.npcAction===ds.Prefix.CRAFT}static get isDeposit(){return HudPageDetail.npcAction===ds.Prefix.DEPOSIT}static get isSell(){return HudPageDetail.npcAction===ds.Prefix.SELL}static get isWithdraw(){return HudPageDetail.npcAction===ds.Prefix.WITHDRAW}}export class PageDetailCraft{static idDrawReward="draw_reward";static isWaitingBack=!1;static isReward=!1;static buildTime(t){const e=PageDetailCraft.getTimeRemaining;return this._timerInterval=setInterval(()=>{const e=t.querySelector("[data-craft-timer]");if(!e)return;e.textContent=PageDetailCraft.getTimeRemaining;const a=t.querySelector(`[data-id="${Statics.buttons.speedUpCraft.id}"]`);a&&(a.setAttribute("label",PageDetailCraft.buildSpeedUpLabel()),ds.Layout.setButtonDisabled(a,Player.inventoryDiamonds<PageDetailCraft.speedUpDiamonds)),PageDetailCraft.isCraftDone&&(e.textContent="00:00",a?.remove(),clearInterval(this._timerInterval),this._timerInterval=null,PageDetailCraft.buildTimeAddButton(e,t))},1e3),setTimeout(()=>{const e=t.querySelector(`[data-id="${Statics.buttons.speedUpCraft.id}"]`);e&&e.addEventListener("click",()=>{PageDetailCraft.speedUp(t)})},50),this.drawTimer(e)}static buildTimeAddButton(t,e){const a=Layout.drawButtonComponent(Statics.buttons.back);ds.Components.insert({el:t.parentNode.parentNode,position:"afterend",html:a});const s=e.querySelector(`[data-id="${Statics.buttons.back.id}"]`);s&&s.addEventListener("click",()=>{HudPageNPC.pageDetail.handleCraftRewardBack()})}static buildTimeText(t){if(!t||t<=0)return"00:00";const e=Math.floor(t/3600),a=Math.floor(t%3600/60),s=t%60,i=t=>String(t).padStart(2,"0");return e>0?`${i(e)}:${i(a)}:${i(s)}`:`${i(a)}:${i(s)}`}static buildSpeedUp(){const t=Player.inventoryDiamonds<PageDetailCraft.speedUpDiamonds,e={...Statics.buttons.speedUpCraft,label:PageDetailCraft.buildSpeedUpLabel(),isDisabled:t};return Layout.drawButtonComponent(e)}static buildSpeedUpLabel(){const t=PageDetailCraft.speedUpDiamonds,e=ds.Translation.interfaceDefault,a=ds.Translation.gameLoot,s=e?.speed_up,i=a?.diamond;return`${s} (${t} ${i})`}static calculateQuantity(t){let e=1/0;for(const a of t){const t=Player.getInventoryByIl(a.id);if(t<a.quantity)return{min:0,max:0};const s=Math.floor(t/a.quantity);s<e&&(e=s)}return{min:e>0?1:0,max:e}}static drawRecipe(t,e=1){if(PageDetailCraft.isWaitingBack=!1,!t)return"";let a=this.drawCards(t,e);return`\n            ${Layout.drawSubtitle(this.translationDefault?.recipe)}\n            ${Layout.drawCardWrapper(a)}\n        `}static async drawReward(t){PageDetailCraft.isWaitingBack=!0;const e=await FetchData.getCraftReward(t),a=this.drawCards(e.craftResult),s=Layout.drawSubtitle(this.translationDefault?.reward),i=Layout.drawCardWrapper(a),n=this.translationGameCraft?.done_text;PageDetailCraft.isReward=!0;const r=this.normalizeItems(e.craftResult).map(t=>`${t.id}:${t.quantity}`).join(",");Analytics.send({event_name:"craft_reward",npc:t,result_items:r});const o={content:ds.Translation.interface.response.check_inventory};return Notification.add(o),`\n            ${s}\n            <div class="ds-row">\n                <p>${n}</p>\n            </div>\n            <div class="ds-row gm-detail">\n                ${i}\n            </div>\n        `}static drawCards(t,e=1){const a=this.normalizeItems(t);let s="";return a.forEach(({id:t,quantity:a})=>{const i={item:t,index:[t,a*e]};s+=Layout.buildCardItem(i)}),s}static drawTimer(t){PageDetailCraft.isWaitingBack=!0;const e=this.translation.is_crafting_title,a=this.translation.is_crafting_text;return`\n            <div class="ds-row gm-detail">\n                <div class="ds-row">\n                    ${Layout.drawSubtitle(e)}\n                </div>\n                <div class="ds-row">\n                    ${a}\n                </div>\n                <div class="ds-row">\n                    <span data-craft-timer class="gm-text-destak">\n                        ${t}\n                    </span>\n                </div>\n                <div class="ds-row ds-center">\n                    ${this.buildSpeedUp()}\n                </div>\n            </div>\n        `}static get currentCraft(){const t=[];return this.craftList.forEach(e=>{e.id_npc===HudPageNPC.id&&t.push(e)}),t}static get isCraftDone(){const t=this.currentCraft[0];if(!t)return!1;const e=ds.Helper.getNow();return t.end<=e}static get isCraftingNPC(){let t=!1;return this.currentCraft.length>0&&(t=!0),t}static get craftList(){return Data.player.craft}static get getTimeRemaining(){return this.buildTimeText(this.getTimeRemainingSeconds)}static get getTimeRemainingSeconds(){const t=this.currentCraft[0];if(!t)return 0;const e=ds.Helper.getNow(),a=t.end-e;return a>0?a:0}static get speedUpDiamonds(){const t=this.getTimeRemainingSeconds,e=Math.ceil(t/3600);return e>0?e:1}static get translationDefault(){return ds.Translation.interfaceDefault}static get translationGameCraft(){return ds.Translation.gameCraft}static normalizeItems(t){return Array.isArray(t)?t.map(t=>({id:t.id,quantity:t.quantity})):Object.entries(t).map(([t,e])=>({id:t,quantity:e}))}static async speedUp(t){const e=HudPageNPC.name,a=t.querySelector(`[data-id="${Statics.buttons.speedUpCraft.id}"]`);if(Player.inventoryDiamonds<PageDetailCraft.speedUpDiamonds)return void(a&&a.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true"));a&&a.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true");const s=await FetchData.speedUpCraft({npc:e});s?.isError?a&&a.removeAttribute(ds.Prefix.ATTR_IS_DISABLED):(clearInterval(this._timerInterval),this._timerInterval=null,HudPageNPC.pageDetail.renderCraft())}static get translation(){return ds.Translation.gameCraft}}export class PageDetailMenu{static itemProperties;static lastPageData;static addButtonBack(t){t.push(Statics.buttons.back)}static addButtonBuy(t){const e=PageDetail.isBuy,a=HudPageDetail.isFromNPC;if(e&&a){const e=Layout.changeThemeButton(ds.Prefix.BUY);t.push(e)}}static addButtonCraft(t){const e=PageDetail.isCraft,a=PageDetailCraft.isCraftDone,s=PageDetailCraft.isCraftingNPC,i=PageDetailCraft.isWaitingBack,n=HudPageDetail.isFromNPC;if(e&&!a&&!s&&n&&!i){const e=Layout.changeThemeButton(ds.Prefix.CRAFT);t.push(e)}}static addButtonDelete(t){const e=HudPageDetail?.isFromNPC,a=HudPageEquipments?.pageDetail?.args?.cssPrefix,s=Hud?.pageDetail?.from;!e&&s!==`gm-${a}`&&t.push(Statics.buttons.delete)}static addButtonDeposit(t){if(PageDetail.isDeposit){const e=Layout.changeThemeButton(ds.Prefix.DEPOSIT);t.push(e)}}static addButtonEquip(t){const e=HudPageDetail.isFromNPC;if(this.itemProperties.isEquipment&&!e){const e=this.lastPageData.from.includes("equipments")?Statics.buttons.unequip:Statics.buttons.equip;t.push(e)}}static addButtonSell(t){const e=PageDetail.isSell,a=HudPageDetail.isFromNPC;if(e&&a){const e=Layout.changeThemeButton(ds.Prefix.SELL);t.push(e)}}static addButtonUse(t){const e=HudPageDetail.isFromNPC;this.itemProperties.isUsable&&!e&&t.push(Statics.buttons.use)}static addButtonWithdraw(t){if(PageDetail.isWithdraw){const e=Layout.changeThemeButton(ds.Prefix.WITHDRAW);t.push(e)}}static drawMenu(t,e){let a="";const s=[];return this.itemProperties=t,this.lastPageData=e,this.addButtonBack(s),this.addButtonBuy(s),this.addButtonCraft(s),this.addButtonDelete(s),this.addButtonDeposit(s),this.addButtonEquip(s),this.addButtonSell(s),this.addButtonUse(s),this.addButtonWithdraw(s),s.forEach(t=>{a+=Layout.drawButtonComponent(t)}),a}}export class Pathfinding{static findPath(t,e,a){const s=new Map,i=new Map;i.set(this.getCoordToIndex(e),0);const n=[{position:e,fScore:this.heuristic(e,a)}],r=new Set;for(;n.length>0;){n.sort((t,e)=>t.fScore-e.fScore);const{position:e}=n.shift();if(e[0]===a[0]&&e[1]===a[1])return this.reconstructPath(s,e);r.add(this.getCoordToIndex(e));for(const o of this.getNeighbors(e,t)){if(r.has(this.getCoordToIndex(o)))continue;const t=i.get(this.getCoordToIndex(e))+1;if(t<(i.get(this.getCoordToIndex(o))||1/0)){s.set(this.getCoordToIndex(o),e),i.set(this.getCoordToIndex(o),t);const r=t+this.heuristic(o,a);n.some(t=>t.position[0]===o[0]&&t.position[1]===o[1])||n.push({position:o,fScore:r})}}}return null}static getCoordToIndex([t,e]){return`${t},${e}`}static getNeighbors([t,e],a){const s=[],i=[[0,-1],[0,1],[-1,0],[1,0]];for(const[n,r]of i){const i=t+n,o=e+r;this.isWalkable([i,o],a)&&s.push([i,o])}return s}static heuristic(t,e){return Math.abs(t[0]-e[0])+Math.abs(t[1]-e[1])}static isWalkable([t,e],a){return a[e]&&0===a[e][t]}static reconstructPath(t,e){const a=[e],s=new Set([this.getCoordToIndex(e)]);for(;t.has(this.getCoordToIndex(e));){const i=this.getCoordToIndex(e);if(e=t.get(i),s.has(this.getCoordToIndex(e)))return null;s.add(this.getCoordToIndex(e)),a.unshift(e)}return a}}export class Player{static id;static buildPosition(t){const e=t.playerPosition;return{position:[e.position_x,e.position_y]}}static draw(){return`\n            <${lo.Components.entity}\n                id="${HTML.idGamePlayer}"\n                class="gm-alive gm-alive"\n                entity="person"\n                ${ds.Layout.attributePositionX}=""\n                ${ds.Layout.attributePositionY}=""\n                direction="down"\n                action="stand"\n                tabindex="-1"\n            ></${lo.Components.entity}>\n        `}static get attacks(){return this.player.attacks}static get attributes(){return this.player.attributes}static get bank(){return Data.bank}static get bankReceive(){return Storage.getDataFiltered(2)}static get bankStorage(){return Storage.getDataFiltered(1)}static get buffs(){return this.player.buffs}static get customizations(){return this.player.customizations}static get defenses(){return this.player.defenses}static get inventory(){const t=Storage.getDataFiltered(0);return ds.Helper.sortData(t,"id_lore")}static get inventoryConsumables(){return Storage.getUsables(this.inventory)}static get equipments(){return this.player.equipments}static get equipmentsInStorage(){return Storage.getDataFiltered(3)}static get equipmentsForHTML(){const t=this.equipmentsInStorage;return Character.buildEquipments(this.equipments,t)}static get player(){return Data.player}static get quests(){return this.player.quests}static get statistics(){return this.player.statistics}static get stories(){return this.player.stories}static getBankStorageById(t){const e=this.bankStorage;return Character.getItemQuantityByIdLore(e,t)}static getBankStorageQuantity(t){return this.getBankStorageById(t)}static getInventoryByCurrency(t){return t===Statics.idItems.gold?this.inventoryGold:this.inventoryDiamonds}static getInventoryByIl(t){const e=this.inventory;return Character.getItemQuantityByIdLore(e,t)}static get inventoryDiamonds(){const t=Statics.idItems.diamond;return this.getInventoryByIl(t)}static get inventoryGold(){const t=Statics.idItems.gold;return this.getInventoryByIl(t)}static getStorageQuantity(t){return this.getInventoryByIl(t)}static setPosition(t){const e={target:HTML.elGamePlayer,positionX:t[0],positionY:t[1]};HTML.elMapGame.setPosition(e)}static updateCustomizations(){const t=this.customizations;lo.Entity.setCustomizations(HTML.elGamePlayer,t)}static updateEquipments(){const t=this.equipmentsForHTML;lo.Entity.setEquipments(HTML.elGamePlayer,t)}static updateLayout(){this.updateCustomizations(),this.updateEquipments()}}export class Quest{static buildFullQuestList(t){const e=ds.Modules.npcs;let a=[];return e.forEach(e=>{const s=e.quests;s&&s.forEach(s=>{const i=this.buildQuestStatus(s,t),n=i.isDone,r=i.isKnown,o=i.action,d=this.getQuestTranslationById(s),l=this.getTitle(d),c=this.getDescription(s),u={idQuest:s,idNPC:e.id,requester:e.name,isKnown:r,title:l,description:c,isDone:n,action:o};(t||r)&&a.push(u)})}),a}static buildQuestListByNPC(t){return this.buildFullQuestList(!0).filter(e=>e.idNPC===t)}static buildQuestStatus(t,e){const a=t=>Layout.drawButtonComponent(t),s=Player.quests[t],i=1===s??!1,n=void 0!==s,r=ds.HTML.drawDivCentered(ds.HTML.drawIconStatus(i));let o;return o=i||n||!e?!i&&n&&e?a(this.buildQuestStatusButton(t,ds.Prefix.FINISH)):r:a(this.buildQuestStatusButton(t,ds.Prefix.ACCEPT)),{isDone:i,isKnown:n,action:o}}static buildQuestStatusButton(t,e){const a=Statics.buttons[e],s=`["${t}"]`;return a.handlerProps=s,a.id=Layout.buildId(e,t),e===ds.Prefix.FINISH&&(a.isDisabled=this.buildQuestStatusButtonDisabled(t)),a}static buildQuestStatusButtonDisabled(t){const e=this.getQuestData(t,ds.Prefix.NEEDS)??[],a=Player.inventory,s=e.length;let i=!1;for(let t=0;t<s;t++){const s=e[t],n=s.id,r=s.quantity;if((a[n]??0)<r){i=!0;break}}return i}static get quests(){return ds.Modules.quests}static get translation(){return ds.Translation.gameQuest}static getQuestTranslationById(t){return this.quests[t].translation}static getDescription(t){const e=this.getQuestTranslationById(t),a=this.getPrefix(e),s=this.translation?.[`${a}description`];return`\n            ${s}\n            ${this.getNeeds(t)}\n            ${this.getRewards(t)}\n        `}static getQuestData(t,e){return this.quests[t][e]}static getQuestDataText(t,e){const a=this.getQuestData(t,e);let s="";if(a){const t=this.translation[e];s+=`${t} `,a.forEach(t=>{if(1===t.kind){const e=t.id,a=t.quantity;s+=Layout.drawTextItemQuantity(e,a)}})}return s}static getNeeds(t){return this.getQuestDataText(t,ds.Prefix.NEEDS)}static getRewards(t){return this.getQuestDataText(t,ds.Prefix.REWARDS)}static getPrefix(t){return`quest_${t}_`}static getTitle(t){const e=this.getPrefix(t),a=this.translation?.[`${e}title`];return a}}export class Settings{static prefix="settings";static properties=["isPlay","value"];static valueMaximum=1;static valueModifier=Settings.valueMaximum/5;static get data(){const t=ds.Storage.getValue(this.prefix);return t?JSON.parse(t):void 0}static init(){let t=this.data;t||(this.setDataInitial(),t=this.data),Audio.categories.forEach(e=>{this.properties.forEach(a=>{const s=t[e][a],i={target:e,property:a,value:s};this.setProperty(i)})})}static isDecreaseDisabled(t){return this.data[t][this.properties[1]]<=this.valueModifier}static isIncreaseDisabled(t){return this.data[t][this.properties[1]]>=this.valueMaximum}static setIsPlay(t){const{value:e,target:a}=t,s={target:a,property:this.properties[0],value:e};this.setProperty(s)}static setValue(t){const{action:e,target:a}=t,s=this.properties[1],i="increase"===e,n=this.data[a][s],r=i?n+this.valueModifier:n-this.valueModifier,o=r>this.valueMaximum?this.valueMaximum:r,d={target:a,property:s,value:i?o:r<=0?0:r};this.setProperty(d)}static setDataInitial(){this.setStorage({effects:{isPlay:!0,value:1},music:{isPlay:!0,value:1}})}static setProperty(t){const{target:e,property:a,value:s}=t;Data.settings[e][a]=s;const i=this.data;i[e][a]=s,this.setStorage(i);const n="music"===e;"value"===a&&(Audio.setVolume(e,s),n&&Audio.setVolume("battle",s)),"isPlay"===a&&(s?Audio.play(e):Audio.pause(e),n&&(s?Audio.play("battle"):Audio.pause("battle")))}static setStorage(t){const e={target:this.prefix,value:JSON.stringify(t)};ds.Storage.setValue(e)}}export class Statics{static timePerCharacter=gbIsLocalHost?0:40;static isGuest=!0;static isNewbie=!1;static idMapDivisionPadixa=25;static temp={page:"",itemData:{item:void 0,isDurability:void 0,isEquipment:void 0,isTooltip:void 0,kind:void 0}};static actions=[{id:0,label:"buy"},{id:1,label:"sell"},{id:2,label:"quest"},{id:3,label:"craft"},{id:4,label:"apply"},{id:5,label:"buyCustomization"},{id:6,label:"deposit"},{id:7,label:"withdraw"},{id:9,label:"repairMagic"},{id:10,label:"repairCombat"}];static backgroundBattle=[23,24,23,24,23,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,25,26,23,23];static get buttons(){const t=ds.Translation?.interface,e=ds.Translation?.interfaceDefault,a=ds.Translation?.loginDefault,s=t=>e?.[t],i=ds.Layout.theme,n=i.menuDefault,r=i.menuProceed,o=i.menuDanger,d=i.menuTab;return{accept:{id:"accept",label:e?.accept,handler:"handleAccept",handlerProps:'["accept"]',theme:r},apply:{id:"apply",label:e?.apply,handler:"handleApply",handlerProps:'["apply"]',theme:n},back:{id:"back",label:e?.back,handler:"handleBack",handlerProps:'["back"]',theme:n},cancel:{id:"cancel",label:e?.cancel,handler:"handleCancel",handlerProps:'["cancel"]',theme:n},buy:{id:"buy",label:e?.buy,handler:"handleBuy",handlerProps:'["buy"]',theme:n},continue:{id:"continue",label:e?.continue,handler:"handleContinue",handlerProps:'["craft"]',theme:n},craft:{id:"craft",label:e?.craft,handler:"handleCraft",handlerProps:'["craft"]',theme:n},deposit:{id:"deposit",label:e?.deposit,handler:"handleDeposit",handlerProps:'["deposit"]',theme:n},delete:{id:"delete",label:e?.delete,handler:"handleDelete",handlerProps:'["delete"]',theme:o},deleteAccount:{id:"deleteAccount",label:e?.delete_account,handler:"handleDeleteAccount",handlerProps:'["delete"]',theme:o},equip:{id:"equip",label:e?.equip,handler:"handleEquip",handlerProps:'["equip"]',theme:n},finish:{id:"finish",label:e?.finish,handler:"handleFinish",handlerProps:'["finish"]',theme:r},repair:{id:"repair",label:e?.repair,handler:"handleRepair",handlerProps:'["repair"]',theme:n},repairAll:{id:"repair-all",label:e?.repair_all,handler:"handleRepairAll",handlerProps:'["repairAll"]',theme:n},sell:{id:"sell",label:e?.sell,handler:"handleSell",handlerProps:'["sell"]',theme:n},speedUpCraft:{id:"speedUpCraft",label:"XXXXX",handler:"handleSpeedUpCraft",handlerProps:'["speedUpCraft"]',theme:r},unequip:{id:"unequip",label:e?.unequip,handler:"handleUnequip",handlerProps:'["unequip"]',theme:n},use:{id:"use",label:e?.use,handler:"handleUse",handlerProps:'["use"]',theme:n},quest:{id:"quest",label:t?.page_quest.title,handler:"handleOpenPage",handlerProps:'["quest"]',theme:n},filterAbout:{id:"gm-hud-page-about",label:e?.about,handler:"handleOpenPage",handlerProps:'["gm-hud-page-about"]',theme:d},filterAll:{id:"all",label:s("all"),handler:"handleFilter",handlerProps:'["all"]',theme:d},filterApply:{id:"gm-hud-page-apply-customization",label:s("apply"),handler:"handleOpenPage",handlerProps:'["gm-hud-page-apply-customization"]',theme:d},filterBuy:{id:"gm-hud-page-buy",label:e?.buy,handler:"handleOpenPage",handlerProps:'["gm-hud-page-buy"]',theme:d},filterBuyCustomization:{id:"gm-hud-page-buy-customization",label:e?.buy,handler:"handleOpenPage",handlerProps:'["gm-hud-page-buy-customization"]',theme:d},filterCollectable:{id:"collectable",label:s("collectable"),handler:"handleFilter",handlerProps:'["collectable"]',theme:d},filterCombat:{id:"gm-hud-page-combat",label:e?.combat,handler:"handleOpenPage",handlerProps:'["gm-hud-page-combat"]',theme:d},filterCraft:{id:"gm-hud-page-craft",label:e?.craft,handler:"handleOpenPage",handlerProps:'["gm-hud-page-craft"]',theme:d},filterDeposit:{id:"gm-hud-page-deposit",label:s("deposit"),handler:"handleOpenPage",handlerProps:'["gm-hud-page-deposit"]',theme:d},filterEquipment:{id:"equipment",label:s("equipment"),handler:"handleFilter",handlerProps:'["equipment"]',theme:d},filterMoney:{id:"money",label:s("money"),handler:"handleFilter",handlerProps:'["money"]',theme:d},filterQuest:{id:"gm-hud-page-quest",label:t?.page_quest.title,handler:"handleOpenPage",handlerProps:'["gm-hud-page-quest"]',theme:d},filterRepairCombat:{id:"gm-hud-page-repair-combat",label:e?.repair,handler:"handleOpenPage",handlerProps:'["gm-hud-page-repair-combat"]',theme:d},filterRepairMagic:{id:"gm-hud-page-repair-magic",label:e?.repair,handler:"handleOpenPage",handlerProps:'["gm-hud-page-repair-magic"]',theme:d},filterSell:{id:"gm-hud-page-sell",label:e?.sell,handler:"handleOpenPage",handlerProps:'["gm-hud-page-sell"]',theme:d},filterStatistics:{id:"gm-hud-page-statistics",label:e?.statistics,handler:"handleOpenPage",handlerProps:'["gm-hud-page-statistics"]',theme:d},filterResources:{id:"resources",label:s("resources"),handler:"handleFilter",handlerProps:'["resources"]',theme:d},filterUsable:{id:"usable",label:s("usable"),handler:"handleFilter",handlerProps:'["usable"]',theme:d},filterUser:{id:"gm-hud-page-user",label:a?.user,handler:"handleOpenPage",handlerProps:'["gm-hud-page-user"]',theme:d},filterWithdraw:{id:"gm-hud-page-withdraw",label:s("withdraw"),handler:"handleOpenPage",handlerProps:'["gm-hud-page-withdraw"]',theme:d},mainAchievements:{id:`${HTML.idHudMenu}_achievements`,pageTarget:"achievements",icon:"achievements",translation:"achievements",label:t?.page_achievement.title},mainAttributes:{id:`${HTML.idHudMenu}_attributes`,pageTarget:"attributes",icon:"profile",translation:"attributes",label:t?.page_attribute.title},mainEquipments:{id:`${HTML.idHudMenu}_equipments`,pageTarget:"equipments",icon:"equipments",translation:"equipments",label:t?.page_equipments.title},mainInventory:{id:`${HTML.idHudMenu}_inventory`,pageTarget:"inventory",icon:"inventory",translation:"inventory",label:t?.page_inventory.title},mainMap:{id:`${HTML.idHudMenu}_map`,pageTarget:"map",icon:"map",translation:"map",label:t?.page_map.title},mainMenu:{id:`${HTML.idHudMenu}_menu`,pageTarget:"menu",icon:"menu",translation:"menu",css:"ds-hide--tablet",label:t?.page_menu.title},mainQuests:{id:`${HTML.idHudMenu}_quests`,pageTarget:"quests",icon:"quests",translation:"quests",label:t?.page_quest.title},mainSettings:{id:`${HTML.idHudMenu}_settings`,pageTarget:"settings",icon:"settings",translation:"settings",label:t?.page_setting.title},mainStore:{id:`${HTML.idHudMenu}_store`,pageTarget:"store",icon:"store",translation:"store",label:t?.page_store?.title},withdraw:{id:"withdraw",label:e?.withdraw,handler:"handleWithdraw",handlerProps:'["withdraw"]',theme:n}}}static get buttonsMainMenu(){return[Statics?.buttons?.mainAttributes,Statics?.buttons?.mainEquipments,Statics?.buttons?.mainInventory,Statics?.buttons?.mainMap,Statics?.buttons?.mainQuests,Statics?.buttons?.mainAchievements,Statics?.buttons?.mainStore,Statics?.buttons?.mainSettings]}static crafts=[{id:0,label:"wood"},{id:1,label:"plant"},{id:2,label:"fabric"},{id:3,label:"drawWell"},{id:4,label:"witch"},{id:5,label:"stone"}];static classes={0:{class:"warrior",attribute:"strength",customizations:{clothes:52,eye:2,hair:2,skin:3},equipments:{boot:61,face:49,gloves:28,hair:45,helmet:23,shield:32,pants:35,weapon:14}},1:{class:"wizard",attribute:"intelligence",customizations:{clothes:53,eye:4,hair:7,skin:0},equipments:{boot:61,hair:48,helmet:51,pants:35,weapon:81}},2:{class:"hunter",attribute:"dexterity",customizations:{clothes:52,eye:0,hair:6,skin:2},equipments:{armor:29,boot:61,hair:46,skin:52,pants:35,weapon:84}},3:{class:"merchant",attribute:"vitality",customizations:{clothes:53,eye:6,hair:5,skin:1},equipments:{armor:29,boot:61,hair:47,skin:53,pants:35,weapon:17}}};static collectibles=[{id:108,name:"plant_bamboo"},{id:116,name:"plant_fiber"},{id:129,name:"limestone"}];static equipments=[];static hotkeys=[{id:"attributes",key:"a",action:Hotkeys.buildActionOpenPage("attributes","right"),isGameKey:!0},{id:"settings",key:"c",action:Hotkeys.buildActionOpenPage("settings","right"),isGameKey:!0},{id:"inventory",key:"i",action:Hotkeys.buildActionOpenPage("inventory","right"),isGameKey:!0},{id:"equipments",key:"e",action:Hotkeys.buildActionOpenPage("equipments","right"),isGameKey:!0},{id:"map",key:"m",action:Hotkeys.buildActionOpenPage("map","right"),isGameKey:!0},{id:"quests",key:"q",action:Hotkeys.buildActionOpenPage("quests","right"),isGameKey:!0},{id:"achievements",key:"d",action:Hotkeys.buildActionOpenPage("achievements","right"),isGameKey:!0},{id:"store",key:"s",action:Hotkeys.buildActionOpenPage("store","right"),isGameKey:!0},{id:"useMana",key:"t",action:Hotkeys.buildAction({callback:()=>gameMenu.useItem(5)}),isGameKey:!0},{id:"useLife",key:"u",action:Hotkeys.buildAction({callback:()=>gameMenu.useItem(11)}),isGameKey:!0},{id:"useRejuvenation",key:"y",action:Hotkeys.buildAction({callback:()=>gameMenu.useItem(8)}),isGameKey:!0},{id:"esc",key:"Escape",action:Hotkeys.buildAction({callback:()=>{HTML.elHud.closeHudPages(),HTML.elHud.closeModal()}}),isGameKey:!1}];static idItems={gold:4,diamond:76};static link={blog:gbUrlsSite.blog,discord:gbUrls.discord,facebook:gbUrls.facebook,instagram:gbUrls.instagram,youtube:gbUrls.youtube};static get skills(){const t="lo-animation-skill-",e=`${t}punch`;return[{id:"attackColdTouch",css:e,isMoving:!1},{id:"attackCoinThrow",css:`${t}coin-throw`,isMoving:!0},{id:"attackFireball",css:`${t}fireball`,isMoving:!0},{id:"attackFireTouch",css:e,isMoving:!1},{id:"attackLightningTouch",css:e,isMoving:!1},{id:"attackMelee",css:e,isMoving:!1},{id:"attackMeleeDouble",css:e,isMoving:!0},{id:"attackMultipleArrows",css:`${t}arrow`,isMoving:!0},{id:"attackPoisonTouch",css:e,isMoving:!1},{id:"attackThrowWeapon",css:`${t}throw-weapon`,isMoving:!0}]}static async update(){await ds.Modules.getItems(),await ds.Modules.getTiles(),await ds.Modules.getNPCs(),await ds.Modules.getMonsters(),await ds.Modules.getQuests(),await ds.Modules.getAchievements()}static async updateVariables(t){t.equipments&&(this.equipments=t.equipments),t.stories&&(this.stories=t.stories),t.itemsKind&&(ds.Modules.itemsKind=t.itemsKind,ds.Modules.equipmentsId=t.itemsKind.filter(t=>t.translation.startsWith("equipment_")).map(t=>t.id))}}export class Storage{static get storage(){return Character.getStorageByCharcaterId(Player.id)}static getDataFiltered(t){const e=this.storage;if(!Array.isArray(e))return[];const a=1===t||2===t;return e.filter(e=>e.stored_at===t&&((t=>t.id_character===Player.id)(e)||(t=>a&&null===t.id_character)(e)))}static getEquipments(t,e){return Object.fromEntries(Object.entries(e).map(([e,a])=>{const s=Character.getEquipmentById(t,a);return[e,s?s.id_lore:null]}))}static buildItem(t){if(!t)return;let e,a;if(t.id_lore)e=t.id_lore,a=t.quantity;else if(t[1]){const s=t[1];e=s?.il?s:Number(t[0]),a=s?.il?1:s}else e=t.il,a=t.quantity;return{item:e,quantity:a}}static getItemById(t){const e=Data.storage;return Object.values(e).filter(e=>e.id===t)[0]}static getItemDurabilityById(t){const e=this.getItemById(t)?.durability;return e}static getIdByTranslation(t){const e=ds.Modules.itemsKind.find(e=>e.translation===t);return e?e.id:null}static getItemKind(t){let e={isResources:!1,isMoney:!1,isUsable:!1,isCollectable:!1};const a=this.getTranslationKindById(t);return"resources"===a&&(e.isResources=!0),"money"===a&&(e.isMoney=!0),"usable"===a&&(e.isUsable=!0),"collectable"===a&&(e.isCollectable=!0),e}static getProperties(t){const{id:e,target:a,quantity:s=1}=t;if(!a)return;const i=ds.Helper.findById(ds.Modules.items,Number(a)),n=i.durability>0,r=i?.translation,o=ds.Translation?.gameEquipment?.[r],d=ds.Translation.gameLoot,l=d?.[r],c=o||l,u=d?.[`${r}_description`],h=ds.Translation.getTranslationPage("attributes").name,p=ds.Translation.interfaceDefault.amount,m=i?.weight?i?.weight:1,g=i?.kind,y=t=>Storage.getIdByTranslation(t)===g,b=y("usable"),P=y("money"),w=y("resources"),f=y("collectable");return{id:e,isDurability:n,isEquipment:this.isEquipment(g),isMoney:P,isUsable:b,isResources:w,isCollectable:f,itemLoot:i,translationName:c,translationDescription:u,translationNameLabel:h,translationQuantity:p,weight:m,quantity:s,idLore:a}}static getUsables(t){let e=[];return t.forEach(t=>{const a={id:t.id,target:t.id_lore,quantity:t.quantity},s=this.getProperties(a);s.isUsable&&e.push(s)}),e}static getTranslationById=t=>{const e=ds.Helper.findById(ds.Modules.items,Number(t));return e?e.translation:null};static getTranslationKindById=t=>{const e=ds.Modules.itemsKind.find(e=>e.id===t);return e?e.translation:null};static isEquipment(t){return ds.Modules.equipmentsId.includes(t)}}export class Translation{static buildTitlePrice(t){const e=ds.Translation.getTranslationPage("detail").price,a=this.translation.gameLoot,s=a.coin_bronze,i=a.diamond;return`${e}: (${t===Statics.idItems.gold?s:i})`}static buildTitlePriceDiamond(){return Translation.buildTitlePrice(76)}static buildRewardText(t){return`${t} (${this.translation.gameLoot.diamond})`}static buildTitlePriceGold(){return Translation.buildTitlePrice(4)}static get customizationDescription(){const t=this.translation?.interface?.page_select_customization?.description;return t}static get customizationTitle(){const t=this.translation?.interface?.page_select_customization?.description;return t}static get translation(){return ds.Translation}}export class Tutorial{static getIdByActAndScene(t,e){const a=Statics.stories;for(const[s,i]of Object.entries(a))if(i.act===t&&i.scene===e)return Number(s);return null}static hasStories(t){const e=Player.stories;if(!e)return!1;const a=Object.values(e).map(t=>t.id);return t.every(t=>a.includes(t))}static isShowModal(t,e){const a=this.getIdByActAndScene(t,e),s=Player.stories;return!s||!(a in s)}static showTutorial(t,e){HTML.elHud.openModalStory(t,e)}static showScene(t,e){this.isShowModal(t,e)&&this.showTutorial(t,e)}static showAct1Scene1(){this.showScene(1,1)}static showAct1Scene2(){this.showScene(1,2)}static showAct1Scene3(t){const e=t===Statics.idMapDivisionPadixa,a=this.hasStories([1,2]);e&&a&&this.showScene(1,3)}}export class Walk{static lastStep={x:0,y:0};static isWalking=!1;static cancelCurrentWalk=!1;static getOccupation(t){const{el:e,x:a,y:s}=t;if(!this.isPlayer(e))return;const i=HTML.elMapGame.getOccupation(a,s);if(!i||!i.target)return void console.warn(`No valid target at (${a}, ${s})`);const n=i.target,r=n.getAttribute("kind");if(r===Monsters.prefix&&(this.cancelCurrentWalk=!0,HTML.elGameBattle.build(n)),r===Collectibles.prefix){const t=Layout.unBuildId(Collectibles.prefix,n.id);Collectibles.pickUp(t)}}static isPlayer(t){return t===HTML.elGamePlayer}static updateEntityState(t,e,a){t.setAttribute("direction",e),t.setAttribute("action",a)}static verifyDirection(t,e){const a=Number(t.getAttribute(ds.Prefix.ATTR_DATA_POSITION_X));if(e.x>a)return"right";if(e.x<a)return"left";const s=Number(t.getAttribute(ds.Prefix.ATTR_DATA_POSITION_Y));return e.y>s?"down":e.y<s?"up":"down"}static async walk(t){const{el:e,positionXFrom:a,positionXTo:s,positionYTo:i,positionYFrom:n}=t,r=this.isPlayer(e),o=HTML.elGameBattle.isBattle;if(!r&&o)return;if(this.isWalking&&r)return void(this.cancelCurrentWalk=!0);const d=Number(r?e.getAttribute(ds.Prefix.ATTR_DATA_POSITION_X):a),l=Number(r?e.getAttribute(ds.Prefix.ATTR_DATA_POSITION_Y):n),c=Number(s),u=Number(i),h=HTML.elMapGame.findPath({start:[d,l],end:[c,u]});if(!h||0===h.length)return;if(h[0][0]===d&&h[0][1]===l&&h.shift(),e.setAttribute("data-path",JSON.stringify(h)),r&&(this.cancelCurrentWalk=!1,this.isWalking=!0),h.length>0){const t=this.verifyDirection(e,{x:h[0][0],y:h[0][1]});this.updateEntityState(e,t,"walk")}const p={el:e,path:h,positionXFrom:d,positionYFrom:l};await this.walkLoop(p)}static walkClick(t){const e=t.target.dataset,a=Number(e.positionX),s=Number(e.positionY),i={el:HTML.elGamePlayer,positionXTo:a,positionYTo:s};Walk.walk(i)}static async walkLoop(t){const{el:e}=t,a=this.isPlayer(e);let s=JSON.parse(e.getAttribute("data-path")),i="";for(;s.length>0&&(!a||!this.cancelCurrentWalk);){const t={x:s[0][0],y:s[0][1]};i=this.verifyDirection(e,t),this.updateEntityState(e,i,"walk"),s.shift(),e.setAttribute("data-path",JSON.stringify(s)),await this.walkAnimation({el:e,direction:i},[t.x,t.y]);const a=0===s.length,n={el:e,x:t.x,y:t.y,isLastStep:a};this.getOccupation(n)}a&&this.walkEndPlayer(t),this.updateEntityState(e,i,"stand")}static walkEndPlayer(t){this.isWalking=!1;const e=t.path.at(-1);if(!e)return;const a=e[0],s=e[1],i={map:HTML.elMapGame.elMap,x:a,y:s},n=ds.MapGame.getTileByPosition(i).getAttribute("data-id"),r=HTML.elMapGame.map.doors.indexOf(n);-1!==r&&MapGame.changeMap(r)}static walkAnimation(t,e){const{el:a}=t,s=this.isPlayer(a);s&&this.walkMoveMap(t);const i=s?Data.player.attributes.speed:Number(a.getAttribute("data-speed"))||300,n=ds.Layout.tileSize;return a.setAttribute(ds.Layout.attributePositionX,e[0]),a.setAttribute(ds.Layout.attributePositionY,e[1]),Animation.animatePosition({target:a,vertical:e[1]*n,horizontal:e[0]*n,speed:i})}static walkMoveMap(t){const{direction:e}=t,a=ds.Helper.getTranslateValue(HTML.elMapGame),s=ds.Layout.tileSize;let i=a.x,n=a.y;"left"===e&&(i+=s),"right"===e&&(i-=s),"up"===e&&(n+=s),"down"===e&&(n-=s);const r={target:HTML.elMapGame,vertical:n,horizontal:i,speed:Data.player.attributes.speed};Animation.animatePosition(r),Camera.center()}}export class BaseComponent extends HTMLElement{#p=null;connectedCallback(){this.render(),this.rebindListeners()}rebindListeners(){this.#p?.abort(),this.#p=new AbortController,this.addEventListeners(this.#p.signal)}render(){}addEventListeners(){}}export class Battle extends HTMLElement{args={context:this};monster;static monsterData;static isBattle=!1;turnCurrent;turnLast;constructor(){super(),this.attachShadow({mode:"open"}),this.render()}get isTurnPlayer(){return this.turnCurrent===ds.Prefix.PLAYER}async build(t){if(!t)return;HTML.elTransition.openByKind("battle");const e=Monsters.unBuildId(t.getAttribute("id")),a={id:e},s=await FetchData.buildBattle(a);if(!s)return;this.buildMonster(t,s),Battle.isBattle=!0,this.modifyLayout(),this.turnCurrent=s.turn,Audio.buildMusic();const i=t.getAttribute("data-level"),n=Data.player?.attributes?.level;Analytics.send({event_name:"battle_start",monster_id:e,monster_level:i,player_level:n}),setTimeout(()=>{HTML.elTransition.close(),HTML.elHud.openModalBattle(t),Data.setData(s)},HTML.elTransition.timeout3)}async buildMonster(t,e){Battle.monsterData=e,this.monster=t}draw(){return""}async getTurn(){return FetchData.getTurn()}modifyLayout(){const t="gm-bars-overlay",e=Battle.isBattle,a=HTML.elHudFooter,s=HTML.elHudMenu;e?(ds.Helper.addClass(a,t),s.disableButtons()):(ds.Helper.removeClass(a,t),s.enableButtons())}render(){const t=this.draw();ds.Components.render(this.args,t)}removeMonster(){const t=this.monster.getAttribute("id"),e=HTML.elMapGame.shadowRoot.getElementById(t);e?.remove()}static showDeathPenalty(){const t=ds.Translation.gameBattle,e=`${t.abandoned} ${t.lose}`,a={color:"red",content:Layout.replaceInText(e)};Notification.add(a)}unbuild(){Battle.isBattle=!1,this.modifyLayout(),this.removeMonster(),HTML.elHud.close(HTML.elHudModal),Audio.buildMusic()}}export class CharacterCustomization extends HTMLElement{args={context:this};idFieldName="name";static idFieldPrice="field_price";static eventNameChange="nameChange";static eventCustomizationChange="customizationChange";constructor(){super(),this.attachShadow({mode:"open"}),this.render(),this.addEventListeners()}addEventListeners(){this.isFullContent&&this.elFieldNameInput.addEventListener("input",()=>{this.dispatchNameChange()}),this.addEventListenersSelects()}addEventListenersSelects(){const t=ds.Components.componentSelect;this.shadowRoot.querySelectorAll(t).forEach(t=>{t.addEventListener("change",t=>{this.dispatchCustomizationChange(t)})})}buildDrawData(){const t=ds.Translation.gameEquipment,e=ds.Translation.gamePlayer,a=this.getAttribute("data"),s=a?JSON.parse(decodeURIComponent(a)):{},i=this.buildItems({list:s.clothesDefault||[]}),n=this.buildItems({list:s.hairDefault||[]});return{clothes:this.drawSelect({id:"clothes",css:ds.Layout.cssFormField,label:t?.clothes,options:this.buildOptions(i),key:"clothes"}),hair:this.drawSelect({id:"hair_equipment",css:ds.Layout.cssFormField,label:t?.hair,options:this.buildOptions(n),key:"hair_equipment"}),eye:this.drawSelect({id:"eye",css:ds.Layout.cssFormField,label:e?.color_eye,options:this.buildOptions(this.buildTranslatedOptions({list:s.colors||[]})),key:"eye"}),skin:this.drawSelect({id:"skin",css:ds.Layout.cssFormField,label:e?.color_skin,options:this.buildOptions(this.buildTranslatedOptions({list:s.skins||[]})),key:"skin"}),hairColor:this.drawSelect({id:"hair",css:ds.Layout.cssFormField,label:e?.color_hair,options:this.buildOptions(this.buildTranslatedOptions({list:s.colors||[]})),key:"hair"})}}buildItems(t){return t.list.map((t,e)=>{const a=ds.Helper.findById(ds.Modules.items,Number(t));return{label:`${ds.Translation.gameCustomization?.[a.translation]||a.translation} ${e+1}`,id_customization:t}})}buildOptions(t){return JSON.stringify({label:t.map(t=>t.label),value:t.map(t=>t.id_customization)})}buildTranslatedOptions(t){return t.list.map(t=>({...t,label:ds.Translation.gameCustomization?.[t.label]||t.label}))}dispatchCustomizationChange(t){const e=t.target.getAttribute("data-key"),a=t.detail.value,s=new CustomEvent(CharacterCustomization.eventCustomizationChange,{bubbles:!0,composed:!0,detail:{key:e,value:a}});this.dispatchEvent(s)}dispatchNameChange(){const t=new CustomEvent(CharacterCustomization.eventNameChange,{bubbles:!0,composed:!0});this.dispatchEvent(t)}draw(){const t=this.buildDrawData();return`\n            <form class="ds-form form--readonly">\n                ${this.drawContent(t)}\n            </form>\n        `}drawContent(t){let e="";return this.isFullContent&&(e+=this.drawContentFull(t)),e+=this.drawContentColors(t),e}drawContentColors(t){let e="";const{eye:a,skin:s,hairColor:i}=t;if(this.isFullContent)e=`\n                <div class="ds-row">\n                    ${a}\n                    ${s}\n                    ${i}\n                </div>\n            `;else{const t=Translation.buildTitlePrice();e=`\n                <div class="ds-row">\n                    <div class="ds-row">\n                        ${a}\n                        ${s}\n                    </div>\n                    <div class="ds-row">\n                        ${i}\n                    </div>\n                    <div class="ds-row">\n                        ${ds.Layout.drawField({label:t,value:0,id:CharacterCustomization.idFieldPrice})}\n                    </div>\n                </div>\n            `}return e}drawContentFull(t){const{clothes:e,hair:a}=t;return`\n            ${this.drawNameField()}\n            <div class="ds-row">\n                ${e}\n                ${a}\n            </div>\n        `}drawNameField(){const t=ds.Layout.cssFormField,e=ds.Translation.getTranslationPage("attributes"),a=ds.Components.componentFormField,s=ds.Layout.theme.form;return`\n            <div class="ds-row">\n                <${a}\n                    class="${t} ds-row"\n                    label="${e?.name}"\n                    id="${this.idFieldName}"\n                    input-value=""\n                    css-wrapper="${s}"\n                ></${a}>\n            </div>\n        `}drawSelect(t){const{id:e,css:a,label:s,options:i,key:n}=t,r=ds.Components.componentSelect;return`\n            <${r}\n                id="${e}"\n                class="${a}"\n                label="${s}"\n                options='${i}'\n                data-key="${n}"\n                css-wrapper="${ds.Layout.theme.dropDownFull}"\n            ></${r}>\n        `}static getData(t){const e=lo.Statics,a=e.colors,s=e.skins,i=Data.customizations,n=new Set(Object.values(i).map(t=>`${t.kind}_${t.id_customization}`)),r=t=>`${t.kind}_${t.id_customization}`,o="apply"===t?t=>t.filter(t=>n.has(r(t))):t=>t.filter(t=>!n.has(r(t))),d={clothesDefault:e.clothesDefault,hairDefault:e.hairDefault,colors:o(a),skins:o(s)};return encodeURIComponent(JSON.stringify(d))}get elFieldName(){return this.shadowRoot.getElementById(this.idFieldName)}get elFieldNameInput(){const t=this?.elFieldName?.shadowRoot.querySelector("input");return t}getFieldNameValue(){return ds.FormField.getInputValueByTarget(this.elFieldName)}get isFullContent(){return"full"===this.getAttribute("data-content")}render(){const t=this.draw();ds.Components.render(this.args,t)}}export class CharacterRotation extends HTMLElement{args={context:this};idChangeDirection="change_direction";static customizations;static customizationsCurrent;static equipments;static equipmentsCurrent;constructor(){super(),this.attachShadow({mode:"open"}),CharacterRotation.equipments.helmet=null,CharacterRotation.equipments.eyes=null,this.render(),this.addEventListeners(),this.setInitialDirection()}addEventListeners(){const t=[];this.buttons.forEach(e=>{const a={el:e,handler:this.handleChangeDirection};t.push(a)}),t.forEach(t=>{t.context=this,ds.Helper.addEventListener(t)});const e=ds.Components.componentButton;ds.Layout.addEventListeners(this,e)}draw(){return`\n            ${this.drawCharacter()}\n        `}drawCharacter(){const t=CharacterRotation.customizations,e=CharacterRotation.equipments,a=ds.Helper.buildJSONToHTML(t),s=ds.Helper.buildJSONToHTML(e),i=this.drawMenuDirection(["up","down"]),n=this.drawMenuDirection(["left","right"]);return`\n            ${i}\n            <div class="ds-card--big gm-card--player ${ds.Layout.theme.card} gm-character-rotation">\n                <div class="ds-card__body">\n                    <${lo.Components.entity}\n                        entity="person"\n                        direction="down"\n                        action="walk"\n                        customizations=${a}\n                        equipments=${s}\n                        tabindex="-1"\n                    ></${lo.Components.entity}>\n                </div>\n            </div>\n            ${n}\n        `}drawMenuDirection(t){const e=ds.Layout.theme,a=e.menuDefault,s=e.menuSize,i=e.menuDefaultIcon;let n='<div class="ds-button-wrapper ds-row">';return t.forEach(t=>{const e="down"===t,r=ds.Components.componentButton;n+=`\n                <${r}\n                    theme="${a}"\n                    size="${s}"\n                    data-direction="${t}"\n                    data-id="${this.idChangeDirection}"\n                    icon="arrow_${t}"\n                    icon-size="regular"\n                    icon-theme="${i}"\n                    ${ds.Prefix.ATTR_IS_DISABLED}="${e}"\n                ></${r}>\n            `}),n+="</div>",n}get buttons(){return this.shadowRoot.querySelectorAll(`[data-id="${this.idChangeDirection}"]`)}handleChangeDirection(t){const e=t.currentTarget,a=e.getAttribute("data-direction"),s=this.shadowRoot.querySelector(lo.Components.entity);this.removeDisabledDirectionButtons(),this.setDisabledDirectionButton(e),s.setAttribute("direction",a)}removeDisabledDirectionButtons(){this.buttons.forEach(t=>{t.removeAttribute(ds.Prefix.ATTR_IS_DISABLED)})}render(){const t=this.draw();ds.Components.render(this.args,t)}setDisabledDirectionButton(t){t.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true")}setInitialDirection(){const t=this.shadowRoot.querySelector('[data-direction="down"]');this.setDisabledDirectionButton(t)}updateCustomizations({key:t,value:e}){const a={hair_equipment:"hair",clothes:"clothes"},s=""===e||null==e;if({eye:!0,skin:!0,hair:!0}[t]&&(CharacterRotation.customizations={...CharacterRotation.customizations,[t]:s?CharacterRotation.customizationsCurrent?.[t]:Number(e)}),a[t]){const i=a[t];CharacterRotation.equipments={...CharacterRotation.equipments,[i]:s?CharacterRotation.equipmentsCurrent[i]:Number(e)}}this.render(),this.addEventListeners(),this.setInitialDirection()}}export class Game extends HTMLElement{args={context:this};isPlaying=!1;static cssContentPosition="ds-content-position";constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=Components.battle,e=Components.map;return`\n            <main\n                id="${HTML.idGameMain}"\n                class="${Game.cssContentPosition}"\n            >\n                <${t}\n                    id="${HTML.idGameBattle}"\n                    class="${Game.cssContentPosition}"\n                ></${t}>\n                <${e}\n                    id="${HTML.idMapGame}"\n                    class="${Game.cssContentPosition} ${ds.Layout.cssAnimationPrepare}"\n                ></${e}>\n            </main>\n        `}static drawBackground(t){const e=`${Game.cssContentPosition} gm-map-background--${t}`;HTML.elGameMain.setAttribute("class",e)}render(){const t=this.draw();ds.Components.render(this.args,t)}setIsPlaying(t){this.isPlaying=t}setOfuscated(t){const e="gm--obfuscated",a=HTML.elGameMain;if(t)return ds.Helper.addClass(a,e);ds.Helper.removeClass(a,e)}}export class Hud extends HTMLElement{args={context:this};pagePrefix="gm-hud-page-";static pageDetail;constructor(){super(),this.attachShadow({mode:"open"}),this.render(),this.addEventListeners()}addEventListeners(){this.addEventListener("close-hud-page",this.closeHudPage.bind(this)),this.addEventListener("close-modal",this.closeModal.bind(this)),this.addEventListener("open-hud-page",this.openPage.bind(this)),this.addEventListener("open-modal",this.openModal.bind(this))}static clearTooltip(){ds.Tooltip.clear()}close(t){t.setAttribute(ds.Layout.attributeOpen,"false"),this.setGameObfuscated(),Hud.clearTooltip(),HTML.elHudMenu.setActive()}closeModal(){"false"!==HTML.elHudModal.getAttribute("is-close-button")&&this.close(HTML.elHudModal)}closeModalWithoutButton(){this.close(HTML.elHudModal)}closeHudPage(t){const{pagePosition:e}=t.detail,a=Hud.getElHudPage(e);this.close(a),this.setPage(a,null)}closeHudPages(){["right","left"].forEach(t=>{const e=Hud.getElHudPage(t);this.close(e)})}draw(){const t=Components.cHudTransition,e=Components.game,a=Components.cHudStatus,s=Components.cHudMenu,i=ds.Components.componentModal,n=ds.Components.componentPage;return`\n            <${t}\n                id="${HTML.idTransition}"\n                ${ds.Layout.attributeOpen}="true"\n                kind="loading"\n            ></${t}>\n            <div class="gm-hud gm-hud__background">\n                <div class="gm-hud-size gm-hud-camera gm-hud-camera-shadow">\n                    <${i}\n                        id="${HTML.idHudModal}"\n                        page-title=""\n                        page-description=""\n                        size=""\n                        ${ds.Layout.attributeOpen}="false"\n                        is-close-button="false"\n                        page=""\n                        class="ds-display-contents"\n                    ></${i}>\n                    <div class="gm-hud__content">\n                        <${n}\n                            id="${HTML.idHudPageLeft}"\n                            class="ds-page-height"\n                            position="left"\n                            ${ds.Layout.attributeOpen}="false"\n                        ></${n}>\n                        <${n}\n                            id="${HTML.idHudPageRight}"\n                            class="ds-page-height"\n                            position="right"\n                            ${ds.Layout.attributeOpen}="false"\n                        ></${n}>\n                        <${e}\n                            id="${HTML.idGame}"\n                            class="ds-page-height gm"\n                        ></${e}>\n                    </div>\n                    <div\n                        class="gm-hud__footer"\n                        id="${HTML.idHudFooter}"\n                    >\n                        <section class="ds-content__navigation ds-content-theme--navigation">\n                            <${a}\n                                id="${HTML.idHudStatus}"\n                                class="ds-content__bars"\n                            ></${a}>\n                            <${s}\n                                id="${HTML.idHudMenu}"\n                                class="ds-content__menu ds-right"\n                            ></${s}>\n                        </section>\n                    </div>\n                </div>\n            </div>\n        `}static getElHudPage(t){const e=ds.Helper.capitalizeString(t);return HTML[`elHudPage${e}`]}open(t){t?.setAttribute(ds.Layout.attributeOpen,"true"),this.setGameObfuscated()}openPage(t){const{context:e,pageTarget:a,pagePosition:s,isNPC:i,name:n}=t.detail,r=Hud.getElHudPage(s),o="true"===r?.getAttribute(ds.Layout.attributeOpen),d=r?.getAttribute("page")===a;o&&d?o&&d&&this.closeHudPage({detail:{pagePosition:s}}):(this.setPage(r,a),this.open(r),this.openPageTexts(r,a),i&&(this.setPageNpc(n),r.setAttribute("data-npc",n)),Hud.pageDetail=t.detail,HTML.elHudMenu.setActive(e))}static openPageDetail(t){const{id:e,context:a,backFilter:s}=t,i=a.parentNode?.parentNode?.parentNode?.getAttribute("data-position"),n=Hud.getElHudPage(i),r=n?.getAttribute("data-npc"),o="detail",d={detail:{item:e,page:n,pageTarget:o,pagePosition:i,from:r?`npc-${r}`:a.getAttribute("page"),isDetail:!0,isNPC:!!r,name:r,backFilter:s}};Statics.temp.itemData=e,HudPageDetail.setDataFrom(t),Hud.clearTooltip(),n&&(n.lastPage=d.detail),HTML.elHud.openPage(d),HTML.elHud.setPage(n,o)}openPageTexts(t,e){const a=e?.startsWith(this.pagePrefix),s=a?e?.slice(this.pagePrefix.length):e,i=ds.Translation.getTranslationPage(s),n=i?.title;n&&t.setTitle(n);const r=i?.description;r&&t.setText(r)}openPageChangeModal(t){HTML.elGame.setIsPlaying(!1),HTML.elHudModal.setAttribute("is-close-button",!0),this.closeHudPages(),this.closeModal(),this.openModal(t)}openModal(t){const{target:e,title:a,description:s="",size:i="regular",isCloseButton:n=!0}=t,r=HTML.elHudModal;r.setAttribute("page-title",a),r.setAttribute("page-description",s),r.setAttribute("size",i),r.setAttribute("is-close-button",n),this.setPage(r,e),this.open(r)}openModalBattle(){const t={target:"battle",title:ds.Translation.gameBattle?.battle,size:"extra-small",isCloseButton:!1};this.openPageChangeModal(t)}openModalCustomize(){const t={target:"select-customization",title:Translation.customizationTitle,description:Translation.customizationDescription,size:"big",isCloseButton:!1};this.openPageChangeModal(t)}openModalSelectClass(){const t={target:"select-class",title:ds.Translation.interfaceDefault?.select_class,description:ds.Translation?.interface?.page_select_class?.description,size:"small",isCloseButton:!1};this.openPageChangeModal(t)}openModalSelectCharacter(t=!0){const e={target:"select-character",title:ds.Translation.interface?.page_select_character?.title,description:ds.Translation.interface?.page_select_character?.description,size:"small",isCloseButton:t};this.openPageChangeModal(e)}openModalStory(t,e){const a={target:"story",title:ds.Translation.gameStory[`act_${t}_scene_${e}_title`],size:"regular",isCloseButton:!1};HudPageStory.act=t,HudPageStory.scene=e,this.openPageChangeModal(a)}openModalUserEdit(){const t={target:"user-edit",title:ds.Translation.loginDefault[HudPageUserEdit.content],size:"small",isCloseButton:!0};this.openPageChangeModal(t)}openModalUserDeleteAccount(){const t={target:"user-delete-account",title:ds.Translation.interfaceDefault.delete_account,size:"small",isCloseButton:!0};this.openPageChangeModal(t)}render(){const t=this.draw();ds.Components.render(this.args,t)}setPage(t,e){const a=e?.startsWith("npc-")?"npc":e,s=a?.startsWith(this.pagePrefix)?a:`${this.pagePrefix}${a}`;t?.setAttribute("page",s)}setPageNpc(t){const e=HTML.elHudPageLeft;e.setTitle(t);const a=ds.Translation.dialog[t],s=`${a[`dialog_${Math.floor(4*Math.random())+1}`]}\n\n${a.default}`,i=Layout.replaceInText(s,!0);e.setText(i)}setGameObfuscated(){let t=!1;"true"===HTML?.elHudPageRight.getAttribute(ds.Layout.attributeOpen)&&(t=!0),"true"===HTML?.elHudPageLeft.getAttribute(ds.Layout.attributeOpen)&&(t=!0),"true"===HTML.elHudModal?.getAttribute(ds.Layout.attributeOpen)&&(t=!0),HTML.elGame.setOfuscated(t)}}export class HudActionPoints extends HTMLElement{args={context:this};static attributeActionPoints="data-action-points";constructor(){super(),this.attachShadow({mode:"open"}),this.render()}attributeChangedCallback(t,e,a){e===a||this.render()}static get observedAttributes(){return[HudActionPoints.attributeActionPoints,"data-tooltip"]}draw(){return`\n            <span class="gm-content__action-points">\n                <span class="gm-content__action-value">\n                    ${this.getAttribute(HudActionPoints.attributeActionPoints)??0}\n                </span>\n            </span>\n        `}render(){const t=this.draw();ds.Components.render(this.args,t),ds.Tooltip?.elTooltipWrapper?.build(this.args)}}export class HudContentMoney extends HTMLElement{#m={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}render(){const t=this.#g();ds.Components.render(this.#m,t)}redraw(){this.render()}#g(){const t=Statics.idItems,e=t.gold,a=t.diamond,s=Player.inventoryGold,i=Player.inventoryDiamonds,n={item:e,isDurability:!1},r=lo.HTML.drawLoot(n),o={item:a,isDurability:!1},d=lo.HTML.drawLoot(o),l=(t,e)=>`\n            ${t}\n            <span class="gm-label">${e}</span>\n        `;return`\n            <div class="ds-row ds-center gm-content-money">\n                ${ds.Translation.interfaceDefault.in_your_inventory}:\n                ${l(r,s)}\n                ${l(d,i)}\n            </div>\n        `}}export class HudMenu extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}get buttonFirst(){return this.buttons[0]}get buttons(){const t=ds.Components.componentButton;return this.shadowRoot.querySelectorAll(t)}buildTooltip(t){const e=(a=t,ds.Translation.getTranslationPage(a)?.title);var a;const s=Hotkeys.getKey(t);return e?ds.Translation.buildTextAndHotkey(e,s):""}enableButtons(){this.setActiveButtons(!1)}disableButtons(){this.setActiveButtons(!0)}draw(){let t="";Statics.buttonsMainMenu.forEach(e=>{const a={id:e.id||"",icon:e.icon,target:e.pageTarget,css:e.css+" ds-hide--mobile",tooltip:this.buildTooltip(e.translation)};t+=this.drawButton(a)});const e=Statics.buttons.mainMenu,a={id:e.id,icon:e.icon,target:e.pageTarget,css:e.css};return t+=this.drawButton(a),t}drawButton(t){const{id:e,icon:a,target:s,css:i,tooltip:n}=t,r=ds.Components.componentButton;let o=`\n            <${r}\n                id="${e}"\n                icon="${a}"\n                icon-size="big"\n                theme="outline--white"\n                size="extra-big"\n                is-proportional="true"\n                is-disabled="false"\n                page-target="${s}"\n                page-position="right"\n                click="open-hud-page"\n                css-custom="${i}"\n                css-wrapper="gm-style"\n                data-kind="button"\n        `;return n&&(o+=`data-tooltip="${n}"`),o+=`></${r}>`,o}render(){const t=this.draw();ds.Components.render(this.args,t)}setActive(t=void 0){if(t)ds.Layout.setActiveButton(t);else{const t=this.buttonFirst;ds.Layout.setActiveButton(t,!1)}}setActiveButtons(t){this.buttons.forEach(e=>{e.setAttribute(ds.Prefix.ATTR_IS_DISABLED,t)})}updateData(){this.render()}}export class HudPageAbout extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=ds.Translation.getTranslationPage("attributes"),e=this.drawAttributes(t),a=`\n            ${this.drawAbout(t)}\n            ${e}\n        `;return HudPageAttributes.drawPage(a)}drawAbout(t){const e=Player.attributes,a=Statics.classes[e?.class].class,s=ds.Translation.buildPlayerClass(a),i=HudPageAttributes.formatExperience(e.experience),n=HudPageAttributes.formatExperience(e.experienceNext),r=[{label:t?.name,value:e.name,isReadOnly:!0},{label:t?.level,value:e.level,isReadOnly:!0},{label:t?.class,value:s,isReadOnly:!0},{label:t?.life,value:e.hitPoints,isReadOnly:!0},{label:t?.life_maximum,value:e.hitPointsMaximum,isReadOnly:!0},{label:t?.mana,value:e.manaPoints,isReadOnly:!0},{label:t?.mana_maximum,value:e.manaPointsMaximum,isReadOnly:!0},{label:t?.experience,value:i,isReadOnly:!0},{label:t?.experience_next,value:n,isReadOnly:!0},{label:t?.initiative,value:e.initiative,isReadOnly:!0}],o=ds.Layout.drawField(r[0]),d=ds.Layout.drawField(r[1]),l=ds.Layout.drawField(r[2]),c=ds.Layout.drawField(r[3]),u=ds.Layout.drawField(r[4]),h=ds.Layout.drawField(r[5]),p=ds.Layout.drawField(r[6]),m=ds.Layout.drawField(r[7]),g=ds.Layout.drawField(r[8]);return`\n            <div class="ds-row">\n                ${o}\n                ${l}\n            </div>\n            <div class="ds-row">\n                ${c}\n                ${u}\n            </div>\n            <div class="ds-row">\n                ${h}\n                ${p}\n            </div>\n            <div class="ds-row">\n                ${d}\n                ${ds.Layout.drawField(r[9])}\n            </div>\n            <div class="ds-row">\n                ${m}\n                ${g}\n            </div>\n        `}drawAttributes(t){const e=Player.attributes,a=Layout.drawSubtitle(t?.title),s=[{label:t?.vitality,value:e.vitality,isReadOnly:!0},{label:t?.strength,value:e.strength,isReadOnly:!0},{label:t?.intelligence,value:e.intelligence,isReadOnly:!0},{label:t?.dexterity,value:e.dexterity,isReadOnly:!0}];return`\n            ${a}\n            <div class="ds-row">\n                ${ds.Layout.drawField(s[0])}\n                ${ds.Layout.drawField(s[1])}\n            </div>\n            <div class="ds-row">\n                ${ds.Layout.drawField(s[2])}\n                ${ds.Layout.drawField(s[3])}\n            </div>\n        `}render(){const t=this.draw();ds.Components.render(this.args,t)}}export class HudPageAchievements extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=this.getAttribute("page"),e=this.drawList();return ds.Page.drawContent(t,e)}drawList(){const t=ds.Translation.interfaceDefault,e=this.drawListItems();return`\n            <table class="${ds.Layout.theme.table}">\n                <thead>\n                    <tr>\n                        ${ds.HTML.drawTH(t?.title)}\n                        ${ds.HTML.drawTH(t?.description)}\n                        ${ds.HTML.drawTH(t?.reward)}\n                        ${ds.HTML.drawTH(t?.progress)}\n                        ${ds.HTML.drawTH(t?.status)}\n                    </tr>\n                </thead>\n                <tbody>\n                    ${e}\n                </tbody>\n            </table>\n        `}drawListItems(){const t=ds.Translation.gameAchievements,e=Object.entries(this.dataLore);let a="";return e.forEach(e=>{const s=e[0],i=e[1],n=this.getDataPlayerByIndex(s);if(n){const e=1===n.d||!0===n.d||!0===n.isDone,r=ds.HTML.drawDivCentered(ds.HTML.drawIconStatus(e)),o=`a_${s}`,d=t?.[`${o}_title`],l=t?.[`${o}_text`],c=this.drawListItemsReplaceRule(l,s),u=this.drawReward(s),h=t=>ds.HTML.drawS(e,t),p={index:s,data:i,status:n},m=this.drawProgress(p);a+=`\n                    <tr>\n                        ${ds.HTML.drawTD(h(d))}\n                        ${ds.HTML.drawTD(h(c))}\n                        ${ds.HTML.drawTD(h(u))}\n                        ${ds.HTML.drawTD(m,!0)}\n                        ${ds.HTML.drawTD(r,!0)}\n                    </tr>\n                `}}),a}drawListItemsReplaceRule(t,e){return this.getNeedsByIndex(e)?Layout.replaceInText(t):t}drawProgress(t){const{index:e,status:a}=t,s=this.dataLore[e],i=s?.kind,n=s?.needs??[],r=1===i,o=Data.rules?.achievements?.[e]?.cost,d=r?n.length:o??n[0]?.quantity??1,l=1===a.d||!0===a.d||!0===a.isDone?d:Math.min(Number(a.n)||0,d),c=Math.round(100*ds.Helper.calculatePercentage(l,d))/100,u=ds.Translation.interfaceDefault?.status,h=`${u}: <span>${c}</span>%`,p=ds.Components.componentProgress;return`\n            <${p}\n                value="${l}"\n                value-max="${d}"\n                theme="green"\n                direction="horizontal"\n                data-tooltip="${h}"\n                css-wrapper="gm-style"\n            ></${p}>\n        `}drawReward(t){let e="";const a=Data.rules?.achievements?.[t]?.rewards,s=a??this.dataLore[t]?.rewards;return s?(s.forEach(t=>{const a=t.id_item,s=t.quantity;e+=Layout.drawTextItemQuantity(a,s)}),e):e}get dataPlayer(){return Data.player.achievements}getDataPlayerByIndex(t){return this.dataPlayer[t]}get dataLore(){return ds.Modules.achievements}getNeedsByIndex(t){const e=ds.Modules.achievements,a=e[t]?.needs;return a}render(){const t=this.draw();ds.Components.render(this.args,t),Analytics.send({event_name:"achievement_view"})}updateData(){this.render()}}export class HudPageAdvertising extends HTMLElement{args={context:this};kind="";static idLink="link";constructor(){super(),this.attachShadow({mode:"open"})}connectedCallback(){this.render(),Promise.resolve().then(()=>this.setPageTexts())}addEventListeners(){const t=ds.Components.componentButton,e=ds.Components.componentSelect,a=this.shadowRoot?.querySelector(e);a&&a.addEventListener("change",t=>this.handleSelectKind(t)),ds.Layout.addEventListeners(this,t),this.addFieldEventListeners()}addFieldEventListeners(){this.elLink?.addEventListener("input",()=>this.updateButtonState())}draw(){const t=Layout.drawSubtitle(this.translation.subtitle),e=this.drawText(this.translation.description),a=this.drawKind(),s=this.drawField(HudPageAdvertising.idLink),i=this.drawButton(),n=`\n            ${t}\n            ${e}\n            <form class="ds-form">\n                <div class="ds-row">\n                    ${a}\n                </div>\n                <div class="ds-row">\n                    ${s}\n                </div>\n            </form>\n            <div class="ds-row ds-right ds-button-wrapper">\n                ${this.drawBackButton()}\n                ${i}\n            </div>\n        `;return HudPageAttributes.drawPage(n)}drawButton(){const t=ds.Components.componentButton,e=ds.Layout.theme.menuProceed;return`\n            <${t}\n                label="${this.translation.submit}"\n                size="small"\n                theme="${e}"\n                data-handler="handleSubmit"\n                data-handler-props='[]'\n                data-kind="button"\n                is-disabled="true"\n            ></${t}>\n        `}drawBackButton(){const t=ds.Components.componentButton,e=ds.Layout.theme,a=e.menuDefault,s=e.menuSize;return`\n            <${t}\n                label="${this.translation.back}"\n                size="${s}"\n                theme="${a}"\n                page-target="store"\n                page-position="right"\n                click="open-hud-page"\n                data-kind="button"\n            ></${t}>\n        `}drawField(t){const e={id:t,css:"ds-column ds-form__field",label:this.translation[t],value:"",isReadOnly:!1,type:"text"};return ds.Layout.drawField(e)}drawKind(){const t=ds.Components.componentSelect,e=Data.rules?.reward?.advertising??{},a=ds.Layout.theme.selectDefault,s={label:[`${Layout.replaceInText(this.translation.kindYoutube)} - ${Translation.buildRewardText(e.youtube??0)}`,`${Layout.replaceInText(this.translation.kindSite)} - ${Translation.buildRewardText(e.site??0)}`,`${Layout.replaceInText(this.translation.kindSocial)} - ${Translation.buildRewardText(e.social??0)}`],value:[1,2,3]};return`\n            <${t}\n                label="${this.translation.type}"\n                options='${JSON.stringify(s)}'\n                theme="${a}"\n            ></${t}>\n        `}drawText(t){return`\n            <div class="ds-row ds-page__text ds-modal-text">\n                <p>${Layout.replaceInText(t)}</p>\n            </div>\n        `}get elButton(){return this.shadowRoot.querySelector('[data-handler="handleSubmit"]')}get elLink(){return this.getElById(HudPageAdvertising.idLink)}getElById(t){return this.shadowRoot.getElementById(t)}get isEnabled(){if(this.isLimitReached)return!1;const t=this.getInputValueByTarget(this.elLink);return!!this.kind&&!!t}get page(){const t=this.getRootNode()?.host;return t}get count(){return Number(Data.rules?.reward?.advertising?.count??0)}get day(){return Data.rules?.reward?.advertising?.day??""}get isLimitReached(){const t=this.limit,e=this.count,a=this.day,s=ds.Helper.getNow();return!!a&&s-a<86400&&e>=t}get limit(){return Number(Data.rules?.reward?.advertising?.quantity??0)}getInputValueByTarget(t){return ds.FormField.getInputValueByTarget(t)}handleSelectKind(t){this.kind=t?.detail?.value||"",this.updateButtonState()}async handleSubmit(){if(!this.isEnabled)return;const t=this.getInputValueByTarget(this.elLink),e=await FetchData.submitAdvertising({kind:this.kind,link:t});e?.isError?ds.Notification.add({content:this.translation.limit}):(ds.Notification.add({content:this.translation.submitted}),this.kind="",this.render())}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners(),this.updateButtonState()}setPageTexts(){const t=this.page;t?.setTitle&&t.setTitle(this.translation.title),t?.setText&&t.setText("")}toggleButtonDisabled(t){const e=this.elButton;e&&(t?e.removeAttribute(ds.Prefix.ATTR_IS_DISABLED):e.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true"))}updateButtonState(){this.toggleButtonDisabled(this.isEnabled)}get translation(){const t=ds.Translation.interfaceDefault,e=ds.Translation.getTranslationPage("advertising");return{title:e.title,description:e.description,subtitle:e.title_advertising,type:e.type,kindYoutube:e.youtube,kindSite:e.website_article,kindSocial:e.social_post,link:t.link,submit:t.send,back:t.back,submitted:e.sent,limit:e.limit,...e}}}export class HudPageApplyCustomization extends PageCustomizations{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),PageCustomizations.resetMap(),this.render(),this.addEventListeners(),this.toggleActionButton()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t),this.addEventListenersCustomization()}draw(){const t=Layout.changeThemeButton("apply"),e=Layout.drawButtonComponent(t);return PageCustomizations.drawNPC(e,this.id)}get action(){return ds.Prefix.APPLY_CUSTOMIZATION}get cost(){return PageCustomizations.cost.apply}get elActionButton(){return ds.Helper.getElementByDataId(this.shadowRoot,this.id)}get id(){return Statics.buttons.apply.id}get inventoryDiamonds(){return Player.inventoryDiamonds}async handleApply(){await this.handleAction(FetchData.applyCustomization.bind(FetchData))&&(Analytics.send({event_name:"customization_apply",npc:HudPageNPC.id,items:PageCustomizations.selectsValue.map(t=>`${t.id}:${t.value}`).join(",")}),this.resetCustomizations())}render(){HudPageDetail.npcAction=this.action;const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageAttributes extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=this.getAttribute("page");return ds.Page.drawContent(t,"")}static drawPage(t){const e=HudPageAttributes.page,a=`\n            <form class="ds-form ds-form--readonly">\n                ${t}\n            </form>\n        `;return ds.Page.drawContent(e,a)}drawMenu(){const t=[Statics.buttons.filterAbout,Statics.buttons.filterCombat,Statics.buttons.filterStatistics,Statics.buttons.filterUser],e=HudPageAttributes.page;e.setMenu({buttons:t}),this.buttons=t,e.elMenuButtons[0].click()}static formatExperience(t){return t.toLocaleString("pt-BR")}static get page(){return HTML.elHudPageRight}render(){const t=this.draw();ds.Components.render(this.args,t),this.drawMenu()}}export class HudPageBattle extends HTMLElement{args={context:this};cssHideMenu="gm-battle__hide";id="gm_battle";idSubMenu=`${this.id}_submenu`;idSkill=`${this.id}_skill`;idSkillEffect=`${this.id}_skill_effect`;idSkillValue=`${this.id}_skill_value`;idPlayer=`${this.id}_player`;idMonster=`${this.id}_monster`;idUseItem="actionUseItem";skillData;elProgress={};prefixSkillMove="lo-animation-skill-move--";prefixSkillEffect="gm-battle__skill-effect--";casters=["player","opponent"];caster;#y;constructor(){super(),this.attachShadow({mode:"open"}),this.render()}addEventListeners(){const t=[];this.shadowRoot.getElementById(this.idSubMenu).querySelectorAll("button").forEach(e=>{const a={el:e,handler:HudPageBattle.handleUse};t.push(a)}),t.forEach(t=>{t.context=this,ds.Helper.addEventListener(t)});const e=ds.Components.componentButton;ds.Layout.addEventListeners(this,e)}animateSkill(t){const e=this.getSkillToRemove();return ds.Helper.removeClass(this.elBattleSkillEffect,e),new Promise(e=>{const a=t.isSuccess??!1,s=this.cssLastSkill,i=this.cssLastSkillFail,n=this.getSkillEffectCss(this.caster);ds.Helper.addClass(this.elBattleSkillEffect,n),setTimeout(()=>{ds.Helper.addClass(this.elBattleSkillValue,s),a||ds.Helper.addClass(this.elBattleSkillValue,i)},150),setTimeout(()=>{ds.Helper.removeClass(this.elBattleSkill,s),ds.Helper.removeClass(this.elBattleSkillValue,s),ds.Helper.removeClass(this.elBattleSkillEffect,n),a||ds.Helper.removeClass(this.elBattleSkillValue,i),e()},HTML.elTransition?.timeout)})}buildEmojiFail(){const t=this.isPlayer(this.caster)?this.elBattlePlayer:this.elBattleMonster;Emoji.activateChance(t,ds.Prefix.SCARED,50)}buildWinnerScreen(t){const e=t.winner,a=this.isPlayer(e)?ds.Prefix.WIN:ds.Prefix.LOSE,s=HTML.elGameBattle.monster,i=Monsters.unBuildId(s?.getAttribute("id")),n=s?.getAttribute("data-level"),r=Data.player?.attributes?.level,o=t.loot?Object.entries(t.loot).map(([t,e])=>`${t}:${e}`).join(","):"";Analytics.send({event_name:"battle_end",result:a,monster_id:i,monster_level:n,player_level:r,loot:o}),HTML.elTransition.loot=t.loot,HTML.elTransition.openByKind(a),HTML.elGameBattle.unbuild()}async buildTurn(){await this.updateProgresses(),this.isTurnPlayer?this.isMenuEnabled=!0:(this.isMenuEnabled=!1,await this.getSkillOpponent())}buildTurnData(t){HTML.elGameBattle.turnLast=this.turnCurrent,this.skillData=t,HTML.elGameBattle.turnCurrent=t.turn}draw(){const t=this.drawMenu(),e=this.drawSubMenu(),a=this.drawPlayer(),s=this.drawMonster(),i=this.drawSkill(),n=this.drawSkillEffect(),r=this.drawSkillValue();return`\n            <div class="ds-modal__content">\n                <div class="ds-row ds-center gm-battle__background">\n                    <div class="gm-battle__background gm-battle__theme">\n                        ${this.drawBackground()}\n                    </div>\n                    ${this.drawProgress("monster")}\n                    ${s}\n                    ${i}\n                    ${n}\n                    ${r}\n                    ${a}\n                </div>\n            </div>\n            \n            <div class="ds-row ds-center gm-battle__footer">\n                <div class="ds-row ds-center gm-battle__submenu ${this.cssHideMenu}" id="${this.idSubMenu}">\n                    <div class="ds-row ds-center gm-battle__padding ds-scrollbar">\n                        ${e}\n                    </div>\n                </div>\n                <div class="ds-row ds-center ds-content__menu">\n                    ${t}\n                </div>\n            </div>\n        \n        `}drawBackground(){let t="";return Statics.backgroundBattle.forEach(e=>{const a=ds.Helper.findById(ds.Modules.tiles,e).css;t+=`\n                <div class="ds-tile lo-${a}"></div>\n            `}),t}drawEntityDistance(t){return ds.Layout.tileSize*t+"px"}drawMenu(){let t="";return this.drawMenuData().forEach(e=>{const a=e.id,s=a===this.idUseItem?"setSubMenu":"handleSkill",i={action:a},n=`[${ds.Helper.buildJSONToHTML(i)}]`,r=ds.Components.componentButton;t+=`\n                <${r}\n                    id="${a}"\n                    icon="${e.icon}"\n                    icon-size="big"\n                    theme="${e.theme}"\n                    size="extra-big"\n                    data-tooltip=""\n                    data-kind="button"\n                    data-handler="${s}"\n                    data-handler-props='${n}'\n                    is-proportional="true"\n                ></${r}>\n            `}),t}drawMenuData(){const t=[];return this.skills.forEach(e=>{const a=e.id,s=ds.Layout.getIconDataById(a),i={id:a,icon:s.icon,tooltip:s.tooltip,theme:s.theme};t.push(i)}),t}drawMonster(){const t=this.monster,e=t.getAttribute("data-kind"),a=t.getAttribute("data-level");return`\n            <${lo.Components.entity}\n                id="${this.idMonster}"\n                class="gm-alive gm-monster"\n                data-level="${a}"\n                data-id="monster"\n                data-kind="${e}"\n                kind="monster"\n                entity="monster"\n                direction="down"\n                action="stand"\n                style="top: ${this.drawEntityDistance(2)}"\n                tabindex="-1"\n            ></${lo.Components.entity}>\n        `}drawPlayer(){const t=Player.equipmentsForHTML,e=ds.Helper.buildJSONToHTML(t);return`\n            <${lo.Components.entity}\n                id="${this.idPlayer}"\n                class="gm-alive gm-person"\n                data-id="player"\n                entity="person"\n                direction="up"\n                action="stand"\n                style="bottom: ${this.drawEntityDistance(1)}"\n                equipments=${e}\n                tabindex="-1"\n            ></${lo.Components.entity}>\n        `}drawProgress(t){let e='<div class="gm-battle__progress">';return[{id:"life",theme:"red"},{id:"mana",theme:"blue"}].forEach(a=>{const s=a.id,i=a.theme,n=ds.Components.componentProgress;e+=`\n                 <${n}\n                    id="progress_${s}_${t}"\n                    value="0"\n                    value-max="0"\n                    theme="${i}"\n                    direction="horizontal"\n                    border="battle"\n                    css-wrapper="gm-style-battle"\n                ></${n}>\n            `}),e+="</div>",e}drawSkill(){return`\n            <div\n                id="${this.idSkill}"\n                class="gm-battle__skill"\n                style="top: ${this.drawEntityDistance(3)}"\n            >\n                <h4 class="title"></h4>\n            </div>\n        `}drawSkillEffect(){return`\n            <div\n                id="${this.idSkillEffect}"\n                class="gm-battle__skill-effect"\n            >\n            </div>\n        `}drawSkillValue(){return`\n            <div\n                id="${this.idSkillValue}"\n                class="gm-battle__skill-value"\n                style="top: ${this.drawEntityDistance(2.5)}"\n            >\n                <h2 class="title"></h2>\n            </div>\n        `}drawSubMenu(){const t=this.drawSubMenuData(),e=ds.Layout.theme.menuDefault;let a="";return t.forEach(t=>{const s={theme:e,isProportional:!0,size:"big",cssPrefix:"button",cssCustom:"ds-padding-reset"},i=ds.Layout.buildCss(s);a+=`\n                <button\n                  type="button"\n                  data-id="${t.id}"\n                  data-id-lore="${t.idLore}"\n                  ${i}\n                >\n                    <span class="gm-loot--small">\n                        ${t.icon}\n                    </span>\n                </button>\n            `}),a}drawSubMenuData(){const t=[],e=[161];return Player.inventoryConsumables.forEach(a=>{const s=a.idLore??a.target;if(e.includes(s))return;const i={item:a.itemLoot.id,isDurability:a.isDurability},n=lo.HTML.drawLoot(i),r={id:a.id,idLore:s,icon:n};t.push(r)}),t}async fetchSkill(t){const{action:e}=t,a=await FetchData.getSkill(t);this.buildTurnData(a);const s=`use${ds.Helper.capitalizeString(e)}`,i={caster:ds.Prefix.PLAYER,data:a};this[s]?.(i)}get buttons(){const t=ds.Components.componentButton;return this.shadowRoot.querySelectorAll(t)}get currentTurn(){return HTML.elGameBattle.turnCurrent}get isMenuEnabled(){return this.#y}get isTurnPlayer(){return HTML.elGameBattle.isTurnPlayer}get isConsumablesInInventory(){const t=this.loot;let e=!1;return t.forEach(t=>{const a={target:Storage.buildItem(t).item},s=Storage.getProperties(a);"usable"===Storage.getTranslationById(s.itemLoot.kind)&&(e=!0)}),e}get monster(){return HTML.elGameBattle.monster}get skills(){const t=Data.player.skills;return Object.values(t)}get subMenu(){return this.shadowRoot.querySelector(".gm-battle__submenu")}getSkillEffectCss(t){const e=this.skillData.skill.id;let a=Statics.skills.filter(t=>t.id===e),s=[];if(a.length>0){const e=a[0];e&&s.push(e.css),e.isMoving&&s.push(`${this.prefixSkillMove+t}`)}return s.push(`${this.prefixSkillEffect+t}`),s}getSkillToRemove(){const t=Statics.skills;let e=[];return this.casters.forEach(t=>{e.push(`${this.prefixSkillMove+t}`),e.push(`${this.prefixSkillEffect+t}`)}),t.forEach(t=>{e.push(t.css)}),e}getCurrentButton(t){return this.shadowRoot.getElementById(t)}async getSkillOpponent(){const t=await FetchData.getSkillOpponent();this.buildTurnData(t);const e={caster:ds.Prefix.OPPONENT,data:t};this.useSkill(e)}async handleSkill(t){const{action:e,id:a,idLore:s}=t;if(this.isButtonDisabled(e))return;this.isMenuEnabled=!1,this.setSubMenu("hide");const i={action:e};s&&(i.il=s),a&&(i.id=a),await this.fetchSkill(i)}static handleUse(t){const e=t.currentTarget,a=Number(e.dataset.id),s=Number(e.dataset.idLore),i={action:this.idUseItem,id:a,idLore:s};this.handleSkill(i)}isButtonDisabled(t){return"true"===this.getCurrentButton(t).getAttribute(ds.Prefix.ATTR_IS_DISABLED)}isCasterPlayer(t){return t===ds.Prefix.PLAYER}isPlayer(t){return t===ds.Prefix.PLAYER}isSkillRun(t){return t.skill?.id===ds.Prefix.ACTION_RUN}isConsumableRuleInvalid(t){return t.id===this.idUseItem&&Player.inventoryConsumables<=0}isItemRule(t){return t===ds.Prefix.ITEMS}async move(t){const{target:e,direction:a}=t,s="up"===a,i=s?"down":"up",n={target:e,vertical:s?-ds.Layout.tileSize:ds.Layout.tileSize,horizontal:0,speed:300};e.setAttribute("action","walk"),e.setAttribute("direction",a),await Animation.animatePosition(n),n.vertical=0,e.setAttribute("direction",i),AudioEffects.play(e),await Animation.animatePosition(n),e.setAttribute("action","stand"),e.setAttribute("direction",a)}async moveCaster(t){const e=this.isPlayer(t),a={target:e?this.elBattlePlayer:this.elBattleMonster,direction:e?"up":"down"};await this.move(a)}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners(),this.isMenuEnabled=!1,this.updateHTML(),this.buildTurn(),this.updateMenuTooltips()}setAttributes(t){const{data:e}=t;Data.setData(e)}async setMenuToggle(){const t=this.buttons,e=!await this.isMenuEnabled,a=t.length;for(let s=0;s<a;s++){const a=t[s];let i=e;i||(i=await this.setMenuToggleRules(a,!1)),a.setAttribute(ds.Prefix.ATTR_IS_DISABLED,i)}}async setMenuToggleRules(t,e){const a=await Data.rules.skills,s=a[t.id]?.cost??[];let i=e;return Object.entries(s).forEach(([t,e])=>{this.isItemRule(t)?this.validateItems(e)||(i=!0):this.validateAttribute(t,e)||(i=!0)}),this.isConsumableRuleInvalid(t)&&(i=!0),i}async setSkillValue(t,e){return new Promise(a=>{const{caster:s,data:i}=t,n=this.isCasterPlayer(s)?"lo-animation-damage--right":"lo-animation-damage--left",r=!0===e.isSuccess,o=ds.Translation.gameSkill,d=o[`${i.skill.translation}_title`];this.elBattleSkillText.innerHTML=d;const l=this.isSkillRun(i);let c=e.damage??0;r&&0!==e.damage?l&&(c=o.success):(c=o.fail,this.buildEmojiFail()),this.elBattleSkillValueText.innerHTML=c,ds.Helper.addClass(this.elBattleSkill,n),this.cssLastSkill=n,this.cssLastSkillFail="gm-battle__skill-value--fail",a()})}set isMenuEnabled(t){this.#y!==t&&(this.#y=t,this.setMenuToggle(t))}setSubMenu(t){const e=this.subMenu,a=this.cssHideMenu,s="hide";if(!this.isButtonDisabled(this.idUseItem)&&HTML.elGameBattle.isTurnPlayer)switch(!e.classList.contains(a)&&"show"!==t&&(t=s),t){case s:return ds.Helper.addClass(e,a);case"toggle":return ds.Helper.toggleClass(e,a);default:return ds.Helper.removeClass(e,a)}}updateData(){this.updateProgresses(),this.updateMenuTooltips()}updateHTML(){this.elBattlePlayer=this.shadowRoot.getElementById(`${this.idPlayer}`),this.elBattleMonster=this.shadowRoot.getElementById(`${this.idMonster}`),this.elBattleSkill=this.shadowRoot.getElementById(`${this.idSkill}`),this.elBattleSkillEffect=this.shadowRoot.getElementById(`${this.idSkillEffect}`),this.elBattleSkillText=this.elBattleSkill.querySelector(".title"),this.elBattleSkillValue=this.shadowRoot.getElementById(`${this.idSkillValue}`),this.elBattleSkillValueText=this.elBattleSkillValue.querySelector(".title"),this.elProgress.life=this.shadowRoot.getElementById("progress_life_monster"),this.elProgress.mana=this.shadowRoot.getElementById("progress_mana_monster")}updateMenuTooltips(){const t=Data.rules.skills,e=ds.Translation.gameSkill;this.buttons.forEach(a=>{const s=a.id,i=ds.Layout.getIconDataById(s);if(!i)return;const n={text:i.tooltip,isRule:!0,ruleList:t,ruleTranslation:e},r=ds.Helper.replaceInText(n);a.setAttribute("data-tooltip",r)})}updateProgress(t){const{target:e,value:a,valueMax:s}=t,i={text:ds.Translation.getTranslationPage("attributes").life,value:a,valueMax:s},n=ds.Layout.buildTextCapacity(i),r=this.elProgress[e];r.setAttribute("value",a),r.setAttribute("value-max",s),r.setAttribute("data-tooltip",n)}async updateProgresses(){const t=await Data.opponent.attributes;t&&[{target:"life",value:t.hitPoints,valueMax:t.hitPointsMaximum},{target:"mana",value:t.manaPoints,valueMax:t.manaPointsMaximum}].forEach(t=>{this.updateProgress(t)})}useActionRun(t){const{data:e}=t;(e.skillUsage[0].isSuccess??!1)&&this.unbuildBattle(),this.useSkill(t)}useActionUseItem(t){this.useSkill(t)}useAttackCoinThrow(t){this.useSkill(t)}useAttackFireball(t){this.useSkill(t)}useAttackMelee(t){this.useSkill(t)}useAttackMeleeDouble(t){this.useSkill(t)}useAttackThrowWeapon(t){this.useSkill(t)}useAttackMultipleArrows(t){this.useSkill(t)}async useSkill(t){const{caster:e,data:a}=t,s=this.moveCaster(e),i=this.isSkillRun(a),n=this.isPlayer(e);let r=!1,o=!0;this.caster=e,null!==a.winner&&(o=!1,setTimeout(()=>{this.buildWinnerScreen(a)},HTML.elTransition?.timeout));const d=a.skillUsage,l=d?.length;for(let e=0;e<l;e++){const a=d[e];await this.setSkillValue(t,a),await this.animateSkill(a),r=a.isSuccess,i&&r&&(o=!1)}if(await s,this.setAttributes(t),!n&&i&&r)return this.unbuildBattle();o&&await this.buildTurn()}unbuildBattle(){setTimeout(()=>{HTML.elGameBattle.unbuild()},HTML.elTransition?.timeout)}validateAttribute(t,e){return(Data.player[ds.Prefix.ATTRIBUTES][t]??0)>=e}validateItems(t){if(!Array.isArray(t))return!1;const e=Player.inventory;return t.every(t=>Character.getItemQuantityByIdLore(e,t.id)>=t.quantity)}}export class HudPageBuy extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=HudPageNPC.sells,e=HudPageNPC.drawItemsList(t);return HudPageNPC.drawWrapper(e)}get action(){return ds.Prefix.BUY}handleOpenDetails(t){const e={id:t,context:this,npcAction:this.action};HudPageDetail.itemId=void 0,HudPageNPC.handleOpenDetails(e)}render(){HudPageDetail.npcAction=this.action;const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageBuyCustomization extends PageCustomizations{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),PageCustomizations.resetMap(),this.render(),this.addEventListeners(),this.toggleActionButton()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t),this.addEventListenersCustomization()}draw(){const t=Layout.changeThemeButton("buy"),e=Layout.drawButtonComponent(t);return PageCustomizations.drawNPC(e,this.id)}get action(){return ds.Prefix.BUY_CUSTOMIZATION}get cost(){return PageCustomizations.cost.buy}get id(){return Statics.buttons.buy.id}get elActionButton(){return ds.Helper.getElementByDataId(this.shadowRoot,this.id)}get inventoryDiamonds(){return Player.inventoryDiamonds}async handleBuy(){await this.handleAction(FetchData.buyCustomization.bind(FetchData))&&(Analytics.send({event_name:"customization_buy",npc:HudPageNPC.id,items:PageCustomizations.selectsValue.map(t=>`${t.id}:${t.value}`).join(",")}),this.resetCustomizations())}render(){HudPageDetail.npcAction=this.action;const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageCombat extends HTMLElement{args={context:this};static ids={buffs:"buffs"};static timer;constructor(){super(),this.attachShadow({mode:"open"}),this.render(),this.startTimer()}disconnectedCallback(){HudPageCombat.stopTimer()}draw(){const t=ds.Translation.getTranslationPage("attributes"),e=`\n            ${this.drawAttacks(t)}\n            ${this.drawDefenses(t)}\n            ${this.drawBuffs()}\n        `;return HudPageAttributes.drawPage(e)}drawAttacks(t){const e={translation:t,data:Player.attacks,subtitle:Layout.drawSubtitle(t?.attacks)};return this.drawContent(e)}drawBuff(t,e){const a=ds.Layout.cssFormField,s=ds.Translation.gameBuffs,i=s?.[t],n=Layout.buildEffectTime(e),r=ds.Components.componentFormField;return`\n            <div class="ds-row">\n                <${r}\n                    class="${a}"\n                    label="${i}"\n                    input-value="${n}"\n                ></${r}>\n            </div>\n        `}drawBuffs(){const t=ds.Translation.interfaceDefault.buffs,e=Layout.drawSubtitle(t),a=this.drawBuffsContent();return`\n            ${e}\n            <div\n                class="ds-row"\n                data-id="${HudPageCombat.ids.buffs}"\n            >\n                ${a}\n            </div>\n        `}drawBuffsContent(){const t=Player.buffs??{},e=Math.floor(Date.now()/1e3);let a="";for(const[s,i]of Object.entries(t)){const t=(i?.end??0)-e;t>0&&(a+=this.drawBuff(s,t))}if(!a){const t=ds.Translation.gameGeneric?.no_data_yet;a=`\n                 <div class="ds-row">\n                    <p class="ds-center">${t}</p>\n                </div>\n            `}return a}drawContent(t){const{translation:e,data:a,subtitle:s}=t,i=[{label:e?.melee,value:a.melee,isReadOnly:!0},{label:e?.fire,value:a.fire,isReadOnly:!0},{label:e?.cold,value:a.cold,isReadOnly:!0},{label:e?.lightning,value:a.lightning,isReadOnly:!0},{label:e?.poison,value:a.poison,isReadOnly:!0}];return`\n            ${s}\n            <div class="ds-row">\n                ${ds.Layout.drawField(i[0])}\n                ${ds.Layout.drawField(i[1])}\n                ${ds.Layout.drawField(i[2])}\n            </div>\n            <div class="ds-row">\n                ${ds.Layout.drawField(i[3])}\n                ${ds.Layout.drawField(i[4])}\n            </div>\n        `}drawDefenses(t){const e={translation:t,data:Player.defenses,subtitle:Layout.drawSubtitle(t?.defenses)};return this.drawContent(e)}render(){const t=this.draw();ds.Components.render(this.args,t)}startTimer(){HudPageCombat.stopTimer(),HudPageCombat.timer=setInterval(()=>{this.updateBuffs()},1e3)}static stopTimer(){HudPageCombat.timer&&clearInterval(HudPageCombat.timer),HudPageCombat.timer=null}updateBuffs(){const t=HudPageCombat.ids.buffs,e=this.shadowRoot.querySelector(`[data-id="${t}"]`);e&&(e.innerHTML=this.drawBuffsContent())}}export class HudPageCraft extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}async draw(){const t=await this.drawContent();return HudPageNPC.drawWrapper(t)}async drawContent(){let t="";if(!HudPageCraft.isShowTime&&!HudPageCraft.isCraftingNPC&&!HudPageCraft.isShowReward){const e=HudPageNPC.crafts;t=HudPageNPC.drawItemsList(e)}return HudPageCraft.isShowTime&&(t=PageDetailCraft.buildTime(this.shadowRoot)),HudPageCraft.isShowReward&&(t=await PageDetailCraft.drawReward(HudPageNPC.name)),t}get action(){return ds.Prefix.CRAFT}static get isContentReward(){return HudPageCraft.isShowReward&&!PageDetailCraft.isReward}static get isCraftDone(){return PageDetailCraft.isCraftDone}static get isCraftingNPC(){return PageDetailCraft.isCraftingNPC}static get isShowTime(){return PageDetail.isCraft&&HudPageCraft.isCraftingNPC&&!HudPageCraft.isCraftDone}static get isShowReward(){return PageDetail.isCraft&&HudPageCraft.isCraftingNPC&&HudPageCraft.isCraftDone}handleOpenDetails(t){const e={id:t,context:this,npcAction:this.action};HudPageNPC.handleOpenDetails(e)}async render(){HudPageDetail.npcAction=this.action;const t=await this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageDeposit extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=Player.inventory,e=t.length>0?Layout.drawCardItemList(t):Layout.drawEmptyContent();return HudPageNPC.drawWrapper(e)}get action(){return ds.Prefix.DEPOSIT}handleOpenDetails(t){const e={id:t,context:this,npcAction:this.action};HudPageDetail.itemId=t.id,HudPageNPC.handleOpenDetails(e)}async render(){if(!NPCs.validateBankLevel())return;HudPageDetail.npcAction=this.action,await FetchData.openBank();const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageDetail extends HTMLElement{args={context:this};itemProperties;static isFromNPC;static npcAction;static pageDetail;static lastPage;static ids={field:{quantity:"field_quantity",price:"field_price",time:"field_time"}};static method;static methods={equipItem:"equipItem",unequipItem:"unequipItem"};static currentButton;static itemId;constructor(){super(),this.attachShadow({mode:"open"})}connectedCallback(){HudPageDetail.pageDetail=this,HudPageDetail.lastPage=this.parentNode.parentNode.parentNode,this.render()}buildFieldValue(t,e){let a=e;return"recovery_percentage"===t&&(a=`${e}%`),"effect_time"===t&&(a=Layout.buildEffectTime(e)),a}buildHandlerArgs(){return{id:HudPageDetail.itemId??this.itemProperties?.id,il:this.itemLoreId,npc:this.lastPageDataName,quantity:this.getQuantityValue()}}buildItemProperties(t){const e="object"==typeof t&&null!==t?t:{id:t,item:t,quantity:1},a=Storage.buildItem(e),s=e?.id??e?.item??e?.target??a?.item;let i=e?.id_lore??e?.idLore??e?.target??e?.item??a?.item;if(!i&&s){const t=ds.Helper.findById(ds.Modules.items,Number(s));if(t?.id&&(i=t.id),!i){const t=Storage.getDataFiltered(0).find(t=>t.id===s);i=t?.id_lore}}if(!i)throw new Error(`HudPageDetail: idLore não encontrado no itemData: ${JSON.stringify(e)}`);const n={id:s,target:i,quantity:e?.quantity??a?.quantity??1};e.isTooltip=!1,this.itemProperties=Storage.getProperties(n)}buildResponseMessage(t,e){const a=ds.Translation.interface.response,s=a[t],i=a.check_inventory;let n=`${s}`;return e&&(n+=` ${i}`),n}calculateQuantity(){const t=this.itemPropertiesLoot.id,e=this.itemProperties.isDurability;let a=0;if(PageDetail.isBuy){const t=this.priceBuy,e=this.itemPropertiesLoot.pay_with;a=PageDetail.calculateQuantityBuy(t,e)}if(PageDetail.isCraft){const t=this.itemPropertiesLoot.craftRecipe;a=PageDetailCraft.calculateQuantity(t)}PageDetail.isWithdraw&&(a=PageDetail.calculateQuantityWithdraw(t,e));const s=PageDetail.isSell;return(PageDetail.isDeposit||s)&&(a=PageDetail.calculateQuantity(t,e)),a}calculatePriceFromQuantity(t){const e=PageDetail.isBuy,a=this.itemPropertiesLoot,s=a.price;let i=e?a.priceBuy:s;const n=PageDetail.isSell,r=a.durability??0;if(n&&r>0){const t=Storage.getItemDurabilityById(this.itemProperties.id)??0,e=Math.ceil(s*t/r);i=Math.max(1,e)}let o=i*t;const d=Data.rules.npcs.merchantTradeBonus??0;if("merchant"===Statics.classes[Player.attributes?.class]?.class&&d>0){const t=e?1-d:1+d;o=Math.ceil(o*t)}return o}async draw(){this.buildItemProperties(this.itemData),this.setTexts();const t=this.getAttribute("page"),e=await this.drawContent(),a=ds.Page.drawContent(t,e),s=PageDetailMenu.drawMenu(this.itemProperties,this.lastPageData);return`\n            ${a}\n            ${ds.Page.drawFooter(s)}\n        `}async drawContent(){const t=HudPageCraft.isShowTime,e=HudPageCraft.isShowReward;return(t||e)&&this.setText(""),t?PageDetailCraft.buildTime(this.shadowRoot):HudPageCraft.isContentReward?await PageDetailCraft.drawReward(HudPageNPC.name):this.drawContentDefault()}drawContentDefault(){const t=this.drawFields(),e=this.drawIcon(),a=PageDetail.isCraft?PageDetailCraft.drawRecipe(this.craftRecipe,this.getQuantityValue()):"",s=this.itemProperties.translationDescription;return`\n            <div class="ds-row gm-detail">\n                <div class="ds-row">\n                    <div class="ds-column gm-detail__image">\n                        ${e}\n                    </div>\n                    <div class="ds-column">\n                        <form class="ds-form ds-form--readonly">\n                            ${s?`\n            <div class="ds-row">\n                <p class="gm-description">${s}</p>\n            </div>\n        `:""}\n                            <div class="ds-row">\n                                ${t}\n                            </div>\n                        </form>\n                    </div>\n                </div>\n                ${a}\n            </div>\n        `}drawField(t){const{label:e,value:a,dataId:s,isReadOnly:i=!0,type:n="text"}=t,r=ds.Components.componentFormField,o=ds.Helper.escapeHTML,d=ds.Layout.theme.form;return`\n            <div class="ds-row">\n                <${r}\n                    class="ds-row ds-column ds-form__field"\n                    label="${o(e)}"\n                    input-value="${o(a)}"\n                    is-read-only="${i}"\n                    data-id="${o(s)}"\n                    type="${o(n)}"\n                    css-wrapper="${d}"\n                >\n                </${r}>\n            </div>\n        `}drawIcon(){const t={...this.itemData,...this.itemProperties,id:this.itemProperties?.id??this.itemData?.id,item:this.itemProperties?.idLore??this.itemProperties?.target??this.itemData?.id_lore??this.itemData?.item,itemLoot:this.itemProperties?.itemLoot??this.itemData?.itemLoot,quantity:this.itemProperties?.quantity??this.itemData?.quantity,isDurability:this.itemProperties?.isDurability??this.itemData?.isDurability,kind:this.itemProperties?.itemLoot?.kind??this.itemData?.kind},e=Storage.getItemDurabilityById(t.id);return t.durabilityStorage=e,lo.HTML.drawLoot(t)}static drawMoney(){const t=Components.cHudContentMoney,e=`\n            <${t}\n                class="ds-display-flex ds-center"\n            >\n            </${t}>\n        `;return ds.Page.drawFooter(e)}drawFields(){const{translationName:t,translationNameLabel:e,translationQuantity:a,quantity:s,itemLoot:i}=this.itemProperties;let n="";n+=this.drawFieldName(e,t);for(const[t,e]of Object.entries(i))"priceBuy"!==t&&"pay_with"!==t&&(n+=this.drawFieldValid(t,e));return n+=this.drawFieldPrice(i),n+=this.drawFieldTime(),n+=this.drawFieldQuantity(a,s),n}drawFieldName(t,e){return this.drawField({label:t,value:e})}drawFieldQuantity(t,e){let a="";return!this.lastPageData.from.includes("equipments")&&(a=this.drawField({label:t,value:e,dataId:HudPageDetail.ids.field.quantity,isReadOnly:!1,type:"number"})),a}drawFieldPrice(t){const e=Translation.buildTitlePrice(t.pay_with);let a="";if(PageDetail.isBuy||PageDetail.isSell){const t=1,s=this.calculatePriceFromQuantity(t);a=this.drawField({label:e,value:s,dataId:HudPageDetail.ids.field.price})}return a}drawFieldTime(){let t="";if(PageDetail.isCraft){const e=PageDetailCraft.translation?.is_crafting_text,a=PageDetailCraft.buildTimeText(this.craftTime*this.getQuantityValue());t=this.drawField({label:e,value:a,dataId:HudPageDetail.ids.field.time})}return t}drawFieldValid(t,e){let a="";if(!["id","id_craft","css_item","css_person","css_tile","translation","durability","kind","craftTime","craftRecipe","craftResult","price"].includes(t)&&""!==e&&0!==e&&null!=e){const s=this.transitionPage,i=this.buildFieldValue(t,e);a+=this.drawField({label:s[t],value:i})}return a}async fetchData(t){const{method:e,responseText:a,isCheckInventory:s}=t,i=this.buildHandlerArgs(),n=await FetchData[`${e}`](i);return n&&this.handleClickFinish(n,a,s),n}get buttonBack(){return ds.Helper.getElementByDataId(this.shadowRoot,"back")}get buttonBuy(){return ds.Helper.getElementByDataId(this.shadowRoot,"buy")}get buttonCraft(){return ds.Helper.getElementByDataId(this.shadowRoot,"craft")}get buttonSell(){return ds.Helper.getElementByDataId(this.shadowRoot,"sell")}get craftRecipe(){return this.itemProperties.itemLoot.craftRecipe}get craftTime(){return this.itemPropertiesLoot.craftTime}get isEquipment(){return this.itemProperties.isEquipment}get itemData(){return Statics.temp.itemData}get page(){return this.lastPageData.page}get lastPageData(){const t=HudPageDetail.lastPage.getAttribute("data-position");return Hud.getElHudPage(t).lastPage}get transitionPage(){return ds.Translation.getTranslationPage("detail")}get lastPageDataName(){return this.lastPageData.name}get itemLoreId(){return this.itemProperties.idLore}get itemPropertiesLoot(){return this.itemProperties.itemLoot}get priceBuy(){return this.itemPropertiesLoot.priceBuy}getQuantityValue(){const t=HudPageDetail.ids.field.quantity,e=ds.Helper.getElementByDataId(this.shadowRoot,t);if(!e)return 1;const a=Number(e.getAttribute(ds.Prefix.ATTR_INPUT_VALUE));return a>0?a:1}handleBack(){const t=this.lastPageData,{pagePosition:e,page:a,from:s,isNPC:i,name:n}=t,r={detail:{page:a,pageTarget:s,pagePosition:e,from:s,isNPC:i,name:n}};HTML.elHud.openPage(r)}async handleBuy(t){const e={target:t,method:"buyItem",responseText:"bought",isCheckInventory:!0};Analytics.send({event_name:"npc_buy",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName,npc:this.lastPageDataName}),await this.handleClick(e)}async handleClick(t){const{target:e,method:a}=t,s=ds.Helper.getElementByDataId(this.shadowRoot,e);if(!ds.Layout.isButtonDisabled(s))return HudPageDetail.method=a,HudPageDetail.currentButton=s,HudPageDetail.setCurrentButtonDisabled(!0),await this.fetchData(t)}static setCurrentButtonDisabled(t){const e=HudPageDetail.currentButton;ds.Layout.setButtonDisabled(e,t)}async handleCraft(t){const e={target:t,method:"startCraft",responseText:"crafted",isCheckInventory:!1};Analytics.send({event_name:"craft_start",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName,npc:this.lastPageDataName}),(await this.handleClick(e)).isError||this.buttonBack.click()}async handleDelete(t){const e=ds.Translation.interfaceDefault.delete,a=ds.Translation.interfaceDefault.delete_confirm;if(!await ds.ConfirmationHandler.open({title:e,text:a}))return;Analytics.send({event_name:"item_delete",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName});const s={target:t,method:"deleteItem",responseText:"deleted",isCheckInventory:!0};await this.handleClick(s)}async handleDeposit(t){const e={target:t,method:"depositItem",responseText:"deposited",isCheckInventory:!1};Analytics.send({event_name:"npc_deposit",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName,npc:this.lastPageDataName}),await this.handleClick(e)}async handleWithdraw(t){const e={target:t,method:"withdrawItem",responseText:"withdrawn",isCheckInventory:!0};Analytics.send({event_name:"npc_withdraw",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName,npc:this.lastPageDataName}),await this.handleClick(e)}async handleEquip(t){const e={target:t,method:HudPageDetail.methods.equipItem,responseText:"equipped",isCheckInventory:!1};Analytics.send({event_name:"item_equip",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName}),await this.handleClick(e)}handleClickFinish(t,e,a){const s={content:this.buildResponseMessage(e,a)};t.isError||Notification.add(s),HudPageDetail.setCurrentButtonDisabled(!1),this.setButtonDisabled(),this.handleClickFinishGoBack()}handleClickFinishGoBack(){const t=HudPageDetail.isFromNPC,e=HudPageDetail.method===HudPageDetail.methods.unequipItem;let a=!1,s=0;t||(s=Player.inventory[this.itemId]),s&&!e||(a=!0),a&&this.buttonBack.click()}async handleSell(t){const e={target:t,method:"sellItem",responseText:"sold_item",isCheckInventory:!0};Analytics.send({event_name:"npc_sell",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName,npc:this.lastPageDataName}),await this.handleClick(e)}async handleUnequip(t){const e={target:t,method:HudPageDetail.methods.unequipItem,responseText:"unequipped",isCheckInventory:!0};Analytics.send({event_name:"item_unequip",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName}),await this.handleClick(e)}async handleUse(t){const e={target:t,method:"useItem",responseText:"used",isCheckInventory:!1};Analytics.send({event_name:"item_use",item_id:this.itemProperties?.id,item_name:this.itemProperties?.translationName}),await this.handleClick(e)}observeQuantityChanges(t){new MutationObserver(t=>{for(const e of t)"attributes"===e.type&&e.attributeName===ds.Prefix.ATTR_INPUT_VALUE&&(this.updatePriceField(),this.updateTimeField(),this.updateCraftRecipe())}).observe(t,{attributes:!0})}async render(){const t=await this.draw();ds.Components.render(this.args,t);const e=ds.Components.componentButton;ds.Layout.addEventListeners(this,e),this.setQuantityField(),this.setButtosDisabled()}setButtonDisabled(){const t=HudPageDetail.currentButton.getAttribute("data-id"),e=`setButtonDisabled${ds.Helper.capitalizeString(t)}`;"function"==typeof this[e]&&this[e]()}static setDataFrom(t){const{isFromNPC:e,npcAction:a}=t;HudPageDetail.isFromNPC=e,HudPageDetail.npcAction=a}setQuantityField(){const t=HudPageDetail.ids.field.quantity,e=ds.Helper.getElementByDataId(this.shadowRoot,t);if(!e)return;const a=this.calculateQuantity(),s=this.itemProperties?.quantity??this.itemData?.quantity??1,i=HudPageDetail.isFromNPC?a.min:1;e.setAttribute(ds.Prefix.ATTR_INPUT_VALUE,i);const n=HudPageDetail.isFromNPC?a.max:s;e.setAttribute(ds.Prefix.ATTR_INPUT_MAX,n),e.setAttribute(ds.Prefix.ATTR_INPUT_MIN,1),e.shadowRoot.querySelector("input").focus(),this.updatePriceField(),this.updateTimeField(),this.observeQuantityChanges(e)}setButtosDisabled(){this.setButtonDisabledBuy(),this.setButtonDisabledCraft(),this.setButtonDisabledDeposit(),this.setButtonDisabledSell(),this.setButtonDisabledWithdraw()}setButtonDisabledBuy(){const t=this.calculatePriceFromQuantity(1)>Player.getInventoryByCurrency(this.itemPropertiesLoot.pay_with);ds.Layout.setButtonDisabled(this.buttonBuy,t)}setButtonDisabledByNotHaving(t){const e=t[this.itemId];ds.Layout.setButtonDisabled(HudPageDetail.currentButton,!e)}setButtonDisabledCraft(){let t=!1;const e=this.craftRecipe;if(e){const a=this.getQuantityValue(),{max:s}=PageDetailCraft.calculateQuantity(e);(0===s||a>s)&&(t=!0)}else t=!0;PageDetailCraft.isCraftingNPC&&(t=!0),ds.Layout.setButtonDisabled(HudPageDetail.currentButton,t)}setButtonDisabledDeposit(){this.setButtonDisabledByNotHaving(Player.inventory)}setButtonDisabledSell(){this.setButtonDisabledByNotHaving(Player.inventory)}setButtonDisabledWithdraw(){this.setButtonDisabledByNotHaving(Player.bankStorage)}setText(t){this.page?.setText(t)}setTexts(){const t=ds.Translation.interfaceDefault;this.page?.setTitle(t.detail),this.setText(t.detail_description)}updatePriceField(){const t=this.getQuantityValue(),e=this.calculatePriceFromQuantity(t),a=HudPageDetail.ids.field.price,s=ds.Helper.getElementByDataId(this.shadowRoot,a);s&&s.setAttribute(ds.Prefix.ATTR_INPUT_VALUE,e)}updateTimeField(){if(!PageDetail.isCraft)return;const t=this.getQuantityValue(),e=PageDetailCraft.buildTimeText(this.craftTime*t),a=HudPageDetail.ids.field.time,s=ds.Helper.getElementByDataId(this.shadowRoot,a);s&&s.setAttribute(ds.Prefix.ATTR_INPUT_VALUE,e)}updateCraftRecipe(){if(!PageDetail.isCraft)return;const t=this.getQuantityValue(),e=this.craftRecipe;if(!e)return;const a=this.shadowRoot.querySelector(".gm-detail");if(!a)return;const s=a.querySelector(".ds-title");if(s){const t=s.closest(".ds-row"),e=t.nextElementSibling;e&&e.remove(),t.remove()}const i=PageDetailCraft.drawRecipe(e,t);a.insertAdjacentHTML("beforeend",i)}}export class HudPageEquipments extends HTMLElement{args={context:this};static pageDetail;constructor(){super(),this.attachShadow({mode:"open"}),this.render(),HudPageEquipments.pageDetail=this}draw(){const t=this.getAttribute("page");let e='<div class="gm-equipment">';return Statics.equipments.forEach(t=>{"clothes"!==t&&(e+=this.drawItem(t))}),e+="</div>",ds.Page.drawContent(t,e)}drawItem(t){const e=Player.equipmentsInStorage,a=Player.equipments,s=a?.[t],i=Character.getEquipmentIdLoreById(e,s),n=t,r={target:i,quantity:1},o=Storage.getProperties(r),d=o?.isDurability,l={id:s,isDurability:d,quantity:1,item:o?.idLore,kind:o?.itemLoot?.kind},c=`[${ds.Helper.buildJSONToHTML(l)}]`,u=!(!i||0===i?.length),h={item:i,isDurability:d,isEquipment:u,kind:n,isTooltip:!u,id:s,durabilityStorage:Storage.getItemDurabilityById(s)},p=lo.HTML.drawLoot(h),m=ds.Translation.gameEquipment[t],g=u?"":`data-tooltip="${m}"`;let y=`\n            <button\n                class="ds-card--small ${ds.Layout.theme.card} gm-equipment__${t}"\n                type="button"\n                ${g}\n        `;return o&&(y+=`\n                data-handler="handleOpenDetails"\n                data-handler-props='${c}'\n            `),y+=`\n            >\n                <div class="ds-card__header">\n                </div>\n                <div class="ds-card__body">\n                    ${p}\n                </div>\n                <div class="ds-card__footer">\n                </div>\n            </button>\n        `,y}handleOpenDetails(t){const e={id:t,context:this,isFromNPC:!1,backFilter:this.getAttribute("page")};HudPageDetail.itemId=t.id,Hud.openPageDetail(e)}redraw(){this.render()}render(){const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button"),this.shadowRoot.querySelectorAll("[data-tooltip]").forEach(t=>{ds.Tooltip?.elTooltipWrapper?.build({context:t})})}updateData(){this.render()}}export class HudPageInventory extends HTMLElement{args={context:this};activeContentDetault="all";activeContent=this.activeContentDetault;itemKinds=[];static pageDetail;constructor(){super(),this.attachShadow({mode:"open"}),HudPageInventory.pageDetail=this,this.redraw()}buildItemKinds(t){const{item:e,quantityItem:a}=t,s={target:e,quantity:a},i=Storage.getProperties(s).itemLoot.kind;this.itemKinds.includes(i)||this.itemKinds.push(i)}draw(){const t=this.drawFooter(),e=this.getAttribute("page"),a=Player.inventory,s=a.length>0?this.drawList(a):Layout.drawEmptyContent(),i=`\n            ${ds.Page.drawContent(e,s)}\n            ${ds.Page.drawFooter(t,!1)}\n        `;return this.drawMenu(),i}drawMenu(){let t=[];const e=this.itemKinds;if(!(e.length>0))return;t.push(Statics.buttons.filterAll);let a=!1,s=!1,i=!1,n=!1,r=!1;e.forEach(t=>{Storage.isEquipment(t)&&(a=!0);const e=Storage.getItemKind(t);e.isResources&&(i=!0),e.isMoney&&(n=!0),e.isUsable&&(s=!0),e.isCollectable&&(r=!0)});const o=Statics.buttons;a&&t.push(o.filterEquipment),i&&t.push(o.filterResources),n&&t.push(o.filterMoney),s&&t.push(o.filterUsable),r&&t.push(o.filterCollectable),HTML.elHudPageRight.setMenu({buttons:t})}drawList(t){const e=t.filter(t=>this.isSameActiveContent(t));return this.prepareKinds(e),Layout.drawCardItemList(e,!0)}drawFooter(){const t=ds.Translation.interfaceDefault,e=t?.capacity;return`\n            <span class="gm-label">${e}:</span>\n            ${this.drawProgress(e)}\n        `}drawProgress(t){const e=Data.player.attributes,a=e.weight,s=e.capacity,i={value:a,valueMax:s},n=ds.Layout.buildProgressColor(i),r={text:t,value:a,valueMax:s,isPercentage:!1},o={value:a,valueMax:s,isPercentage:!0},d=`${ds.Layout.buildTextCapacity(r)} - ${ds.Layout.buildTextCapacity(o)}`,l=ds.Components.componentProgress;return`\n            <${l}\n                value="${a}"\n                value-max="${s}"\n                theme="${n}"\n                direction="horizontal"\n                data-tooltip="${d}"\n                class="ds-display-flex ds-full-width"\n                css-wrapper="gm-style"\n                class="ds-display-flex ds-progress"\n            ></${l}>\n        `}isSameActiveContent(t){const e=this.activeContent;let a=!1;if(e===this.activeContentDetault)a=!0;else{const s=t.id_lore,i=ds.Helper.findById(ds.Modules.items,Number(s)).kind;e===i&&(a=!0),Storage.isEquipment(i)&&"equipment"===e&&(a=!0)}return a}handleFilter(t){const e=Storage.getIdByTranslation(t);this.activeContent=e||t,this.render()}handleOpenDetails(t){const e={id:t,context:this,isFromNPC:!1,backFilter:this.getAttribute("page")};HudPageDetail.itemId=t.id,Hud.openPageDetail(e)}prepareKinds(t){t.forEach(t=>{const e=Storage.buildItem(t),a={item:e.item,quantityItem:e.quantity};this.buildItemKinds(a)})}updateData(){this.redraw()}redraw(){this.itemKinds=[],this.activeContent=this.activeContentDetault,this.render()}render(){const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageMap extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=this.getAttribute("page"),e=this.drawList(),a=`\n            <div class="ds-row ds-center">\n                <h2 class="ds-title">\n                    ${this.data.name}\n                </h2>\n            </div>\n            <div class="ds-page__${this.args}">\n                <div class="gm-mini-map">\n                    ${e}\n                </div>\n            </div>\n        `;return`\n            ${ds.Page.drawContent(t,a)}\n        `}drawList(){const t="gm-mini-map__tile--",e=Data.miniMap,a=Data.map.data.mapsTotal;let s="";for(let i=0;i<a;i++){const a=i+1,n=e?.[a];s+=`\n                <div\n                    class="gm-mini-map__tile ${void 0!==n?`${t}green`:`${t}disabled`}"\n                    id="mini_map_tile_${a}"\n                >\n            `,this.data.idMiniMap===a&&(s+=this.drawPointer()),s+=this.drawDoors(n,a),s+="</div>"}return s}drawDoors(t,e){const a=Object.values(t?.doors||{}).flat(),s=a.includes(1),i=a.includes(2),n=a.includes(3),r=a.includes(4);let o="";const d=(t,e)=>`\n            <div\n                id="mini_map_tile_door_${e}_${t}"\n                class="gm-mini-map__door-${e}"\n            ></div>\n        `;return s&&(o+=d(e,"top")),i&&(o+=d(e,"left")),n&&(o+=d(e,"right")),r&&(o+=d(e,"bottom")),o}drawPointer(){return`\n            <div class="gm-mini-map__pointer ds-animation--up-down">\n                ${ds.HTML.drawIcon({theme:"black",size:"extra-big",icon:"map"})}\n            </div>\n        `}get data(){return Data.map.data}render(){const t=this.draw();ds.Components.render(this.args,t)}updateData(){this.render()}}export class HudPageMenu extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){let t='\n            <div class="ds-button-wrapper ds-menu-vertical">\n        ';return Statics.buttonsMainMenu.forEach(e=>{const a={id:e.id||"",target:e.pageTarget,css:e.css+" ds-button--full",label:e.label};t+=this.drawButton(a)}),t+="</div>",t}drawButton(t){const{id:e,target:a,css:s,label:i}=t,n=ds.Components.componentButton,r=ds.Layout.theme;return`\n            <${n}\n                id="${e}"\n                theme="${r.menuDefault}"\n                size="${r.menuSize}"\n                is-proportional="true"\n                is-full="true"\n                page-target="${a}"\n                page-position="right"\n                click="open-hud-page"\n                css-custom="${s}"\n                data-kind="button"\n                label="${i}"\n            ></${n}>\n        `}render(){const t=this.draw();ds.Components.render(this.args,t)}}export class HudPageNPC extends HTMLElement{args={context:this};pageId="npc";buttons=[];itemKinds=[];static id;static name;static pageDetail;constructor(){super(),this.attachShadow({mode:"open"})}connectedCallback(){HudPageNPC.pageDetail=this,this.render()}buildActions(t){const e=Statics.actions,a=Statics.buttons,s=[];t.forEach(t=>{const i=ds.Helper.findById(e,t);if(i){const t=i?.label,e=ds.Helper.capitalizeString(t),n=a[`filter${e}`];s.push(n)}}),this.buttons=s}clickButtonByIndex(t){const e=this.buttons.length;if(0===e||t>=e)return;const a=this.page.elMenuButtons;a?.[t]?.click()}draw(){const t=this.getAttribute("page");return`\n            ${ds.Page.drawContent(t,"")}\n        `}drawMenu(){const t=this.buttons;this.page.setMenu({buttons:t})}static drawItemsList(t){let e="";return t.forEach(t=>{const a=[`${t}`,ds.Layout.symbol.infinity],s={item:Storage.buildItem(a).item,index:a};e+=Layout.buildCardItem(s)}),e}static drawWrapper(t,e="npc"){const a=Layout.drawCardWrapper(t);return`\n            ${ds.Page.drawContent(e,a)}\n            ${HudPageDetail.drawMoney()}\n        `}getData(){const t=HudPageNPC.id,e=NPCs.getData(t);HudPageNPC.name=e.name;const a=e.actions;a&&this.buildActions(a);const s=e.sells;s&&(HudPageNPC.sells=s);const i=e.quests;i&&(HudPageNPC.quests=i);const n=e.crafts;n&&(HudPageNPC.crafts=n)}get page(){return HTML.elHudPageLeft}static handleOpenDetails(t){const{context:e,id:a,npcAction:s}=t,i={id:a,context:e,isFromNPC:!0,npcAction:s,backFilter:e.getAttribute("page")};Hud.openPageDetail(i)}handleCraftRewardBack(){PageDetailCraft.isReward=!1,this.renderCraft()}redraw(){this.render()}render(){const t=this.draw();ds.Components.render(this.args,t),this.getData(),this.drawMenu(),this.clickButtonByIndex(0),this.talk()}renderCraft(){this.render(),this.page.elMenuButtons.forEach(t=>{t.dataset.id===Statics.buttons.filterCraft.id&&t.click()})}async talk(){const t=HudPageNPC.name,e=await FetchData.getNPC(t),a=e?.status_restored;if(Analytics.send({event_name:"npc_talk",npc_name:t}),!a)return;const s=ds.Translation.dialog[t],i=s?.status_restored;if(i){const t={content:i};Notification.add(t)}}}export class HudPageQuest extends HTMLElement{args={context:this};static currentButton;static pageDetail;constructor(){super(),this.attachShadow({mode:"open"}),HudPageQuest.pageDetail=this,this.render()}buildResponseMessage(t){return ds.Translation.interface.response[t]}draw(){const t=`\n            ${this.drawList()}\n        `;return HudPageNPC.drawWrapper(t)}drawList(){const t=ds.Translation.interfaceDefault,e=`\n            ${ds.HTML.drawTH(t?.quest)}\n            ${ds.HTML.drawTH(t?.description)}\n            ${ds.HTML.drawTH(t?.action)}\n        `,a=this.drawListItems();return Layout.drawTable(e,a)}drawListItems(){const t=Quest.buildQuestListByNPC(HudPageNPC.id);let e="";return t.forEach(t=>{const a=t.isDone,s=`\n                ${HudPageQuest.drawListItemContent(a,t.title)}\n                ${HudPageQuest.drawListItemContent(a,t.description)}\n                ${ds.HTML.drawTD(t.action,!0)}\n            `;e+=Layout.drawTableTr(s)}),e}static drawListItemContent(t,e){const a=ds.Helper.escapeHTML(e);return ds.HTML.drawTD(ds.HTML.drawS(t,a))}async fetchData(t){const{method:e,responseText:a}=t;return this.handleClickFinish(a),await FetchData[`${e}`](t)}async handleAccept(t){const e={id:t,target:Layout.buildId(Statics.buttons.accept.id,t),method:"acceptQuest",responseText:"quest_accepted",npc:HudPageNPC.id};Analytics.send({event_name:"quest_accept",quest_id:t,npc_id:HudPageNPC.id}),await this.handleClick(e)}async handleClick(t){const{target:e}=t,a=ds.Helper.getElementByDataId(this.shadowRoot,e);ds.Layout.isButtonDisabled(a)||(HudPageQuest.currentButton=a,HudPageQuest.setCurrentButtonDisabled(!0),await this.fetchData(t),HudPageQuest.pageDetail.render())}handleClickFinish(t){const e={content:this.buildResponseMessage(t)};Notification.add(e),HudPageQuest.setCurrentButtonDisabled(!1)}async handleFinish(t){const e={id:t,target:Layout.buildId(Statics.buttons.finish.id,t),method:"finishQuest",responseText:"quest_completed",npc:HudPageNPC.id};Analytics.send({event_name:"quest_finish",quest_id:t,npc_id:HudPageNPC.id}),await this.handleClick(e)}async render(){HudPageDetail.npcAction=Quest.action;const t=await this.draw();ds.Components.render(this.args,t);const e=ds.Components.componentButton;ds.Layout.addEventListeners(this,e)}static setCurrentButtonDisabled(t){const e=HudPageQuest.currentButton;ds.Layout.setButtonDisabled(e,t)}}export class HudPageQuests extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=this.getAttribute("page"),e=this.drawList(),a=Layout.drawEmpty(),s=ds.Helper.isObjectContent(Player.quests)?e:a;return ds.Page.drawContent(t,s)}drawList(){const t=ds.Translation.interfaceDefault,e=`\n            ${ds.HTML.drawTH(t?.quest)}\n            ${ds.HTML.drawTH(t?.description)}\n            ${ds.HTML.drawTH(t?.requester)}\n            ${ds.HTML.drawTH(t?.status)}\n        `,a=this.drawListItems();return Layout.drawTable(e,a)}drawListItems(){const t=Quest.buildFullQuestList(!1);let e="";return t.forEach(t=>{const a=t.isDone,s=`\n                ${HudPageQuest.drawListItemContent(a,t.title)}\n                ${HudPageQuest.drawListItemContent(a,t.description)}\n                ${HudPageQuest.drawListItemContent(a,t.requester)}\n                ${ds.HTML.drawTD(t.action,!0)}\n            `;e+=Layout.drawTableTr(s)}),e}render(){HudPageDetail.npcAction="quests";const t=this.draw();ds.Components.render(this.args,t)}updateData(){this.render()}}export class HudPageRepair extends HudPageNPC{args={context:this};ids=[];itemKinds=[];static fieldPrice="field_repair_price";constructor(){super()}addEventListeners(){ds.Layout.addEventListeners(this,"button"),ds.Layout.addEventListeners(this,ds.Components.componentButton)}buildItems(){const t=Player.equipmentsInStorage,e=[];return t.forEach(t=>{const a=this.getItemLore(t),s=this.itemKinds.includes(a?.kind),i=this.isDamaged(t,a);s&&i&&e.push(t)}),e}calculatePrice(t){const e=Storage.getItemById(t.id),a=this.getItemLore(t),s=a?.durability,i=e?.durability,n=s-i;if(n<=0||s<=0)return 0;const r=a?.priceBuy;return Math.ceil(r*n/s)}calculateTotalPrice(t=this.ids){const e=this.buildItems();let a=0;return e.forEach(e=>{t.includes(e.id)&&(a+=this.calculatePrice(e))}),a}draw(){const t=ds.Translation.getTranslationPage("repair")?.description,e=this.buildItems(),a=e.length>0?this.drawItemsList(e):Layout.drawEmptyContent(),s=this.calculateTotalPrice(),i=`\n            <div class="ds-row ds-margin-bottom--big">\n                ${t}\n            </div>\n            ${a}\n            ${this.drawField({label:Translation.buildTitlePriceGold(),value:s,dataId:HudPageRepair.fieldPrice})}\n            ${this.drawFooter()}\n        `;return HudPageNPC.drawWrapper(i)}drawField(t){const{label:e,value:a,dataId:s}=t,i=ds.Components.componentFormField,n=ds.Helper.escapeHTML,r=ds.Layout.theme.form;return`\n            <${i}\n                class="ds-row ds-margin-top-bottom--extra-big"\n                label="${n(e)}"\n                input-value="${n(a)}"\n                is-read-only="true"\n                data-id="${n(s)}"\n                type="text"\n                css-wrapper="${r}"\n            >\n            </${i}>\n        `}drawFooter(){const t=Statics.buttons.repair,e=Statics.buttons.repairAll,a=`\n            ${Layout.drawButtonComponent({id:t.id,label:t.label,handler:t.handler,handlerProps:t.handlerProps,theme:t.theme})}\n            ${Layout.drawButtonComponent({id:e.id,label:e.label,handler:e.handler,handlerProps:e.handlerProps,theme:e.theme})}\n        `;return ds.Page.drawFooter(a)}drawItemCard(t){const e=t.id,a=Storage.getItemById(e),s=this.getItemLore(t),i=s?.durability>0,n=a?.durability,r=lo.HTML.drawLoot({item:t.id_lore,isDurability:i,durabilityStorage:n,id:e}),o=this.calculatePrice(t),d=this.ids.includes(e),l=ds.Layout.theme.card;return`\n            <button\n                class="gm-card__item ds-card--small ${l} ${d?`${l}--active`:""}"\n                type="button"\n                data-id="${e}"\n                data-handler="handleSelect"\n                data-handler-props='["${e}"]'\n                data-kind='button'\n            >\n                <div class="ds-card__header">\n                </div>\n                <div class="ds-card__body">\n                    ${r}\n                </div>\n                <div class="ds-card__footer ds-right">\n                    <div class="ds-truncate">${o}</div>\n                </div>\n            </button>\n        `}drawItemsList(t){let e="";return t.forEach(t=>{e+=this.drawItemCard(t)}),e}async fetchRepair(){const t=this.isMagic?"repairMagic":"repairCombat",e={ids:this.ids,npc:HudPageNPC.id},a=await FetchData[t](e);if(a?.isError)return;Analytics.send({event_name:"npc_repair",items:this.ids,npc_id:HudPageNPC.id});const s={content:ds.Translation.interface.response.repaired};Notification.add(s),this.ids=[],this.render()}get action(){return this.getAttribute("action")}get isMagic(){return"repairMagic"===this.action}get translation(){return ds.Translation.interfaceDefault}getItemLore(t){return ds.Helper.findById(ds.Modules.items,Number(t.id_lore))}async handleRepair(){0===this.ids.length||await this.fetchRepair()}async handleRepairAll(){const t=this.buildItems();0===t.length||(this.ids=t.map(t=>t.id),await this.fetchRepair())}handleSelect(t){const e=Number(t);if(this.ids.includes(e)){const t=this.ids.indexOf(e);this.ids.splice(t,1)}else this.ids.push(e);this.render()}isDamaged(t,e){const a=Storage.getItemById(t.id),s=e?.durability,i=a?.durability;return s>0&&i<s}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners(),this.setButtonDisabled()}setButtonDisabled(){const t=this.buildItems().map(t=>t.id),e=Statics.buttons.repair,a=Statics.buttons.repairAll,s=ds.Helper.getElementByDataId(this.shadowRoot,e.id),i=ds.Helper.getElementByDataId(this.shadowRoot,a.id),n=this.calculateTotalPrice(),r=this.calculateTotalPrice(t),o=Player.inventoryGold,d=0===this.ids.length||n>o,l=0===t.length||r>o;ds.Layout.setButtonDisabled(s,d),ds.Layout.setButtonDisabled(i,l)}}export class HudPageRepairCombat extends HudPageRepair{itemKinds=[5,6,7,8,9,14,16,17,18,19,21];get action(){return"repairCombat"}}export class HudPageRepairMagic extends HudPageRepair{itemKinds=[10,11,12];get action(){return"repairMagic"}}export class HudPageSelectCharacter extends BaseComponent{args={context:this};idPlayer="player";idCharacterNew="character_new";idCharacterPlay="character_play";constructor(){super(),this.attachShadow({mode:"open"})}addEventListeners(t){const e=[];ds.Helper.getElementsByDataId(this.shadowRoot,this.idCharacterNew).forEach(t=>{const a={el:t,handler:this.addNewCharacter};e.push(a)}),ds.Helper.getElementsByDataId(this.shadowRoot,this.idCharacterPlay).forEach(t=>{const a={el:t,handler:Management.play};e.push(a)}),e.forEach(e=>{ds.Helper.addEventListener({...e,context:this,signal:t})}),this.shadowRoot.querySelectorAll('[click="delete-character"]').forEach(e=>{e.addEventListener("click",t=>t.stopPropagation(),{signal:t})}),this.addEventListener("delete-character",this.handleDelete.bind(this),{signal:t})}addNewCharacter(){HTML.elHud.openModalSelectClass()}draw(){return`${this.drawList()}`}drawList(){const t=Character.characters.length,e=(Data.login?.slots??0)-t;let a=this.drawListCharacters();return e>0&&(a+=this.drawListEmptySlots(e)),ds.Modal.drawContent(a)}drawListCharacters(){let t="";return Character.characters.forEach(e=>{const a=e[1],s=a.id,i=ds.Translation.interfaceDefault.delete,n=ds.Helper.buildJSONToHTML(a.customizations),r=Character.getStorageByCharcaterId(s),o=Character.buildEquipments(a.equipments,r),d=ds.Helper.buildJSONToHTML(o),l={position:"right",click:"delete-character",size:"extra-small",sizeIcon:"extra-small",tooltip:i,dataId:s,isRounded:!1},c=ds.Button.drawButtonClose(l),u=a.attributes,h=ds.Translation.getTranslationPage("attributes"),p=`${h.level}: `,m=u.name,g=`${p} ${ds.Layout.buildSpan(u.level)}`,y=Statics.classes[u.class].class,b=ds.Translation.buildPlayerClass(y),P=HudPageAttributes.formatExperience(u.experience),w=`${h.experience}: ${ds.Layout.buildSpan(P)}`,f=lo.Components.entity,C=ds.Layout.theme.card;t+=`\n                <button\n                    type="button"\n                    data-id="${this.idCharacterPlay}"\n                    id="${s}"\n                    class="ds-row ds-card--horizontal gm-card--horizontal ${C}"\n                >\n                    <div class="ds-column ds-image">\n                        <${f}\n                            class="gm-alive gm-person ds-display-contents"\n                            entity="person"\n                            direction="down"\n                            action="walk"\n                            customizations=${n}\n                            equipments=${d}\n                            tabindex="-1"\n                        ></${f}>\n                    </div>\n                    <div class="ds-column ds-text">\n                        <div class="gm-button__delete-character">\n                            ${c}\n                        </div>\n                        <span>${ds.Helper.escapeHTML(m)}</span>\n                        <small>${b}</small>\n                        <small>${g}</small>\n                        <small>${w}</small>\n                    </div>\n                </button>\n             `}),t}drawListEmptySlots(t){const e=ds.Translation.interfaceDefault?.create_new_character,a=ds.Components.componentButton,s=`\n            <${a}\n                theme="${ds.Layout.theme.menuSuccess}"\n                size="regular"\n                label="${e} (${t})"\n                data-id="${this.idCharacterNew}"\n                data-character-id="${this.idPlayer}"\n                is-full="true"\n            ></${a}>\n        `;return`\n            <div\n                class="ds-row ds-card ds-card--grey ds-card--horizontal"\n                id="${this.idPlayer}"\n            >\n                <div class="ds-row">\n                    ${s}\n                </div>\n            </div>\n        `}async deleteCharacter(t){const e={id:t},a=await FetchData.deleteCharacter(e);Analytics.send({event_name:"character_delete",character_id:t}),a.characters&&this.redraw()}async handleDelete(t){const e={title:ds.Translation.interfaceDefault.delete,text:ds.Translation.interfaceDefault.delete_confirm};if(!await ds.ConfirmationHandler.open(e))return;const a=t.detail.context.dataset.id;this.deleteCharacter(a)}redraw(){this.render(),this.rebindListeners()}render(){const t=this.draw();ds.Components.render(this.args,t)}}export class HudPageSelectClass extends HTMLElement{args={context:this};idPlayer="player";static selectedClass;constructor(){super(),this.attachShadow({mode:"open"}),this.render(),this.addEventListeners()}addEventListeners(){const t=[];this.shadowRoot.querySelectorAll("button").forEach(e=>{const a={el:e,handler:this.handleCustomize};t.push(a)}),t.forEach(t=>{t.context=this,ds.Helper.addEventListener(t)});const e=ds.Components.componentButton;ds.Layout.addEventListeners(this,e)}draw(){return`\n            ${this.drawList()}\n        `}drawList(){const t=this.drawListCharacters(),e=ds.Modal.drawContent(t),a=this.drawFooter();return`\n            ${e}\n            ${ds.Modal.drawFooter(a)}\n        `}drawListCharacters(){let t="";return Object.entries(Statics.classes).forEach(e=>{const a=e[0],s=e[1],i=s.class,n=ds.Translation.buildPlayerClass(i),r=this.drawListCharactersAttribute(i),o=ds.Translation.buildPlayerClassDescription(i),d=ds.Translation.gamePlayer.primary_attribute,l=ds.Helper.buildJSONToHTML(s.customizations),c=ds.Helper.buildJSONToHTML(s.equipments),u=ds.Layout.theme.card;t+=`\n                <button\n                    type="button"\n                    class="ds-row ds-card--horizontal gm-card--horizontal ${u}"\n                    id="${this.idPlayer}_${a}"\n                    data-class="${a}"\n                >\n                    <div class="ds-column ds-image">\n                        <${lo.Components.entity}\n                            class="gm-alive gm-person ds-display-contents"\n                            entity="person"\n                            direction="down"\n                            action="walk"\n                            customizations=${l}\n                            equipments=${c}\n                            tabindex="-1"\n                        ></${lo.Components.entity}>\n                    </div>\n                    <div class="ds-column ds-text">\n                        <span>${n}</span>\n                        <small>\n                            ${o}\n                        </small>\n                        <small>\n                            ${d}:\n                            <span>${r}</span>\n                        </small>\n                    </div>\n                </button>\n             `}),t}drawListCharactersAttribute(t){const e=Object.values(Statics.classes).find(e=>e.class===t).attribute;return ds.Translation.getTranslationPage("attributes")[e]}drawFooter(){const t=ds.Translation.interfaceDefault?.back,e=ds.Components.componentButton,a=ds.Layout.theme;return`\n            <${e}\n                theme="${a.menuDefault}"\n                size="${a.menuSize}"\n                data-handler="handleBack"\n                label="${t}"\n            ></${e}>\n        `}handleBack(){HTML.elHud.openModalSelectCharacter(!1)}handleCustomize(t){const e=t.currentTarget,a=Number(e.getAttribute("data-class")),s=Statics.classes[a];HudPageSelectClass.selectedClass=a,CharacterRotation.customizations={...s.customizations},CharacterRotation.equipments={...s.equipments},CharacterRotation.equipments.armor=null,CharacterRotation.equipments.boot=null,CharacterRotation.equipments.face=null,CharacterRotation.equipments.gloves=null,CharacterRotation.equipments.pants=null,CharacterRotation.equipments.shield=null,CharacterRotation.equipments.weapon=null,HTML.elHud.openModalCustomize()}render(){const t=this.draw();ds.Components.render(this.args,t)}}export class HudPageSelectCustomization extends PageCustomizations{idPlayer="player";idCharacterPlay="character_play";static idCharacterCustomization="character_customization";static idCharacterCurrent;args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render(),this.addEventListeners(),this.setFocus(),this.togglePlayButton(),setTimeout(()=>{this.selectFirstCustomizationOptions()},0)}addEventListeners(){const t=[],e={el:ds.Helper.getElementByDataId(this.shadowRoot,this.idCharacterPlay),handler:this.handlePlay};t.push(e),t.forEach(t=>{t.context=this,ds.Helper.addEventListener(t)});const a=ds.Components.componentButton;ds.Layout.addEventListeners(this,a);const s=ds.Helper.getElementByDataId(this.shadowRoot,HudPageSelectCustomization.idCharacterCustomization);s.addEventListener(CharacterCustomization.eventNameChange,()=>{this.togglePlayButton()}),s.addEventListener(CharacterCustomization.eventCustomizationChange,()=>{this.togglePlayButton()}),this.addEventListenersCustomization()}draw(){const t=this.drawContent(),e=this.drawMenu();return`\n            ${ds.Modal.drawContent(t)}\n            ${ds.Modal.drawFooter(e)}\n        `}drawContent(){const t=CharacterCustomization.getData("apply"),e=Components.characterRotation,a=Components.characterCustomization;return`\n            <div class="ds-row gm-character-customizarion">\n                <div class="ds-column gm-column--1 ds-card-wrapper ds-center">\n                    <${e}\n                        class="gm-character"\n                    ></${e}>\n                </div>\n                <div class="ds-column gm-column--2">\n                    <${a}\n                        data="${t}"\n                        data-content="full"\n                        data-id="${HudPageSelectCustomization.idCharacterCustomization}"\n                    ></${a}>\n                </div>\n            </div>\n        `}drawMenu(){const t=ds.Translation.interfaceDefault,e=t?.back,a=t?.play,s=ds.Components.componentButton,i=ds.Layout.theme,n=i.menuSuccess,r=i.menuDefault,o=i.menuSize;return`\n            <${s}\n                theme="${r}"\n                size="${o}"\n                data-handler="handleBack"\n                label="${e}"\n            ></${s}>\n            <${s}\n                theme="${n}"\n                size="${o}"\n                label="${a}"\n                data-id="${this.idCharacterPlay}"\n                ${ds.Prefix.ATTR_IS_DISABLED}="true"\n            ></${s}>\n        `}get elButtonPlay(){return ds.Helper.getElementByDataId(this.shadowRoot,this.idCharacterPlay)}get elCharacterCustomization(){return ds.Helper.getElementByDataId(this.shadowRoot,HudPageSelectCustomization.idCharacterCustomization)}get name(){return this.elCharacterCustomization.getFieldNameValue()}handleBack(){HTML.elHud.openModalSelectClass()}async handlePlay(){if(!this.isFieldNameValid())return;const t={name:this.name,customizations:PageCustomizations.selectsValue,classId:HudPageSelectClass.selectedClass},e=await FetchData.createNewCharacter(t);if(e.isError)return;Analytics.send({event_name:"character_create",character_class:HudPageSelectClass.selectedClass,character_name:this.name});const a=e.custom.id;Management.play(a)}isCustomizationsValid(){return[...this.elCharacterCustomization.shadowRoot.querySelectorAll(ds.Components.componentSelect)].every(t=>""!==t.value)}isFieldNameValid(){return this.name.length>3}render(){const t=this.draw();ds.Components.render(this.args,t)}selectFirstCustomizationOptions(){this.elCharacterCustomization.shadowRoot.querySelectorAll(ds.Components.componentSelect).forEach(t=>{const e=JSON.parse(t.getAttribute("options")),a=e?.value?.[0];void 0!==a&&t.setValue(a)})}setFocus(){this.elCharacterCustomization.elFieldNameInput.focus()}togglePlayButton(){const t=this.isFieldNameValid()&&this.isCustomizationsValid();Layout.toggleButtonDisabled(t,this.elButtonPlay)}}export class HudPageSell extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=Player.inventory,e=t.length>0?Layout.drawCardItemList(t,!1):Layout.drawEmptyContent();return HudPageNPC.drawWrapper(e)}get action(){return ds.Prefix.SELL}handleOpenDetails(t){const e={id:t,context:this,npcAction:this.action};HudPageDetail.itemId=t.id,HudPageNPC.handleOpenDetails(e)}render(){HudPageDetail.npcAction=this.action;const t=this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudPageSettings extends HTMLElement{args={context:this};updates={settings:{all:!0}};translationPage;items=[];constructor(){super(),this.attachShadow({mode:"open"}),this.translationPage=ds.Translation.getTranslationPage("settings"),this.items=[{id:"music",translation:this.translationPage.music},{id:"effects",translation:this.translationPage.sound_effect}],this.render()}draw(){const t=this.getAttribute("page"),e=this.drawSound(),a=ds.Translation.interface?.default,s=this.drawTabs(),i=`\n            <div class="ds-row">\n                <table class="${ds.Layout.theme.table}">\n                    <thead>\n                        <tr>\n                            ${ds.HTML.drawTH(a?.detail)}\n                            ${ds.HTML.drawTH(a?.status)}\n                            ${ds.HTML.drawTH(a?.menu)}\n                        </tr>\n                    </thead>\n                    <tbody>\n                        ${e}\n                    </tbody>\n                </table>\n            </div>\n            ${s}\n        `;return`\n            ${ds.Page.drawContent(t,i)}\n        `}drawButton(t){const{icon:e,theme:a=ds.Components.componentButton,tooltip:s,handler:i,handlerProps:n,isDisabled:r=!1}=t,o=ds.Components.componentButton;return`\n            <${o}\n                icon="${e}"\n                icon-size="extra-small"\n                theme="${a}"\n                size="regular"\n                data-tooltip="${s}"\n                is-proportional="true"\n                data-handler="${i}"\n                data-handler-props='${JSON.stringify(n)}'\n                ${r?ds.Prefix.ATTR_IS_DISABLED+'="true"':""}\n            ></${o}>\n        `}drawProgress(t){const e=this.getData(t).value,a={text:ds.Translation.interfaceDefault?.status,value:e,valueMax:1,isPercentage:!0},s=ds.Layout.buildTextCapacity(a),i=ds.Components.componentProgress;return`\n            <${i}\n                data-target="${t}"\n                value="${e}"\n                value-max="1"\n                theme="green"\n                direction="horizontal"\n                data-tooltip="${s}"\n                css-wrapper="gm-style"\n            ></${i}>\n        `}drawSound(){let t="";return this.items.forEach(e=>{const a=e.id,s=e.translation,i=ds.Translation.interface?.default,n=this.drawProgress(a),r=Settings.isIncreaseDisabled(a),o=Settings.isDecreaseDisabled(a),d=ds.Layout.theme.menuDefault,l={icon:"less",theme:d,tooltip:i?.decrease,handler:"handleDecrease",handlerProps:[a],isDisabled:o},c=this.drawButton(l),u={icon:"plus",theme:d,tooltip:i?.increase,handler:"handleIncrease",handlerProps:[a],isDisabled:r},h=this.drawButton(u),p=this.getData(a),m=ds.Layout.theme.menuDefault,g={icon:p.isPlay?"pause":"play",theme:m,tooltip:p.isPlay?i?.pause:i?.play_music,handler:p.isPlay?"handlePause":"handlePlay",handlerProps:[a]},y=`\n                <div class="ds-content__menu ds-right" id="menu_${a}">\n                    ${c}\n                    ${h}\n                    ${this.drawButton(g)}\n                </div>\n            `;t+=`\n                <tr>\n                    ${ds.HTML.drawTD(s)}\n                    ${ds.HTML.drawTD(n)}\n                    ${ds.HTML.drawTD(y)}\n                </tr>\n            `}),t}drawTabs(){const t=ds.Components.componentButton,e=ds.Components.componentSuggestion,a=ds.Components.componentBugReport,s=ds.Translation.getTranslationPage("suggestion")?.title||"",i=ds.Translation.getTranslationPage("bug_report")?.title||"",n=ds.Layout.theme.menuTab,r=ds.Layout.theme.form,o=ds.Layout.theme.menuDefault;return`\n            <div class="ds-row ds-button-wrapper ds-center ds-tab ds-margin-top--big">\n                \n            <${t}\n                label="${s}"\n                theme="${n}"\n                size="small"\n                css-custom="ds-tab__button"\n                data-handler="handleTab"\n                data-handler-props='["suggestion"]'\n                data-kind="button"\n                is-active="true"\n            ></${t}>\n        \n                \n            <${t}\n                label="${i}"\n                theme="${n}"\n                size="small"\n                css-custom="ds-tab__button"\n                data-handler="handleTab"\n                data-handler-props='["bug-report"]'\n                data-kind="button"\n            ></${t}>\n        \n            </div>\n            <div class="ds-row">\n                \n            <div class="gm-tab__panel" data-tab="suggestion" is-active="true">\n                <${e}\n                    class="ds-display-contents"\n                    theme="game"\n                    css-wrapper="gm-style ${r}"\n                    button-theme="${o}"\n                    button-size="small"\n                ></${e}>\n            </div>\n        \n                \n            <div class="gm-tab__panel ds-display-none" data-tab="bug-report">\n                <${a}\n                    class="ds-display-contents"\n                    theme="game"\n                    css-wrapper="gm-style ${r}"\n                    button-theme="${o}"\n                    button-size="small"\n                ></${a}>\n            </div>\n        \n            </div>\n        `}getData(t){return Data.settings[t]}handleDecrease(t){const e={action:"decrease",target:t};this.setValue(e),this.updateData()}handleIncrease(t){const e={action:"increase",target:t};this.setValue(e),this.updateData()}handlePause(t){const e={target:t,value:!1};this.setIsPlay(e)}handlePlay(t){const e={target:t,value:!0};this.setIsPlay(e)}handleTab(t){this.shadowRoot.querySelectorAll(`${ds.Components.componentButton}[data-handler="handleTab"]`).forEach(e=>{const a=(e.getAttribute("data-handler-props")||"").includes(t);e.setAttribute(ds.Layout.attributeActive,a?"true":"false")}),this.shadowRoot.querySelectorAll(".gm-tab__panel").forEach(e=>{e.getAttribute("data-tab")===t?e.classList.remove(ds.Layout.cssDisplay):e.classList.add(ds.Layout.cssDisplay)})}render(){const t=this.draw();ds.Components.render(this.args,t);const e=ds.Components.componentButton;ds.Layout.addEventListeners(this,e)}redrawButtons(){this.items.forEach(t=>{const e=t.id,a=this.shadowRoot.querySelector(`#menu_${e}`);if(!a)return;const s=ds.Translation.interface?.default,i=this.getData(e),n={icon:"less",theme:ds.Layout.theme.menuDefault,tooltip:s?.decrease,handler:"handleDecrease",handlerProps:[e],isDisabled:Settings.isDecreaseDisabled(e)},r={icon:"plus",theme:ds.Layout.theme.menuDefault,tooltip:s?.increase,handler:"handleIncrease",handlerProps:[e],isDisabled:Settings.isIncreaseDisabled(e)},o=ds.Layout.theme.menuDefault,d={icon:i.isPlay?"pause":"play",theme:o,tooltip:i.isPlay?s?.pause:s?.play_music,handler:i.isPlay?"handlePause":"handlePlay",handlerProps:[e]},l=`\n                ${this.drawButton(n)}\n                ${this.drawButton(r)}\n                ${this.drawButton(d)}\n            `;a.innerHTML=l});const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t,this.shadowRoot)}redrawProgress(){this.items.forEach(t=>{const e=t.id,a=this.getData(e).value,s=ds.Components.componentProgress,i=this.shadowRoot.querySelector(`${s}[data-target="${e}"]`);if(!i)return;i.setAttribute("value",a);const n={text:ds.Translation.interfaceDefault?.status,value:a,valueMax:1,isPercentage:!0},r=ds.Layout.buildTextCapacity(n);i.setAttribute("data-tooltip",r)})}setIsPlay(t){Settings.setIsPlay(t),this.updates.settings=Data.settings,this.redrawButtons(),Analytics.send({event_name:"settings_change",setting_target:t.target,setting_value:t.value})}setValue(t){Settings.setValue(t),this.redrawButtons()}updateData(){this.updates.settings=Data.settings,this.redrawProgress()}}export class HudPageStatistics extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=ds.Translation.getTranslationPage("statistics"),e=`\n            ${this.totalEnemiesStatistics>1?Layout.drawSubtitle(t?.total_enemies):""}\n            ${this.drawEnemyFields()}\n            ${this.drawSum(t)}\n        `;return HudPageAttributes.drawPage(e)}drawEnemyFields(){const t=this.enemyFields;return this.drawRows(t,3)}drawRows(t,e){const a=[],s=t.length;for(let i=0;i<s;i+=e){const s=`\n                <div class="ds-row">\n                    ${t.slice(i,i+e).join("")}\n                </div>\n            `;a.push(s)}return a.join("")}drawSum(t){const e=Player.statistics,a=ds.Translation.gameLoot,s=Object.entries(e).filter(([t])=>t.startsWith("enemy_")).reduce((t,[,e])=>t+(e?.value??0),0),i=Layout.drawSubtitle(t?.total),n=[ds.Layout.drawField({label:t?.total_enemies,value:s,isReadOnly:!0}),ds.Layout.drawField({label:t?.deaths,value:e?.deaths?.value??0,isReadOnly:!0}),ds.Layout.drawField({label:t?.total_gold,value:e?.collect_gold?.value??0,isReadOnly:!0}),ds.Layout.drawField({label:t?.total_diamonds,value:e?.collect_diamond?.value??0,isReadOnly:!0}),ds.Layout.drawField({label:a?.plant_bamboo,value:e?.collect_wood?.value??0,isReadOnly:!0}),ds.Layout.drawField({label:a?.plant_fiber,value:e?.collect_fiber?.value??0,isReadOnly:!0}),ds.Layout.drawField({label:a?.limestone,value:e?.collect_limestone?.value??0,isReadOnly:!0})];return`\n            ${i}\n            ${this.drawRows(n,2)}\n        `}get enemyFields(){const t=Player.statistics,e=ds.Translation.gameMonster,a=ds.Modules.monsters,s=[];return Object.entries(t).forEach(([t,i])=>{if(!t.startsWith("enemy_"))return;const n=Number(t.replace("enemy_","")),r=a.find(t=>t.id===n);if(!r)return;const o=e?.[r.translation]??r.translation,d={label:o,value:i.value,isReadOnly:!0};s.push({label:o,field:ds.Layout.drawField(d)})}),s.sort((t,e)=>t.label.localeCompare(e.label)),s.map(t=>t.field)}get totalEnemiesStatistics(){const t=Player.statistics;return Object.keys(t).filter(t=>t.startsWith("enemy_")).length}render(){const t=this.draw();ds.Components.render(this.args,t)}updateData(){this.render()}}export class HudPageStore extends HTMLElement{args={context:this};packages=[];slotPackages=[];paymentMethod="";paymentMethodDefault="";paymentMethods=[];selectedPackage;transaction;transactionStatus="";constructor(){super(),this.attachShadow({mode:"open"})}connectedCallback(){this.render(),this.updateData()}addEventListeners(){ds.Layout.addEventListeners(this,ds.Components.componentButton)}buildDefaultPaymentMethod(){const t=this.paymentMethods.map(t=>t.method);return t.includes(this.paymentMethodDefault)?this.paymentMethodDefault:t?.[0]||""}async createTransaction(t,e){const a=await FetchData.createStoreTransaction({packageId:t,paymentMethod:this.paymentMethod});if(a?.isError)return void e?.close();this.transaction=a.transaction,this.transactionStatus=this.transaction.status,this.render();const s=this.transaction.payment?.paymentUrl;s?e?(e.opener=null,e.location.href=s):window.open(s,"_blank","noopener"):e?.close()}draw(){const t=Layout.drawSubtitle(this.translation.packages),e=Layout.drawSubtitle(this.translation.slotTitle),a=`\n            ${t}\n            ${this.drawPackages()}\n            <div class="ds-row">\n                ${e}\n            </div>\n            <div class="ds-row ds-margin-bottom--big">\n                ${this.drawSlotPackages()}\n            </div>\n            <div class="ds-row">\n                ${this.drawFreeDiamonds()}\n            </div>\n        `;return HudPageAttributes.drawPage(a)}drawFreeDiamonds(){const t=ds.Components.componentButton,e=Layout.drawSubtitle(this.translation.titleAdvertising),a=ds.Layout.theme,s=a.menuDefault,i=a.menuSize;return`\n            <div class="ds-row">\n                <${Components.cHudReferral}\n                    css-wrapper="gm-style"\n                    class="ds-full-width"\n                ></${Components.cHudReferral}>\n            </div>\n            <div class="ds-row">\n                ${e}\n            </div>\n            <div class="ds-row">\n                <div class="ds-column ds-column--full">\n                    <p>${Layout.replaceInText(this.translation.freeDiamondsText)}</p>\n                </div>\n                <${t}\n                    label="${this.translation.earn}"\n                    size="${i}"\n                    theme="${s}"\n                    page-target="advertising"\n                    page-position="right"\n                    click="open-hud-page"\n                    data-kind="button"\n                ></${t}>\n            </div>\n        `}formatPrice(t){return this.formatValue(this.translation.price,t)}formatQuantity(t){return this.formatValue(this.translation.quantity,t)}formatValue(t,e){return`<small>${t}: <span class="gm-price">${e}</span></small>`}drawCard({icon:t,label:e,price:a,buttonLabel:s,buttonProps:i}){const n=ds.Components.componentButton,r=`\n            <${n}\n                label="${s}"\n                size="small"\n                theme="${ds.Layout.theme.menuSuccess}"\n                data-handler="handleBuy"\n                data-handler-props='["${i}"]'\n                data-kind="button"\n            ></${n}>\n        `;return`\n            <div class="ds-column ${ds.Layout.theme.card} ds-card--regular">\n                <div class="ds-card__header">\n                </div>\n                <div class="ds-card__body ds-row ds-center">\n                    <div class="ds-row ds-center">\n                        <div class="ds-padding--regular">\n                            ${t}\n                        </div>\n                    </div>\n                    <div class="ds-row ds-center">\n                        ${e}\n                    </div>\n                    <div class="ds-row ds-center">\n                        <p class="ds-truncate">${a}</p>\n                    </div>\n                </div>\n                <div class="ds-card__footer ds-row ds-center">\n                    ${r}\n                </div>\n            </div>\n        `}drawPackage(t){const e={item:Statics.idItems.diamond,isDurability:!1},a=lo.HTML.drawLoot(e),s=ds.Layout.buildCurrencyText({language:gbLanguage,value:t.price});return this.drawCard({icon:a,label:this.formatQuantity(t.diamonds),price:this.formatPrice(s),buttonLabel:this.translation.buy,buttonProps:t.id})}drawPackages(){return this.packages.length?`\n            <div class="ds-row ds-center ds-card-wrapper">\n                ${this.packages.map(t=>this.drawPackage(t)).join("")}\n            </div>\n        `:Layout.drawEmptyContent()}drawSlotPackage(t){const e=`\n            <div class="ds-center">\n                <${lo.Components.entity}\n                    entity="person"\n                    direction="down"\n                    action="walk"\n                    tabindex="-1"\n                ></${lo.Components.entity}>\n            </div>\n        `,a=ds.Layout.buildCurrencyText({language:gbLanguage,value:t.price}),s=this.translation["slot_"+t.slots]||t.slots;return this.drawCard({icon:e,label:this.formatQuantity(s),price:this.formatPrice(a),buttonLabel:this.translation.buy,buttonProps:t.id})}drawSlotPackages(){return this.slotPackages.length?`\n            <div class="ds-row ds-center ds-card-wrapper">\n                ${this.slotPackages.map(t=>this.drawSlotPackage(t)).join("")}\n            </div>\n        `:Layout.drawEmptyContent()}get page(){const t=this.getRootNode()?.host;return t}get translation(){const t=ds.Translation.getTranslationPage("store"),e=ds.Translation.getTranslationPage("advertising"),a=ds.Translation?.interfaceDefault,s={title:t.title,titleFree:e.title,titleAdvertising:t.advertising_title,descriptionFree:e.description,packages:t.packages,slotTitle:t.slot_title,slot_1:t.slot_1,slot_3:t.slot_3,slot_5:t.slot_5,diamonds:ds.Translation.gameLoot.diamond,freeDiamondsText:e.description,buy:a.buy,earn:a.earn,price:ds.Translation.getTranslationPage("detail").price,quantity:a.amount},i=ds.Translation?.getTranslationPage("store");return{...s,...i}}handleBuy(t){this.selectedPackage=t,this.paymentMethod=this.buildDefaultPaymentMethod();const e=window.open("","_blank");this.createTransaction(t,e)}handleCheckStatus(){const t=this.transaction;t&&FetchData.getStoreTransactionStatus({transactionId:t.transactionId,paymentMethod:t.paymentMethod}).then(t=>{t?.isError||(this.transactionStatus=t.transactionStatus.status,this.render())})}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners()}setPageTexts(){const t=this.page;t?.setTitle&&t.setTitle(this.translation.title),t?.setText&&t.setText(this.translation.description||"")}async updateData(){const t=await Promise.all([FetchData.getStorePackages(),FetchData.getStorePaymentMethods(),FetchData.getSlotPackages()]),e=t[0],a=t[1],s=t[2];e?.isError||a?.isError||(this.packages=e.packages,this.paymentMethods=a.paymentMethods,this.paymentMethodDefault=a.paymentMethodDefault,this.paymentMethod=this.buildDefaultPaymentMethod(),s?.isError||(this.slotPackages=s.packages),this.setPageTexts(),this.render())}}export class HudPageStory extends HTMLElement{args={context:this};static act;static scene;constructor(){super(),this.attachShadow({mode:"open"}),this.render(),this.addEventListeners()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t)}draw(){const t=ds.Translation.gameStory,e=`\n            <div class="ds-column">\n                ${this.drawScene(t)}\n            </div>\n        `,a=ds.Modal.drawContent(e),s=this.drawFooter();return`\n            ${a}\n            ${ds.Modal.drawFooter(s)}\n        `}drawScene(t){const e=`act_${HudPageStory.act}_scene_${HudPageStory.scene}_text_`;let a="",s=1;for(;t[`${e}${s}`];)a+=`<p>${t[`${e}${s}`]}</p>`,s++;return a}drawFooter(){const t=ds.Translation.interfaceDefault?.continue,e=ds.Components.componentButton,a=ds.Layout.theme;return`\n            <${e}\n                theme="${a.menuDefault}"\n                size="${a.menuSize}"\n                data-handler="handleContinue"\n                label="${t}"\n            ></${e}>\n        `}async handleContinue(){const t={idCharacter:Player.id,act:HudPageStory.act,scene:HudPageStory.scene};await FetchData.setCharacterStory(t),HTML.elHud.closeModalWithoutButton()}render(){HudPageDetail.npcAction=this.action;const t=this.draw();ds.Components.render(this.args,t)}}export class HudPageUser extends HTMLElement{args={context:this};static idUsername="username";static idEmail="email";static idPassword="password";static idNewsletter="newsletter";constructor(){super(),this.attachShadow({mode:"open"}),this.render()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t);const e=this.shadowRoot.getElementById(HudPageUser.idNewsletter);e&&e.addEventListener("change",t=>this.handleNewsletter(t))}draw(){const t=this.translation,e=Data.login,a="ds-form__field--no-margin",s=ds.Layout.drawField({label:t.username,value:e.username,isReadOnly:!0,css:a}),i=ds.Layout.drawField({label:t.email,value:e.email,isReadOnly:!0,css:a}),n=ds.Layout.drawField({label:t.password,value:"******",isReadOnly:!0,css:a}),r=this.drawNewsletter(),o=this.drawButton(HudPageUser.idUsername),d=this.drawButton(HudPageUser.idEmail),l=this.drawButton(HudPageUser.idPassword),c=Layout.drawButtonComponent(Statics.buttons.deleteAccount),u=ds.Translation.interface?.page_setting,h=ds.Layout.theme,p=h.menuDefault,m=h.menuSize,g=`\n            <div class="ds-row">\n                ${s}\n                ${o}\n            </div>\n            <div class="ds-row">\n                ${i}\n                ${d}\n            </div>\n            <div class="ds-row">\n                ${n}\n                ${l}\n            </div>\n            <div class="ds-row">\n                ${r}\n            </div>\n            <div class="ds-row ds-right ds-button-wrapper">\n                <${this.componentButton}\n                    theme="${p}"\n                    size="${m}"\n                    label="${u?.change_character}"\n                    data-handler='handleSelectCharacter'\n                ></${this.componentButton}>\n                    <${this.componentButton}\n                    theme="${p}"\n                    size="${m}"\n                    label="${u?.logout}"\n                    data-handler='handleLogOut'\n                ></${this.componentButton}>\n                ${c}\n            </div>\n        `;return HudPageAttributes.drawPage(g)}get componentButton(){return ds.Components.componentButton}drawNewsletter(){const t=this.translation.sign_up_accept_newsletter,e=Data.login?.newsletter?"checked":"";return`\n            <div class="ds-form__field ${ds.Layout.theme.form}">\n                <div class="ds-form__option">\n                    <input id="${HudPageUser.idNewsletter}" type="checkbox" ${e}>\n                    <label for="${HudPageUser.idNewsletter}" class="ds-checkbox-label ds-font--extra-small">${t}</label>\n                </div>\n            </div>\n        `}get translation(){return ds.Translation.loginDefault}drawButton(t){const e={id:t},a=`[${ds.Helper.buildJSONToHTML(e)}]`;return`\n            <${this.componentButton}\n                id="${t}"\n                size="extra-small"\n                is-proportional="true"\n                css-custom="ds-button--over gm-button--over"\n                data-kind="button"\n                theme="transparent"\n                icon="edit"\n                icon-theme="black"\n                icon-size="big"\n                data-handler="handleEdit"\n                data-handler-props='${a}'\n            ></${this.componentButton}>\n        `}handleDeleteAccount(){HTML.elHud.openModalUserDeleteAccount()}handleEdit(t){const e=t.id;HudPageUserEdit.content=e,HTML.elHud.openModalUserEdit(e)}handleNewsletter(t){const e=t.target.checked;FetchData.setNewsletter({newsletter:e?1:0})}async handleLogOut(){await FetchData.logOut()&&window.location.reload()}handleSelectCharacter(){HTML.elHud.openModalSelectCharacter()}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners()}}export class HudPageUserDeleteAccount extends HTMLElement{args={context:this};static idPassword="password_delete";constructor(){super(),this.attachShadow({mode:"open"}),this.render()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t),this.addFieldEventListeners()}draw(){const t=this.translationInterface.confirm_action,e=Layout.replaceInText(t),a=this.drawField(),s=this.drawButtonContinue();return`\n            <div class="ds-row ds-page__text ds-modal-text">\n                <p>${e}</p>\n            </div>\n            ${a}\n            <div class="ds-row ds-right ds-button-wrapper">\n                ${this.drawButtonCancel()}\n                ${s}\n            </div>\n        `}drawButtonCancel(){return Layout.drawButtonComponent(Statics.buttons.cancel)}drawButtonContinue(){const t=Layout.changeThemeButton("continue");return t.isDisabled=!0,Layout.drawButtonComponent(t)}drawField(){const t={id:HudPageUserDeleteAccount.idPassword,css:"ds-row",label:this.translationLogin.password,value:"",isReadOnly:!1,type:"password"};return`\n            <div class="ds-row">\n                ${ds.Layout.drawField(t)}\n            </div>\n        `}async handleCancel(){HTML.elHud.closeModal()}async handleContinue(){const t=this.getInputValueByTarget(this.elPassword);this.toggleButtonDisabled(!1),(await FetchData.deleteAccount({password:t})).isError?(this.notifyError(),this.toggleButtonDisabled(!0)):window.location.reload()}notify(t,e=Notification.colorDefault){const a={content:t,color:e};Notification.add(a)}notifyError(){const t=this.translationLogin.password_incorrect;this.notify(t,Notification.colorError)}getInputValueByTarget(t){return ds.FormField.getInputValueByTarget(t)}get isEnabled(){return ds.Validation.validatePassword(this.elPassword)}get translationInterface(){return ds.Translation.interfaceDefault}get translationLogin(){return ds.Translation.loginDefault}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners(),this.updateButtonState()}addFieldEventListeners(){const t=this.elPassword;t?.addEventListener("input",()=>this.updateButtonState())}get elButton(){return this.shadowRoot.querySelectorAll(ds.Components.componentButton)}get elPassword(){return this.getElById(HudPageUserDeleteAccount.idPassword)}getElById(t){return this.shadowRoot.getElementById(t)}toggleButtonDisabled(t){const e=this.elButton;e&&e.forEach(e=>{e&&(t?e.removeAttribute(ds.Prefix.ATTR_IS_DISABLED):e.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true"))})}updateButtonState(){const t=this.isEnabled,e=this.elButton;e&&e.forEach(e=>{e&&"handleContinue"===e.getAttribute("data-handler")&&(t?e.removeAttribute(ds.Prefix.ATTR_IS_DISABLED):e.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true"))})}}export class HudPageUserEdit extends HTMLElement{args={context:this};static content;static idEmail="email";static idUsername="username_visible";static idpassword="password_old";static idPasswordNew="password_new";static idPasswordConfirm="password_confirm";static idPasswordComponent="password_reset";constructor(){super(),this.attachShadow({mode:"open"}),this.render()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t),this.addFieldEventListeners(),this.addComponentListeners()}get argsEmail(){return{email:this.getInputValueByTarget(this.elEmail),password:this.getInputValueByTarget(this.getElById("password"))}}get argsUsername(){return{username:this.getInputValueByTarget(this.elUsername),password:this.getInputValueByTarget(this.elPasswordConfirm)}}addComponentListeners(){if("Password"!==this.capitalizedContent)return;const t=this.getElById(HudPageUserEdit.idPasswordComponent);t&&t.addEventListener("passwordResetSubmit",t=>this.handlePasswordSubmit(t))}async handlePasswordSubmit(t){const{currentPassword:e,password:a}=t.detail,s={password:e,passwordNew:a};(await FetchData.setPassword(s)).isError?this.notifyChangedErrorPassword():this.notifyChangedPassword()}get capitalizedContent(){return ds.Helper.capitalizeString(HudPageUserEdit.content)}draw(){return`\n            ${this[`draw${this.capitalizedContent}`]()}\n            <div class="ds-row ds-right">\n                ${this.isSelfButton?this.drawButton():""}\n            </div>\n        `}get isSelfButton(){return"Password"!==this.capitalizedContent}drawButton(){const t=Statics.buttons.continue;return t.isDisabled=!0,Layout.drawButtonComponent(t)}drawEmail(){return`\n            ${this.drawField({translation:HudPageUserEdit.idEmail})}\n            ${this.drawField({translation:"password",type:"password"})}\n        `}drawField(t){const e={id:t.translation,css:"ds-row",label:this.translation[t.translation],value:"",isReadOnly:!1,type:t.type||"text",rule:t.rule,hint:t.hint,iconTheme:ds.Layout.theme.menuDefaultIcon};return`\n            <div class="ds-row">\n                ${ds.Layout.drawField(e)}\n            </div>\n        `}drawPassword(){return`\n            <${ds.Components.componentPasswordReset}\n                id="${HudPageUserEdit.idPasswordComponent}"\n                mode="session"\n            ></${ds.Components.componentPasswordReset}>\n        `}drawText(t){return`\n            <div class="ds-row ds-page__text ds-modal-text">\n                <p>${Layout.replaceInText(t)}</p>\n            </div>\n        `}drawUsername(){const t=Data.rules.user.username.cost,e=Data.rules.user.username.pay_with,a=Layout.drawTextItemQuantity(e,t),s=`${this.translation.username_change} ${a}`;return`\n            ${this.drawText(s)}\n            ${this.drawField({translation:HudPageUserEdit.idUsername,type:"text"})}\n            ${this.drawField({translation:HudPageUserEdit.idPasswordConfirm,type:"password"})}\n        `}async handleContinue(){const t=this.capitalizedContent,e=this[`args${t}`];this.toggleButtonDisabled(!1),(await FetchData[`set${t}`](e)).isError?this[`notifyChangedError${t}`]():this[`notifyChanged${t}`]()}notify(t,e=Notification.colorDefault){const a={content:t,color:e};Notification.add(a)}notifyChangedEmail(){const t=this.translation.email_sent;this.notify(t)}notifyChangedPassword(){const t=this.translation.password_changed;this.notify(t)}notifyChangedUsername(){const t=this.translation.username_changed;this.notify(t)}notifyChangedErrorEmail(){const t=this.translation.email_error;this.notify(t,Notification.colorError)}notifyChangedErrorPassword(){const t=this.translation.password_error;this.notify(t,Notification.colorError)}notifyChangedErrorUsername(){const t=this.translation.username_error;this.notify(t,Notification.colorError)}getInputValueByTarget(t){return ds.FormField.getInputValueByTarget(t)}get isEnabledEmail(){const t=ds.Validation.validateEmail(this.elEmail),e=ds.Validation.validatePassword(this.getElById("password"));return t&&e}get isEnabledUsername(){const t=Player.inventoryDiamonds,e=Data.rules.user.username.cost,a=ds.Validation.validateUsername(this.elUsername),s=ds.Validation.validatePassword(this.elPasswordConfirm);return a&&s&&t>=e}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners(),this.updateButtonState()}get translation(){return ds.Translation.loginDefault}addFieldEventListeners(){const t=this.capitalizedContent;this.fieldsByContent[t].forEach(t=>{t?.addEventListener("input",()=>this.updateButtonState())})}get elButton(){return this.shadowRoot.querySelector(ds.Components.componentButton)}get elEmail(){return this.getElById(HudPageUserEdit.idEmail)}get elPasswordConfirm(){return this.getElById(HudPageUserEdit.idPasswordConfirm)}get elUsername(){return this.getElById(HudPageUserEdit.idUsername)}get fieldsByContent(){return{Email:[this.elEmail,this.getElById("password")],Password:[],Username:[this.elUsername,this.elPasswordConfirm]}}getElById(t){return this.shadowRoot.getElementById(t)}toggleButtonDisabled(t){const e=this.elButton;e&&(t?e.removeAttribute(ds.Prefix.ATTR_IS_DISABLED):e.setAttribute(ds.Prefix.ATTR_IS_DISABLED,"true"))}updateButtonState(){const t=this[`isEnabled${this.capitalizedContent}`];this.toggleButtonDisabled(t)}}export class HudPageWithdraw extends HTMLElement{args={context:this};constructor(){super(),this.attachShadow({mode:"open"}),this.render()}draw(){const t=Player.bankStorage,e=t.length>0?Layout.drawCardItemList(t):Layout.drawEmptyContent();return HudPageNPC.drawWrapper(e)}get action(){return ds.Prefix.WITHDRAW}handleOpenDetails(t){const e={id:t,context:this,npcAction:this.action};HudPageDetail.itemId=t.id,HudPageNPC.handleOpenDetails(e)}async render(){if(!NPCs.validateBankLevel())return;HudPageDetail.npcAction=this.action,await FetchData.openBank();const t=await this.draw();ds.Components.render(this.args,t),ds.Layout.addEventListeners(this,"button")}}export class HudReferral extends HTMLElement{args={context:this};static idReferral="referral";constructor(){super(),this.attachShadow({mode:"open"}),this.render()}addEventListeners(){const t=ds.Components.componentButton;ds.Layout.addEventListeners(this,t)}draw(){return`\n            <div class="ds-row">\n                ${Layout.drawSubtitle(this.translation.title)}\n            </div>\n            <div class="ds-row">\n                <p class="ds-paragrath">${Layout.replaceInText(this.translation.description)}</p>\n            </div>\n            <div class="ds-row">\n                <div class="ds-column ds-column--full">\n                    ${ds.Layout.drawField({label:this.translation.link,value:this.referralLink,isReadOnly:!0})}\n                </div>\n                <div class="ds-column ds-center ds-column__button">\n                    ${Layout.drawButtonComponent({id:HudReferral.idReferral,label:this.translation.copy,handler:"handleCopyLink",handlerProps:"[]",theme:ds.Layout.theme.menuDefault})}\n                </div>\n            </div>\n        `}async handleCopyLink(){try{await navigator.clipboard.writeText(this.referralLink)}catch{return}Notification.add({content:this.translation.copied})}render(){const t=this.draw();ds.Components.render(this.args,t),this.addEventListeners()}get referralLink(){return`${gbUrls.project}login/?ref=${Data.login.id}`}get translation(){return ds.Translation.getTranslationPage("referral")}}export class HudStatus extends HTMLElement{args={context:this};progress;updates={player:{attributes:{},statistics:{}}};tooltipActionPoints;constructor(){super(),this.attachShadow({mode:"open"}),this.initializeData(),this.render()}draw(){const t=this.updates.player.attributes.actionPoints??0,e=Components.cHudActionPoints;let a=`\n            <div class="ds-row">\n                <div class="ds-column gm-status-center">\n                    <${e}\n                        data-action-points="${t}"\n                        data-tooltip=""\n                    >\n                    </${e}>\n                </div>\n                <div class="ds-column gm-status-center">\n        `;return this.progress.forEach(t=>{const e=ds.Components.componentProgress;a+=`\n                <${e}\n                    id="${t.id}"\n                    value="${t.value}"\n                    value-max="${t.valueMax}"\n                    theme="${t.theme}"\n                    direction="horizontal"\n                    data-tooltip="${t.tooltip}"\n                    css-wrapper="gm-style"\n                ></${e}>\n            `}),a+="\n                </div>\n            </div>\n        ",a}initializeData(){this.updates.player.attributes=Data.player.attributes,this.rebuildData(),this.translate()}rebuildData(){const t=ds.Translation.getTranslationPage("attributes"),e=this.updates.player.attributes;if(this.progress=[{id:HTML.idHudProgressLife,theme:"red",value:e.hitPoints,valueMax:e.hitPointsMaximum,text:t?.life},{id:HTML.idHudProgressMana,theme:"blue",value:e.manaPoints,valueMax:e.manaPointsMaximum,text:t?.mana},{id:HTML.idHudProgressExperience,theme:"yellow",valueTooltip:e.experience,valueTooltipMax:e.experienceNext,value:e.experience-e.experienceCurrent,valueMax:e.experienceNext-e.experienceCurrent,text:t?.experience}],!this.tooltipActionPoints){const t=ds.Translation.interfaceDefault?.action_points,e=Components.cHudActionPoints;this.tooltipActionPoints=t,this.shadowRoot.querySelector(e)?.setAttribute("data-tooltip",`${t}`)}}render(){const t=this.draw();ds.Components.render(this.args,t)}translate(){this.progress.forEach(t=>{const{text:e,value:a,valueMax:s,valueTooltip:i,valueTooltipMax:n}=t,r=t.id===HTML.idHudProgressExperience,o={text:e,value:r?i:a,valueMax:r?n:s,isPercentage:!1},d={value:a,valueMax:s,isPercentage:!0},l=ds.Layout.buildTextCapacity(o),c=ds.Layout.buildTextCapacity(d);t.tooltip=`${l} - ${c}`})}updateActionPoints(t){const e=Components.cHudActionPoints,a=this.shadowRoot.querySelector(e);a&&a.setAttribute("data-action-points",t)}updateData(){this.updates.player.attributes=Data.player.attributes,this.rebuildData(),this.translate(),this.progress.forEach(t=>{const e=this.shadowRoot.getElementById(t.id);e&&(e.setAttribute("value",t.value),e.setAttribute("value-max",t.valueMax),e.setAttribute("data-tooltip",t.tooltip))});const t=this.updates.player.attributes.actionPoints??0;this.updateActionPoints(t)}}export class HudTransition extends HTMLElement{args={context:this};idMain="main";idContent="content";idVersion="version";idLoading="loading";isInitial=!0;timeout=500;timeout2=2*this.timeout;timeout3=3*this.timeout;timeoutHalf=this.timeout/2;timeClose=0;title="";subtitle="";loot;static tipPool=[];constructor(){super(),this.attachShadow({mode:"open"}),this.updateAttributes(),this.render(),this.updateHTML()}attributeChangedCallback(t,e,a){e!==a&&this.changeAttributes()}static get observedAttributes(){return[ds.Layout.attributeOpen,"kind"]}addEventListeners(){const t=[],e=ds.Components.componentButton;this.shadowRoot.querySelectorAll(e).forEach(e=>{const a={el:e,handler:this.close.bind(this)};t.push(a)}),t.forEach(t=>{t.context=this,ds.Helper.addEventListener(t)})}buildMessage(t){const{title:e,subtitle:a}=t;this.title=e,this.subtitle=a,this.setAttribute(ds.Layout.attributeOpen,!0),this.setAttribute("kind","message");const s=this.calculateTimeout({title:e,subtitle:a});setTimeout(()=>{this.setAttribute(ds.Layout.attributeOpen,!1)},s)}buildTip(){const t=ds.Translation.gameTip,e=Statics.isGuest,a=Statics.isNewbie;if(0===HudTransition.tipPool.length){const s=this.buildTipGetAvailableTipKeys(t,e);HudTransition.tipPool=this.buildTipPrioritizeNewbieTip(s,a)}const s=HudTransition.tipPool.shift();let i=t[`${s}_title`],n=t[`${s}_subtitle`];({title:i,subtitle:n}=this.buildTipWrapWithLinkIfMatch(s,i,n));const r={title:i,subtitle:n};return this.timeClose=this.calculateTimeout(r),{title:i,subtitle:n}}buildTipGetAvailableTipKeys(t,e){const a=new Set,s=[],i=Object.keys(t),n=i.length;for(let r=0;r<n;r++){const n=i[r];if(!n.endsWith("_title"))continue;const o=n.slice(0,-6);a.has(o)||t[`${o}_subtitle`]&&(e||"do_login"!==o)&&(a.add(o),s.push(o))}return s}buildTipPrioritizeNewbieTip(t,e){if(!e)return ds.Helper.shuffle(t);const a=t.indexOf("walk_end");return-1!==a?(t.splice(a,1),["walk_end",...ds.Helper.shuffle(t)]):ds.Helper.shuffle(t)}buildTipWrapWithLinkIfMatch(t,e,a){const s=Statics.link,i=Object.keys(s),n=i.length;for(let r=0;r<n;r++){const n=i[r];if(t.includes(n)){const t=`<a href="${s[n]}" class=" ds-link ds-link--transparent" target="_blank" rel="noopener noreferrer">`,i="</a>";return{title:`${t}${e}${i}`,subtitle:`${t}${a}${i}`}}}return{title:e,subtitle:a}}calculateTimeout(t){const e=Statics.timePerCharacter,{title:a,subtitle:s}=t;return((a?a.length:0)+(s?s.length:0))*e}changeAttributes(){this.updateAttributes(),this.redraw()}close(){setTimeout(()=>{this.isOpen=!1,ds.Helper.removeClass(this.elMain,ds.Layout.cssAnimationFadeIn),ds.Helper.addClass(this.elMain,ds.Layout.cssAnimationFadeOut),queueMicrotask(()=>{this.setContent("")})},this.timeClose)}draw(){return this.isOpen?`\n            <div class="gm-transition ${ds.Layout.cssAnimationPrepare}" id="${this.idMain}">\n                <div class="gm-transition__container">\n                    <div id="${this.idContent}"></div>\n                </div>\n                <div\n                    class="gm-version"\n                    id="${this.idVersion}"\n                ></div>\n            </div>\n        `:""}drawBattle(){const t=ds.Translation.gameBattle,e=t.battle_prepare,a={title:t.battle,subtitle:e};return this.drawContent(a)}drawBattleLose(){const t=ds.Translation.gameBattle,e=t.lose,a=t.lose_title,s=this.drawButtonClose(),i={title:a,subtitle:Layout.replaceInText(e,!0),button:s};return this.drawContent(i)}drawBattleWin(){const t=ds.Translation.gameBattle,e=t.win,a={title:t.win_title,subtitle:e,content:this.drawBattleWinLoot(),button:this.drawButtonClose()};return this.drawContent(a)}drawBattleWinLoot(){const t=Object.entries(this.loot),e=this.theme.card;let a='<div class="ds-row ds-center ds-card-wrapper">';return t.forEach(t=>{const s={item:Storage.buildItem(t).item,isDurability:!1},i=lo.HTML.drawLoot(s),n=t[1];a+=`\n                <div\n                    class="${e} ds-card--small"\n                >\n                    <div class="ds-card__header">\n                    </div>\n                    <div class="ds-card__body">\n                        ${i}\n                    </div>\n                    <div class="ds-card__footer ds-right">\n                        <div class="ds-truncate">\n                            ${n}\n                        </div>\n                    </div>\n                </div>\n            `}),a+="</div>",a}drawButtonClose(){const t=ds.Translation.interfaceDefault.continue,e=ds.Components.componentButton;return`\n            <${e}\n                theme="${this.theme.menuDefault}"\n                size="${this.theme.menuSize}"\n                data-kind="button"\n                label="${t}"\n            ></${e}>\n        `}drawContent(t){const{subtitle:e,title:a,content:s,button:i}=t,n=(t,e)=>t?`\n            <div class="ds-row ds-center gm-transition__${e}">\n                ${t}\n            </div>\n            `:"";return`\n            <div class="ds-row">\n                ${this.drawSubtitle(e)}\n            </div>\n            <div class="ds-row">\n                ${this.drawTitle(a)}\n            </div>\n            ${n(s,"content")}\n            ${n(i,"button")}\n        `}drawMessage(){const t=this.subtitle,e={title:this.title,subtitle:t};return this.drawContent(e)}drawLoading(){const t="pt"===gbLanguage?"Carre<span>gan</span>do":"Loa<span>ding</span>";return`\n            ${this.drawTitle(t)}\n        `}drawLoadingIcon(){const t={theme:ds.Layout.theme.menuDefault,size:"small",id:this.idLoading};return ds.HTML.drawLoading(t)}drawSubtitle(t){return`\n            <h2 class="gm-transition__text ${ds.Layout.cssAnimationPrepare} ${ds.Layout.cssAnimationFromRight}">\n                ${t}\n            </h2>\n        `}drawTip(){const t=this.buildTip();return`\n            ${this.drawSubtitle(t.subtitle)}\n            ${this.drawTitle(t.title)}\n        `}drawTitle(t){return`\n            <h1 class="ds-title gm-transition__title ${ds.Layout.cssAnimationPrepare} ${ds.Layout.cssAnimationFromLeft}">\n                ${t}\n            </h1>\n        `}get theme(){return ds.Layout.theme}init(){this.isInitial=!0}open(){this.isOpen=!0,this.isInitial||(ds.Helper.removeClass(this.elMain,ds.Layout.cssAnimationFadeOut),ds.Helper.addClass(this.elMain,ds.Layout.cssAnimationFadeIn))}openByKind(t="loading"){this.setAttribute(ds.Layout.attributeOpen,!0),this.setAttribute("kind",t),this.open(),this.changeAttributes()}redraw(){let t="",e=!0;switch(this.timeClose=0,this.kind){case"battle":t=this.drawBattle();break;case"initial":this.isInitial=!0,t=this.drawLoading();break;case"loading":t=this.drawLoading();break;case"lose":t=this.drawBattleLose(),e=!1;break;case"message":t=this.drawMessage();break;case"tip":default:t=this.drawTip();break;case"win":t=this.drawBattleWin(),e=!1}this.setContent(t,e)}render(){const t=this.draw();ds.Components.render(this.args,t)}setContent(t,e){const a=this.drawLoadingIcon();let s=t;e&&(s+=a),this.elContent.innerHTML=s;const i=`\n            ${ds.Translation.gameGeneric?.game_version||""} <span>${gbVersion.game}</span>\n        `;this.elVersion.innerHTML=i,this.addEventListeners()}updateAttributes(){const t=this.getAttribute(ds.Layout.attributeOpen);"true"===t&&this.open(),"false"!==t&&t||this.close();const e=this.getAttribute("kind");this.kind=e}updateHTML(){this.elMain=this.shadowRoot.getElementById(this.idMain),this.elContent=this.shadowRoot.getElementById(this.idContent),this.elVersion=this.shadowRoot.getElementById(this.idVersion)}}export class MapGame extends HTMLElement{args={context:this};map={};randomMovementInterval=0;randomMovementIntervalTime=0;directions=[{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}];directionsLength=this.directions.length;safeDistance=2;movementQueue=[];movementRunning=!1;occupationMap=null;movementLoop=null;constructor(){super(),this.attachShadow({mode:"open"})}addEventListeners(){const t=[];HTML.elMapGameTiles.querySelectorAll("button").forEach(e=>{const a={el:e,handler:Walk.walkClick};t.push(a)}),t.forEach(t=>{t.context=this,ds.Helper.addEventListener(t)})}addClick(t){t.forEach(t=>{t.addEventListener("click",()=>{const e=ds.Helper.getPositionX(t),a=ds.Helper.getPositionY(t),s=HTML.elGamePlayer.getAttribute(ds.Layout.attributePositionX),i=HTML.elGamePlayer.getAttribute(ds.Layout.attributePositionY),n={el:HTML.elGamePlayer,positionXTo:e,positionYTo:a,positionXFrom:s,positionYFrom:i};Walk.walk(n)})})}buildMapDoors(){const t={tiles:ds.Modules.tiles,map:HTML.elMapGameTiles},e=ds.MapGame.buildDoors(t);this.map.doors=e}static async buildDataMap(t){if(!t)return;const e=new Map(ds.Modules.tiles.map(t=>[t.id,t])),a=Array.from({length:t.height},(e,a)=>t.tiles.slice(a*t.width,(a+1)*t.width)),s=a.map(t=>t.map(t=>{const a=e.get(t);return a&&a.is_walk?0:1})),i=a.map(t=>t.map(t=>{const a=e.get(t);return a&&a.is_walk&&!a.is_door?0:1})),n=a.map(t=>t.map(t=>{const a=e.get(t);return a&&a.is_walk&&!a.is_door?0:1}));return{tiles:a,pathWalk:s,pathSpawn:i,pathMonster:n}}buildOccupationMap(){const t=new Map,e=e=>{const a=ds.Helper.getPositionX(e),s=ds.Helper.getPositionY(e);t.set(`${a}:${s}`,e)};e(HTML.elGamePlayer),this.map.npcs.forEach(t=>{const a=MapGame.getNPCById(t.id);a&&e(a)}),this.map.monsters.forEach(t=>{const a=MapGame.getMonsterById(t.id);a&&e(a)}),this.occupationMap=t}static async changeMap(t){HTML.elTransition.openByKind("tip");const e=HTML.elMapGame.map,a=e.idMap,s=e.idCity,i={character:0,map:e.idMap,door:t,isChangeMap:!0};await this.updateDataMap(i);const n=Data.map?.data,r=n?.idMap,o=n?.idCity;Analytics.send({event_name:"map_change",map_from:a,map_to:r,city_from:s,city_to:o}),Player.updateLayout(),Tutorial.showAct1Scene2(),Camera.center(),HTML.elTransition.close()}draw(){const t=this.map.tiles,e=t.length,a=t[0].length*ds.Layout.tileSize,s=ds.Layout.buildPixel(a),i=e*ds.Layout.tileSize,n=ds.Layout.buildPixel(i),r=Player.draw(),o=NPCs.draw(this.map.npcs),d=Collectibles.draw(this.map.collectibles);let l=`\n            ${r}\n            ${o}\n            ${Monsters.draw(this.map.monsters)}\n            ${d}\n            <div\n                id="${HTML.idMapGame}"\n                class="gm-map"\n                style="width: ${s}; height: ${n};"\n                tabindex="-1"\n            >\n        `;return l+=this.drawTiles(t),l+="</div>",this.map.width=a,this.map.height=i,l}drawTiles(t){let e="";return t.forEach((t,a)=>{t.forEach((t,s)=>{const i={id:`tile-${a}-${s}`,tileId:t,positionX:s,positionY:a,tiles:ds.Modules.tiles};e+=ds.MapGame.drawTile(i)})}),e}enqueueEntities(t,e){t.forEach((t,a)=>{this.movementQueue.push({entity:t,index:a,idGenerator:e})})}findPath(t){const{start:e,end:a}=t,s=this.map.pathWalk;return Pathfinding.findPath(s,e,a)}getBehavior(t){return t.getAttribute("data-behavior")||"neutral"}getDistance(t){const{candidateX:e,candidateY:a,playerPositionX:s,playerPositionY:i}=t;return Math.abs(e-s)+Math.abs(a-i)}static getEntityById(t){return HTML.elMapGame.shadowRoot.getElementById(t)}static getMonsterById(t){const e=Layout.buildId(Monsters.prefix,t);return MapGame.getEntityById(e)}static getNPCById(t){const e=Layout.buildId(NPCs.prefix,t);return MapGame.getEntityById(e)}get elMap(){return MapGame.getEntityById(HTML.idMapGame)}static get player(){return MapGame.getEntityById(HTML.idGamePlayer)}getOccupation(t,e){const a={target:void 0,positionX:0,positionY:0},s=HTML.elGamePlayer,i=ds.Helper.getPositionX(s),n=ds.Helper.getPositionY(s);i===t&&n===e&&(a.target=s,a.positionX=i,a.positionY=n);for(const s of this.map.npcs){const i=this.shadowRoot.getElementById(`${NPCs.prefix}_${s.id}`);if(i){const s=ds.Helper.getPositionX(i),n=ds.Helper.getPositionY(i);s===t&&n===e&&(a.target=i,a.positionX=s,a.positionY=n)}}this.map.monsters.forEach(s=>{const i=Layout.buildId(Monsters.prefix,s.id),n=this.shadowRoot.getElementById(i);if(n){const s=ds.Helper.getPositionX(n),i=ds.Helper.getPositionY(n);s===t&&i===e&&(a.target=n,a.positionX=s,a.positionY=i)}});const r=this.shadowRoot.querySelectorAll(".lo-collectable");for(const s of r){const i=ds.Helper.getPositionX(s),n=ds.Helper.getPositionY(s);i===t&&n===e&&(a.target=s,a.positionX=i,a.positionY=n)}return a}getPosition(t){if(!t)return;const e=ds.Helper.getPositionX(t),a=t=>t*ds.Layout.tileSize;return{top:a(ds.Helper.getPositionY(t)),left:a(e)}}getNextStepByBehavior(t){const{element:e,currentPositionX:a,currentPositionY:s,playerPositionX:i,playerPositionY:n}=t,r=this.getBehavior(e);if("neutral"===r)return null;let o=null,d="scared"===r?-1/0:1/0;for(let t=0;t<this.directionsLength;t++){const l=this.directions[t],c=a+l.dx,u=s+l.dy;if(!this.isValidNextPosition(c,u))continue;if(!this.isWithinNpcRange(e,c,u))continue;const h={candidateX:c,candidateY:u,playerPositionX:i,playerPositionY:n},p=this.getDistance(h);("scared"===r&&p>d||"agressive"===r&&p<d)&&(d=p,o={x:c,y:u})}return o}getSafeZone(){const t=[],e=MapGame.player,a=ds.Helper.getPositionX(e),s=ds.Helper.getPositionY(e),i=this.map.npcs.map(t=>({x:Number(t.position[0]),y:Number(t.position[1])}));return this.map.pathSpawn.forEach((e,n)=>{e.forEach((e,r)=>{const o=r>=a-this.safeDistance&&r<=a+this.safeDistance&&n>=s-this.safeDistance&&n<=s+this.safeDistance,d=i.some(t=>r>=t.x-this.safeDistance&&r<=t.x+this.safeDistance&&n>=t.y-this.safeDistance&&n<=t.y+this.safeDistance);0!==e||r===a&&n===s||o||d||t.push({x:r,y:n})})}),t}isMovingRandom(){return Math.random()<.3}isOccupied(t,e){return this.occupationMap?.has(`${t}:${e}`)??!1}isValidNextPosition(t,e){return!!this.isWithinMapBounds(t,e)&&0===this.map.pathMonster[e]?.[t]&&!this.getOccupation(t,e).target}isWithinMapBounds(t,e){return t>=0&&e>=0&&t<this.map.width&&e<this.map.height}getEntityElement(t,e,a){const s=a(t,e,0);return this.shadowRoot.getElementById(s)}getInitialPosition(t){return{x:Number(t.getAttribute("data-position-x-initial")),y:Number(t.getAttribute("data-position-y-initial"))}}getMaxWalkSteps(t){const e=Number(t.getAttribute("data-walk-steps"))||1;return 1+(Math.random()*e|0)}getRandomStep(t,e){const a=this.directions[Math.random()*this.directionsLength|0],s=t.x+a.dx,i=t.y+a.dy;return this.isWithinMapBounds(s,i)?0!==this.map.pathMonster[i]?.[s]||this.getOccupation(s,i).target?null:this.isWithinNpcRange(e,s,i)?{x:s,y:i}:null:null}getRandomSubset(t,e){return[...t].sort(()=>Math.random()-.5).slice(0,e)}getWalkRadius(t){const e=Number(t.getAttribute("data-walk-radius"));return Number.isFinite(e)?e:1}isWithinNpcRange(t,e,a){if("npc"!==t.getAttribute("kind"))return!0;if(this.getWalkRadius(t)<=0)return!1;const s=this.getInitialPosition(t);return Math.abs(e-s.x)+Math.abs(a-s.y)<=2}async moveSingleEntity({entity:t,index:e,idGenerator:a}){const s=this.getEntityElement(t,e,a);if(!s||!this.isMovingRandom())return;const i=ds.Helper.getPositionX(HTML.elGamePlayer),n=ds.Helper.getPositionY(HTML.elGamePlayer);let r={x:ds.Helper.getPositionX(s),y:ds.Helper.getPositionY(s)};const o=s.getAttribute("data-behavior")||"neutral",d=this.getMaxWalkSteps(s);for(let t=0;t<d;t++){if(this.tryStartBattleIfAggressive(s,o,r,i,n))return;const t=this.getNextStepByBehavior({element:s,currentPositionX:r.x,currentPositionY:r.y,playerPositionX:i,playerPositionY:n})||this.getRandomStep(r,s);if(!t)break;r=t}const l={el:s,positionXFrom:ds.Helper.getPositionX(s),positionYFrom:ds.Helper.getPositionY(s),positionXTo:r.x,positionYTo:r.y};await Walk.walk(l)}processMovementQueue(){if(this.movementRunning)return;this.movementRunning=!0;const t=async()=>{if(Battle.isBattle||0===this.movementQueue.length)return void(this.movementRunning=!1);const e=this.movementQueue.shift();await this.moveSingleEntity(e),requestAnimationFrame(t)};requestAnimationFrame(t)}render(){const t=this.draw();ds.Components.render(this.args,t),this.buildMapDoors(),Player.setPosition(this.map.player.position),this.map.availablePositions=this.getSafeZone(),NPCs.setPosition(this.map.npcs),Monsters.setPosition(),Collectibles.setPosition(),this.startRandomMovementCycle(),this.addEventListeners(),Monsters.addClick(),NPCs.addClick(),Collectibles.addClick()}setPosition(t){const e=t=>Number(t)*ds.Layout.tileSize,{target:a,positionX:s,positionY:i,speed:n}=t,r=`transform: translate(${e(s)}px, ${e(i)}px); transition: ${void 0!==n?`${n}ms`:".5s"};`;a.setAttribute("style",r),a.setAttribute(ds.Layout.attributePositionX,s),a.setAttribute(ds.Layout.attributePositionY,i)}static setPositionEntity(t){const e=HTML.elMapGame,a=e.map.availablePositions;t.forEach(t=>{if(!t)return;const s=a.length;if(0===s)return void t.remove();const i=Math.floor(Math.random()*s),n=a.splice(i,1)[0];e.setPosition({target:t,positionX:n.x,positionY:n.y})})}startRandomMovementCycle(){clearTimeout(this.movementLoop);const t=Math.floor(7e3*Math.random())+3e3;this.movementLoop=setTimeout(()=>{this.buildOccupationMap(),this.enqueueEntities(this.map.monsters,t=>Layout.buildId(Monsters.prefix,t.id)),this.enqueueEntities(this.map.npcs,t=>`${NPCs.prefix}_${t.id}`),this.processMovementQueue(),this.startRandomMovementCycle()},t)}tryStartBattleIfAggressive(t,e,a,s,i){return!!("agressive"===e&&Math.abs(a.x-s)<=1&&Math.abs(a.y-i)<=1)&&(HTML.elGameBattle.build(t),!0)}updateData(t){this.map=t,this.render()}static async updateDataMap(t){const{isChangeMap:e,mapData:a}=t,s=a??(e?await FetchData.changeMap(t):await FetchData.getMap(t));if(!s)return;const i=await MapGame.buildDataMap(s);i&&(Tutorial.showAct1Scene3(s.idMap),s.tiles=i.tiles,s.pathWalk=i.pathWalk,s.pathSpawn=i.pathSpawn,s.pathMonster=i.pathMonster,s.player=Player.buildPosition(s),s.npcs=NPCs.buildPosition(s),Data.map.data=NPCs.updateDataNPC(s))}static updateMap(){const t=Data.map.data,{monsters:e,npcs:a,collectibles:s,player:i,tiles:n,pathWalk:r,pathSpawn:o,pathMonster:d,background:l,idMap:c,idCity:u}=t,h={tiles:n,pathWalk:r,pathSpawn:o,pathMonster:d,monsters:e,npcs:a,collectibles:s,player:i,idMap:c,idCity:u};n.length<=0||(Game.drawBackground(l),HTML.elMapGame.updateData(h))}}
+const nameSpace = 'gm'; // eslint-disable-line no-unused-vars
+let deps = {}; // eslint-disable-line no-unused-vars
+let ds; // eslint-disable-line no-unused-vars
+let lo; // eslint-disable-line no-unused-vars
+export class Analytics {
+    static send(props) {
+        ds.Analytics.gameEvent(props);
+    }
+}
+
+export class Animation {
+    static animatePosition(props) {
+        const { target, vertical, horizontal, speed, easing = 'linear' } = props;
+
+        if (isNaN(vertical) || isNaN(horizontal)) return;
+
+        const response = new Promise((resolve) => {
+            const speedPlayer = Data.player.attributes.speed;
+            const currentValue = ds.Helper.getTranslateValue(target);
+            const currentVertical = Math.floor(currentValue.y);
+            const currentHorizontal = Math.floor(currentValue.x);
+
+            const newVertical = vertical === false ? currentVertical : Math.floor(vertical);
+            const newHorizontal = horizontal === false ? currentHorizontal : Math.floor(horizontal);
+            const duration = speed !== undefined ? speed : speedPlayer;
+
+            const buildCss = (horizontal, vertical) => `translate(${horizontal}px, ${vertical}px)`;
+            const transform = [
+                { transform: buildCss(currentHorizontal, currentVertical) },
+                { transform: buildCss(newHorizontal, newVertical) }
+            ];
+
+            const transformSettings = {
+                duration,
+                iterations: 1,
+                easing,
+                fill: 'both'
+            };
+
+            const animation = target.animate(transform, transformSettings);
+
+            animation.onfinish = (e) => resolve(e);
+        });
+
+        return response;
+    }
+}
+export class Audio {
+    static categories = ['effects', 'music'];
+    static audios = {};
+
+
+
+    static addAudio(name, src) {
+        const audio = document.createElement('audio');
+
+        audio.src = src;
+        audio.loop = true;
+        audio.style.display = 'none';
+        audio.dataset.type = name;
+
+        document.body.appendChild(audio);
+
+        this.audios[name] = audio;
+    }
+
+    static buildEffectFade(props) {
+        const { from = null, to = null, targetVolume = 1, duration = 1000 } = props;
+        const steps = 20;
+        const stepDuration = duration / steps;
+        const toStep = targetVolume / steps;
+
+        const audioFrom = ds.Helper.isString(from) ? this.getAudio(from) : from;
+        const audioTo = ds.Helper.isString(to) ? this.getAudio(to) : to;
+
+        if (audioTo) {
+            audioTo.volume = 0;
+            audioTo.play();
+        }
+
+        const fromStep = audioFrom ? audioFrom.volume / steps : 0;
+        let i = 0;
+
+        const interval = setInterval(() => {
+            if (i >= steps) {
+                clearInterval(interval);
+
+                if (audioFrom) {
+                    audioFrom.pause();
+                    audioFrom.volume = targetVolume;
+                }
+
+                if (audioTo) audioTo.volume = targetVolume;
+
+                return;
+            }
+
+            if (audioFrom) audioFrom.volume = Math.max(0, audioFrom.volume - fromStep);
+            if (audioTo) audioTo.volume = Math.min(targetVolume, audioTo.volume + toStep);
+
+            i++;
+        }, stepDuration);
+    }
+
+    static buildFile(target) {
+        const path = `${gbUrlAssets}audio/${gbVersion.audio}/`;
+        const response = `${path + target}.mp3`;
+
+        return response;
+    }
+
+    static buildMusic() {
+        const isPlay = AudioMusic.isPlay;
+
+        if (!isPlay) return;
+
+        const isBattle = this.isBattle;
+        const to = isBattle ? 'battle' : 'music';
+        const from = isBattle ? 'music' : 'battle';
+        const volume = Settings.data.music.value;
+        const args = { from, to, targetVolume: volume };
+
+        this.buildEffectFade(args);
+    }
+
+    static createAudioElements() {
+        const audios = [
+            { id: 'effects', src: AudioEffects.audioEffects },
+            { id: 'music', src: AudioMusic.audioTorgotes },
+            { id: 'battle', src: AudioMusic.audioBattle },
+        ];
+
+        audios.forEach((index) => {
+            this.addAudio(index.id, index.src);
+        });
+    }
+
+    static getAudio(target) {
+        const response = this.audios[target];
+
+        return response;
+    }
+
+    static get audioEffects() {
+        const response = this.getAudio('effects');
+
+        return response;
+    }
+
+    static get isBattle() {
+        const response = Battle.isBattle;
+
+        return response;
+    }
+
+    static init() {
+        this.createAudioElements();
+        this.updateVolumeFromSettings();
+    }
+
+    static play(target) {
+        let targetFix = target;
+        const isMusic = target === 'music' || target === 'battle';
+
+        if (isMusic) {
+            const isBattle = this.isBattle;
+
+            isBattle ? targetFix = 'battle' : targetFix = 'music';
+        }
+
+        const audio = this.getAudio(targetFix);
+        const isValid = audio && target !== 'effects';
+
+        if (isValid) audio.play();
+    }
+
+    static pause(target) {
+        const audio = this.getAudio(target);
+
+        if (audio) audio.pause();
+    }
+
+    static setVolume(target, volume) {
+        const audio = this.getAudio(target);
+
+        if (audio) audio.volume = volume;
+    }
+
+    static updateVolumeFromSettings() {
+        this.categories.forEach(type => {
+            const config = Settings.data[type];
+            const audio = this.getAudio(type);
+
+            if (audio) {
+                if (config.isPlay) {
+                    const isMusic = type === 'music';
+
+                    if (isMusic) {
+                        const args = { to: audio, targetVolume: config.value };
+
+                        this.buildEffectFade(args);
+                    }
+                } else {
+                    audio.pause();
+                }
+            }
+        });
+    }
+}
+export class AudioEffects {
+    static buildEffectMonster(target) {
+        const time = {
+            default: '#t=0.1,0.4',
+            worm: '#t=6.0,6.3',
+            rat: '#t=4.1,4.7',
+        };
+        const response = time[target] ? time[target] : time['default'];
+
+        return response;
+    }
+
+    static buildEffectWeapon() {
+        const weaponData = Data.player.equipments.weapon.il;
+        const weaponArgs = { target: weaponData };
+        const weaponLoot = Storage.getProperties(weaponArgs);
+        const weapon = weaponData ? weaponLoot.itemLoot.kind : 0;
+        const time = {
+            0: '#t=0.1,0.4',
+            2: '#t=1.0,1.5',
+            3: '#t=2.9,3.5',
+            4: '#t=2.2,2.8',
+            20: '#t=5.1,5.4',
+            21: '#t=5.1,5.4',
+        };
+        const response = time[weapon] ? time[weapon] : time[0];
+
+        return response;
+    }
+
+    static get audioEffects() {
+        const response = Audio.buildFile('sound-effect');
+
+        return response;
+    }
+
+    static get isPlay() {
+        const response = Data.settings.effects.isPlay;
+
+        return response;
+    }
+
+    static play(target) {
+        const isPlay = this.isPlay;
+
+        if (!isPlay) return;
+
+        const dataSet = target.dataset;
+        const id = dataSet.id;
+        const isPlayer = id === 'player';
+        const sound = isPlayer ? this.buildEffectWeapon() : this.buildEffectMonster(dataSet.kind);
+        const soundEffects = Audio.audioEffects;
+
+        soundEffects.setAttribute('src', this.audioEffects + sound);
+        soundEffects.play();
+    }
+}
+export class AudioMusic {
+    static get audioBattle() {
+        const response = Audio.buildFile('theme-battle');
+
+        return response;
+    }
+
+    static get audioTorgotes() {
+        const response = Audio.buildFile('theme-torgotes');
+
+        return response;
+    }
+
+    static get isPlay() {
+        const response = Data.settings.music.isPlay;
+
+        return response;
+    }
+}
+export class Camera {
+    static limit = {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+    };
+    static player = {
+        top: 0,
+        left: 0,
+    };
+
+    static center(speed = false) {
+        this.update();
+
+        const speedPlayer = Data.player.attributes.speed;
+        const vertical = this.centerVertical();
+        const horizontal = this.centerHorizontal();
+        const newSpeed = speed !== false ? speed : speedPlayer;
+
+        const args = {
+            target: HTML.elMapGame,
+            vertical: vertical,
+            horizontal: horizontal,
+            speed: newSpeed
+        };
+
+        Animation.animatePosition(args);
+    }
+
+    static centerVertical() {
+        const gameSize = Layout.game.height / 2;
+        const player = this.player.top;
+        const tile = ds.Layout.tileSizeHalf;
+        const response = gameSize - player - tile;
+
+        return response;
+    }
+
+    static centerHorizontal() {
+        const gameSize = Layout.game.width / 2;
+        const player = this.player.left;
+        const tile = ds.Layout.tileSizeHalf;
+        const response = gameSize - player - tile;
+
+        return response;
+    }
+
+    static update() {
+        Layout.resize();
+
+        const positionPlayer = HTML?.elMapGame?.getPosition(HTML.elGamePlayer);
+
+        if (!positionPlayer) return;
+
+        this.player.top = positionPlayer.top;
+        this.player.left = positionPlayer.left;
+    }
+}
+export class Character {
+    static buildEquipments(equipments, storage) {
+        const response = Storage.getEquipments(storage, equipments);
+
+        response.clothes = equipments.clothes;
+
+        return response;
+    }
+
+    static buildEquipmentById(equipments, storage) {
+        const storageById = storage?.reduce((acc, item) => {
+            acc[item.id] = item;
+
+            return acc;
+        }, {});
+
+        const response = Object.keys(equipments).reduce((acc, slot) => {
+            const id = equipments[slot];
+
+            acc[slot] = storageById?.[id] || null;
+
+            return acc;
+        }, {});
+
+        return response;
+    }
+
+    static get characters() {
+        const response = Object.entries(Data.login?.characters ?? []);
+
+        return response;
+    }
+
+    static getItemById(props) {
+        const { data, filterBy, value } = props;
+        const response = data.filter(item => item[filterBy] === value)[0];
+
+        return response;
+    }
+
+    static getEquipmentById(equipments, value) {
+        const args = { data: equipments, filterBy: 'id', value };
+        const response = this.getItemById(args);
+
+        return response;
+    }
+
+    static getEquipmentIdLoreById(equipments, value) {
+        const response = this.getEquipmentById(equipments, value)?.id_lore;
+
+        return response;
+    }
+
+    static getItemQuantityByIdLore(data, il) {
+        const args = { data, filterBy: 'id_lore', value: il };
+        const response = this.getItemById(args)?.quantity ?? 0;
+
+        return response;
+    }
+
+    static getStorageByCharcaterId(id) {
+        const storage = Data.storage;
+        const response = Object.values(storage).filter(item =>
+            item.id_character === null || item.id_character === id
+        );
+
+        return response;
+    }
+}
+export class Collectibles {
+    static prefix = 'collectable';
+
+
+
+    static addClick() {
+        const el = HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id='${this.prefix}']`);
+
+        HTML.elMapGame.addClick(el);
+    }
+
+    static decode(target) {
+        const response = ds.Helper.findById(Statics.collectibles, target);
+
+        return response;
+    }
+
+    static draw(target) {
+        const translationLoot = ds.Translation.gameLoot;
+        const translationDefault = ds.Translation.interfaceDefault;
+        const translationCollectable = translationDefault.collectable;
+        let response = '';
+
+        target.forEach((index) => {
+            const idItem = index.idItem;
+            const kind = this.decode(idItem);
+
+            if (!kind) return;
+
+            const name = kind.name;
+            const translationName = ds.Helper.escapeHTML(translationLoot[name]);
+            const tooltip = `
+                <span>${translationName}</span>. <br/>
+                ${translationCollectable}.
+            `;
+            const id = Layout.buildId(this.prefix, index.id);
+
+            response += `
+                <${lo.Components.collectable}
+                    id="${id}"
+                    class="lo-collectable ds-tile"
+                    ${ds.Layout.attributePositionX}=""
+                    ${ds.Layout.attributePositionY}=""
+                    data-tooltip="${tooltip}"
+                    data-id="${this.prefix}"
+                    data-loot="${idItem}"
+                    data-kind="${ds.Helper.escapeHTML(name)}"
+                    kind="${this.prefix}"
+                ></${lo.Components.collectable}>
+            `;
+        });
+
+        return response;
+    }
+
+    static async pickUp(id) {
+        const data = await FetchData.pickUpCollectable(id);
+
+        if (!data.id) return;
+
+        const collectable = this.decode(data.idItem);
+
+        Analytics.send({
+            event_name: 'collectible_pickup',
+            collectible_id: data.id,
+            item_id: data.idItem,
+            item_name: collectable?.name,
+        });
+
+        const idCollectable = Layout.buildId(this.prefix, id);
+        const el = HTML.elMapGame.shadowRoot.getElementById(idCollectable);
+
+        el.remove();
+
+        this.pickUpAddNotification();
+    }
+
+    static pickUpAddNotification() {
+        const translationCollected = ds.Translation.gameGeneric?.item_collected;
+        const translationCheck = ds.Translation.interface.response?.check_inventory;
+        const content = `${translationCollected} ${translationCheck}`;
+        const argsNotification = {
+            content,
+        };
+
+        Notification.add(argsNotification);
+    }
+
+    static setPosition() {
+        const elements = HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id="${this.prefix}"]`);
+
+        MapGame.setPositionEntity(elements);
+    }
+
+    static unBuildId(id) {
+        const response = Layout.unBuildId(this.prefix, id);
+
+        return response;
+    }
+}
+export class Components {
+    static get battle() {
+        const response = this.#buildName('battle');
+
+        return response;
+    }
+
+    static get characterCustomization() {
+        const response = this.#buildName('character-customization');
+
+        return response;
+    }
+
+    static get characterRotation() {
+        const response = this.#buildName('character-rotation');
+
+        return response;
+    }
+
+    static get cHud() {
+        const response = this.#buildName('hud');
+
+        return response;
+    }
+
+    static get cHudActionPoints() {
+        const response = this.#buildName('hud-action-points');
+
+        return response;
+    }
+
+    static get cHudContentMoney() {
+        const response = this.#buildName('hud-content-money');
+
+        return response;
+    }
+
+    static get cHudMenu() {
+        const response = this.#buildName('hud-menu');
+
+        return response;
+    }
+
+    static get cHudPageAbout() {
+        const response = this.buildHudPageName('about');
+
+        return response;
+    }
+
+    static get cHudPageAchievements() {
+        const response = this.buildHudPageName('achievements');
+
+        return response;
+    }
+
+    static get cHudPageAdvertising() {
+        const response = this.buildHudPageName('advertising');
+
+        return response;
+    }
+
+    static get cHudPageApplyCustomization() {
+        const response = this.buildHudPageName('apply-customization');
+
+        return response;
+    }
+
+    static get cHudPageAttributes() {
+        const response = this.buildHudPageName('attributes');
+
+        return response;
+    }
+
+    static get cHudPageBattle() {
+        const response = this.buildHudPageName('battle');
+
+        return response;
+    }
+
+    static get cHudPageBuy() {
+        const response = this.buildHudPageName('buy');
+
+        return response;
+    }
+
+    static get cHudPageBuyCustomization() {
+        const response = this.buildHudPageName('buy-customization');
+
+        return response;
+    }
+
+    static get cHudPageCombat() {
+        const response = this.buildHudPageName('combat');
+
+        return response;
+    }
+
+    static get cHudPageCraft() {
+        const response = this.buildHudPageName('craft');
+
+        return response;
+    }
+
+    static get cHudPageDeposit() {
+        const response = this.buildHudPageName('deposit');
+
+        return response;
+    }
+
+    static get cHudPageDetail() {
+        const response = this.buildHudPageName('detail');
+
+        return response;
+    }
+
+    static get cHudPageEquipments() {
+        const response = this.buildHudPageName('equipments');
+
+        return response;
+    }
+
+    static get cHudPageInventory() {
+        const response = this.buildHudPageName('inventory');
+
+        return response;
+    }
+
+    static get cHudPageMap() {
+        const response = this.buildHudPageName('map');
+
+        return response;
+    }
+
+    static get cHudPageMenu() {
+        const response = this.buildHudPageName('menu');
+
+        return response;
+    }
+
+    static get cHudPageNPC() {
+        const response = this.buildHudPageName('npc');
+
+        return response;
+    }
+
+    static get cHudPageQuest() {
+        const response = this.buildHudPageName('quest');
+
+        return response;
+    }
+
+    static get cHudPageQuests() {
+        const response = this.buildHudPageName('quests');
+
+        return response;
+    }
+
+    static get cHudPageRepairCombat() {
+        return this.buildHudPageName('repair-combat');
+    }
+
+    static get cHudPageRepairMagic() {
+        return this.buildHudPageName('repair-magic');
+    }
+
+    static get cHudPageSelectCharacter() {
+        const response = this.buildHudPageName('select-character');
+
+        return response;
+    }
+
+    static get cHudPageSelectClass() {
+        const response = this.buildHudPageName('select-class');
+
+        return response;
+    }
+
+    static get cHudPageSelectCustomization() {
+        const response = this.buildHudPageName('select-customization');
+
+        return response;
+    }
+
+    static get cHudPageSell() {
+        const response = this.buildHudPageName('sell');
+
+        return response;
+    }
+
+    static get cHudPageSettings() {
+        const response = this.buildHudPageName('settings');
+
+        return response;
+    }
+
+    static get cHudPageStatistics() {
+        const response = this.buildHudPageName('statistics');
+
+        return response;
+    }
+
+    static get cHudPageStore() {
+        const response = this.buildHudPageName('store');
+
+        return response;
+    }
+
+    static get cHudPageStory() {
+        const response = this.buildHudPageName('story');
+
+        return response;
+    }
+
+    static get cHudPageUser() {
+        const response = this.buildHudPageName('user');
+
+        return response;
+    }
+
+    static get cHudPageUserDeleteAccount() {
+        const response = this.buildHudPageName('user-delete-account');
+
+        return response;
+    }
+
+    static get cHudPageUserEdit() {
+        const response = this.buildHudPageName('user-edit');
+
+        return response;
+    }
+
+    static get cHudPageWithdraw() {
+        const response = this.buildHudPageName('withdraw');
+
+        return response;
+    }
+
+    static get cHudReferral() {
+        const response = this.#buildName('hud-referral');
+
+        return response;
+    }
+
+    static get cHudStatus() {
+        const response = this.#buildName('hud-status');
+
+        return response;
+    }
+
+    static get cHudTransition() {
+        const response = this.#buildName('hud-transition');
+
+        return response;
+    }
+
+    static get components() {
+        const response = [
+            [this.game, Game],
+
+            [this.battle, Battle],
+
+            [this.map, MapGame],
+
+            [this.characterRotation, CharacterRotation],
+            [this.characterCustomization, CharacterCustomization],
+
+            [this.cHud, Hud],
+            [this.cHudContentMoney, HudContentMoney],
+            [this.cHudMenu, HudMenu],
+
+            [this.cHudStatus, HudStatus],
+            [this.cHudTransition, HudTransition],
+            [this.cHudActionPoints, HudActionPoints],
+
+            [this.cHudPageAbout, HudPageAbout],
+            [this.cHudPageAchievements, HudPageAchievements],
+            [this.cHudPageAdvertising, HudPageAdvertising],
+            [this.cHudPageApplyCustomization, HudPageApplyCustomization],
+            [this.cHudPageAttributes, HudPageAttributes],
+            [this.cHudPageBattle, HudPageBattle],
+            [this.cHudPageBuy, HudPageBuy],
+            [this.cHudPageBuyCustomization, HudPageBuyCustomization],
+            [this.cHudPageCombat, HudPageCombat],
+            [this.cHudPageCraft, HudPageCraft],
+            [this.cHudPageDetail, HudPageDetail],
+            [this.cHudPageEquipments, HudPageEquipments],
+            [this.cHudPageInventory, HudPageInventory],
+            [this.cHudPageMap, HudPageMap],
+            [this.cHudPageMenu, HudPageMenu],
+            [this.cHudPageNPC, HudPageNPC],
+            [this.cHudPageQuest, HudPageQuest],
+            [this.cHudPageQuests, HudPageQuests],
+            [this.cHudPageRepairCombat, HudPageRepairCombat],
+            [this.cHudPageRepairMagic, HudPageRepairMagic],
+            [this.cHudPageSelectCharacter, HudPageSelectCharacter],
+            [this.cHudPageSelectClass, HudPageSelectClass],
+            [this.cHudPageSelectCustomization, HudPageSelectCustomization],
+            [this.cHudPageSell, HudPageSell],
+            [this.cHudPageSettings, HudPageSettings],
+            [this.cHudPageStatistics, HudPageStatistics],
+            [this.cHudPageStore, HudPageStore],
+            [this.cHudPageStory, HudPageStory],
+            [this.cHudPageUser, HudPageUser],
+            [this.cHudPageUserDeleteAccount, HudPageUserDeleteAccount],
+            [this.cHudPageUserEdit, HudPageUserEdit],
+            [this.cHudPageDeposit, HudPageDeposit],
+            [this.cHudPageWithdraw, HudPageWithdraw],
+            [this.cHudReferral, HudReferral],
+        ];
+
+        return response;
+    }
+
+    static get game() {
+        const response = this.prefixComponent;
+
+        return response;
+    }
+
+    static get map() {
+        const response = this.#buildName('map');
+
+        return response;
+    }
+
+    static get prefixComponent() {
+        const response = `${ds.Components.prefixComponent}${nameSpace}`;
+
+        return response;
+    }
+
+    static get prefixComponentDash() {
+        const response = `${this.prefixComponent}-`;
+
+        return response;
+    }
+
+    static buildHudPageName(page) {
+        const response = this.#buildName(`hud-page-${page}`);
+
+        return response;
+    }
+
+
+
+
+
+    static #buildName(name) {
+        const response = ds.Components.buildName(this.prefixComponentDash, name);
+
+        return response;
+    }
+}
+export class Data {
+    static storage = null;
+    static miniMap = null;
+    static customizations = null;
+    static map = null;
+    static opponent = null;
+    static player = null;
+    static rules = null;
+    static settings = null;
+
+    static init() {
+        Data.storage = DataProxyFactory.createDeep({}, () => Data.#scheduleStorage());
+        Data.miniMap = DataProxyFactory.createDeep({}, () => Data.updateMiniMap());
+        Data.customizations = DataProxyFactory.createDeep({}, () => Data.updateCustomizations());
+        Data.map = DataProxyFactory.createMap(() => MapGame.updateMap());
+
+        const groupConfig = {
+            onSet: args => Data.#setGroupValue(args),
+            onDelete: (entity, category) => DataScheduler.batchDebounce(`${entity}.${category}`, () => Data.#runBatchMethod(entity, category))
+        };
+
+        const opponent = {
+            ...groupConfig,
+            basePath: 'opponent',
+            properties: ['attributes']
+        };
+
+        Data.opponent = DataProxyFactory.createGroup(opponent);
+
+        const player = {
+            ...groupConfig,
+            basePath: 'player',
+            properties: [
+                'achievements',
+                'attributes',
+                'buffs',
+                'craft',
+                'customizations',
+                'equipments',
+                'map',
+                'quests',
+                'statistics',
+                'attacks',
+                'defenses',
+                'skills',
+                'stories',
+            ]
+        };
+
+        Data.player = DataProxyFactory.createGroup(player);
+
+        const rules = {
+            ...groupConfig,
+            basePath: 'rules',
+            properties: ['skills', 'battle', 'npcs', 'user', 'achievements', 'reward']
+        };
+
+        Data.rules = DataProxyFactory.createGroup(rules);
+
+        const settings = {
+            ...groupConfig,
+            basePath: 'settings',
+            properties: ['effects', 'music']
+        };
+
+        Data.settings = DataProxyFactory.createGroup(settings);
+    }
+
+    static getNextStorageKey(storage) {
+        const keys = Object.keys(storage).map(Number);
+        const max = keys.length ? Math.max(...keys) : -1;
+        const response = String(max + 1);
+
+        return response;
+    }
+
+    static setCustomizations(props) {
+        if (!props || typeof props !== 'object') return;
+
+        const args = {
+            target: Data.customizations,
+            source: props,
+            wrap: value => DataProxyFactory.createDeep(value, () => Data.updateCustomizations())
+        };
+
+        Data.#clearAndRepopulate(args);
+
+        Data.updateCustomizations();
+    }
+
+    static setData(props) {
+        if (!props || typeof props !== 'object') return;
+
+        const handlers = {
+            storage: value => Data.setStorage(value),
+            storageUpdated: value => Data.setStorageUpdated(value),
+            statisticsUpdated: value => Data.setStatisticsUpdated(value),
+            achievementsUpdated: value => Data.setAchievementsUpdated(value),
+            miniMap: value => Data.setMiniMap(value),
+            miniMapUpdated: value => Data.setMiniMapUpdated(value),
+            customizations: value => Data.setCustomizations(value),
+            equipments: value => Data.setPlayerEquipments(value),
+            capacity: value => Data.setPlayerCapacity(value),
+            map: value => Data.setMap(value),
+            isInventoryFull: () => Data.setInventoryFull(),
+            isLevelUp: value => value && Data.setLevelUp(),
+            quests: value => Data.setPlayerQuests(value),
+            opponent: value => value && value !== [] && Data.setOpponent(value),
+            player: value => Data.setPlayer(value),
+            rules: value => Data.setRules(value),
+            statics: value => Statics.updateVariables(value),
+            characters: value => Data.setLoginCharacters(value),
+            user: value => Data.setLoginUser(value),
+        };
+
+        Object.entries(handlers).forEach(([key, fn]) => {
+            if (props[key] !== undefined) fn(props[key]);
+        });
+    }
+
+    static setLoginCharacters(props) {
+        if (!Array.isArray(props)) return;
+
+        Data.#ensureLoginProxy();
+
+        Data.login.characters = props;
+    }
+
+    static setLoginUser(props) {
+        if (!props || typeof props !== 'object') return;
+
+        Data.#ensureLoginProxy();
+
+        Object.entries(props).forEach(([key, value]) => { Data.login[key] = value; });
+    }
+
+    static async setMap(props) {
+        if (!props || typeof props !== 'object') return;
+
+        HTML.elTransition.openByKind('tip');
+
+        await MapGame.updateDataMap({ mapData: props });
+
+        Player.updateLayout();
+        Camera.center();
+
+        HTML.elTransition.close();
+    }
+
+    static setMiniMap(props) {
+        if (!props || typeof props !== 'object') return;
+
+        const args = {
+            target: Data.miniMap,
+            source: props,
+            wrap: doors => DataProxyFactory.createDeep({ doors }, () => Data.updateMiniMap())
+        };
+
+        Data.#clearAndRepopulate(args);
+
+        Data.updateMiniMap();
+    }
+
+    static setMiniMapUpdated(props) {
+        if (!props || typeof props !== 'object' || Object.keys(props).length === 0) return;
+
+        Object.entries(props).forEach(([mapId, doors]) => {
+            if (Data.miniMap[mapId]) {
+                Data.miniMap[mapId].doors = doors;
+                return;
+            }
+
+            Data.miniMap[mapId] = DataProxyFactory.createDeep({ doors }, () => Data.updateMiniMap());
+        });
+
+        Data.updateMiniMap();
+    }
+
+    static setOpponent(props) {
+        if (!props || typeof props !== 'object') return;
+
+        const { attributes } = props;
+
+        if (!attributes || typeof attributes !== 'object') return;
+
+        Data.#applyNestedData(Data.opponent, { attributes });
+    }
+
+    static setPlayer(props) {
+        Data.#applyNestedData(Data.player, props);
+    }
+
+    static setPlayerCapacity(props) {
+        if (!props || typeof props !== 'object') return;
+
+        const { capacity, weight } = props;
+        const data = Data.player.attributes;
+
+        if (capacity !== undefined) data.capacity = capacity;
+
+        if (weight !== undefined) data.weight = weight;
+    }
+
+    static setAchievementsUpdated(props) {
+        if (!Array.isArray(props) || props.length === 0) return;
+
+        const translation = ds.Translation.gameAchievements;
+
+        props.forEach((index) => {
+            const title = translation?.[`a_${index}_title`];
+
+            if (!title) return;
+
+            const args = {
+                content: title,
+                color: Notification.colorDefault,
+            };
+
+            Notification.add(args);
+        });
+
+        Data.updatePlayerAchievements();
+    }
+
+    static setInventoryFull() {
+        const content = ds.Translation.interface.response?.inventory_full;
+
+        if (!content) return;
+
+        const args = {
+            content,
+            color: Notification.colorError,
+        };
+
+        Notification.add(args);
+    }
+
+    static setLevelUp() {
+        const content = ds.Translation.gameGeneric?.level_up;
+        const level = Data.player?.attributes?.level;
+        const text = `${content} ${level}`;
+
+        const args = {
+            content: text,
+            color: Notification.colorDefault,
+        };
+
+        Notification.add(args);
+    }
+
+    static setPlayerEquipments(props) {
+        Data.#syncProxyData(Data.player.equipments, props);
+
+        Player.updateLayout();
+    }
+
+    static setPlayerQuests(props) {
+        Data.#syncProxyData(Data.player.quests, props);
+    }
+
+    static setRules(props) {
+        const { skills, battle, npcs, user, achievements, reward } = props;
+
+        Data.#applyNestedData(Data.rules, { skills, battle, npcs, user, achievements, reward });
+    }
+
+    static setStorage(props) {
+        DataScheduler.cancel('storage');
+
+        Object.keys(Data.storage).forEach(k => delete Data.storage[k]);
+
+        Object.entries(props).forEach(([key, value]) => {
+            Data.storage[key] = DataProxyFactory.createDeep(value, () => Data.#scheduleStorage());
+        });
+
+        Data.#scheduleStorage();
+    }
+
+    static setStorageUpdated(props) {
+        const args = {
+            currentData: Data.storage,
+            updates: props,
+            getId: item => item?.id,
+            onCreate: item => DataProxyFactory.createDeep(item, () => Data.#scheduleStorage()),
+            onFinish: () => Data.#scheduleStorage()
+        };
+
+        Data.setUpdatedData(args);
+    }
+
+    static setStatisticsUpdated(props) {
+        if (!props || typeof props !== 'object' || Object.keys(props).length === 0) return;
+
+        const statistics = Data.player.statistics;
+
+        Object.entries(props).forEach(([key, data]) => {
+            if (typeof statistics[key] === 'object' && statistics[key] !== null) {
+                statistics[key].value = data?.value ?? data;
+                return;
+            }
+
+            statistics[key] = data;
+        });
+
+        Data.updatePlayerStatistics();
+    }
+
+    static setUpdatedData({ currentData, updates, getId, onCreate, onUpdate, onFinish }) {
+        if (!updates || typeof updates !== 'object') return;
+
+        Object.values(updates).forEach(updateItem => {
+            if (!updateItem || typeof updateItem !== 'object') return;
+
+            const updateId = getId(updateItem);
+            const currentKey = Object.keys(currentData).find(key => getId(currentData[key]) === updateId);
+            const isValid = currentKey !== undefined;
+
+            if (isValid) {
+                const currentItem = currentData[currentKey];
+
+                Object.entries(updateItem).forEach(([key, value]) => { currentItem[key] = value; });
+                onUpdate?.(currentItem, updateItem);
+
+                return;
+            }
+
+            currentData[Data.getNextStorageKey(currentData)] = onCreate ? onCreate(updateItem) : updateItem;
+        });
+
+        onFinish?.();
+    }
+
+    static updateCustomizations() {
+        // console.log('Data updateCustomizations()');
+    }
+
+    static updateDataPlayer(target) {
+        const character = Data.login.characters.find(char => char.id === target);
+
+        Object.entries(character).forEach(([index, props]) => {
+            const proxyTarget = Data.player[index];
+
+            if (!proxyTarget || typeof proxyTarget !== 'object') return;
+
+            Object.entries(props).forEach(([key, value]) => {
+                const isValid = proxyTarget[key] === undefined;
+
+                if (isValid) proxyTarget[key] = value;
+            });
+        });
+
+        Player.updateLayout();
+    }
+
+    static updateMiniMap() {
+        const isElementVisible = ds.Helper.isElementVisible(HTML.elHudPageMap);
+
+        if (!isElementVisible) return;
+
+        HTML.elHudPageMap?.updateData?.();
+    }
+
+    static updateOpponentAttributes(property, value) {
+        const args = {
+            entity: 'opponent',
+            category: 'attributes',
+            targets: [HTML.elHudModalBattle],
+            property,
+            value
+        };
+
+        DataUpdater.dispatchToTargets(args);
+    }
+
+    static updatePlayerAchievements(property, value) {
+        const args = {
+            entity: 'player',
+            category: 'achievements',
+            targets: [HTML.elHudPageAchievements],
+            property,
+            value
+        };
+
+        DataUpdater.dispatchToTargets(args);
+    }
+
+    static updatePlayerAttributes(property, value) {
+        const args = {
+            entity: 'player',
+            category: 'attributes',
+            targets: [
+                HTML.elHudStatus,
+                HTML.elHudPageAttribute,
+                HTML.elHudPageInventory,
+                HTML.elHudModalBattle
+            ],
+            property,
+            value
+        };
+
+        DataUpdater.dispatchToTargets(args);
+    }
+
+    static updatePlayerCustomizations() {
+        Player.updateLayout();
+    }
+
+    static updatePlayerMap(property, value) {
+        const args = {
+            entity: 'player',
+            category: 'map',
+            targets: [HTML.elHudPageMap],
+            property,
+            value
+        };
+
+        DataUpdater.dispatchToTargets(args);
+    }
+
+    static updatePlayerQuests(property, value) {
+        const args = {
+            entity: 'player',
+            category: 'quests',
+            targets: [HTML.elHudPageQuests],
+            property,
+            value
+        };
+
+        DataUpdater.dispatchToTargets(args);
+    }
+
+    static updatePlayerStatistics(property, value) {
+        const args = {
+            entity: 'player',
+            category: 'statistics',
+            targets: [HTML.elHudPageStatistics],
+            property: property ?? 'statistics',
+            value: value ?? true,
+        };
+
+        DataUpdater.dispatchToTargets(args);
+    }
+
+    static updateRulesSkills(property, value) {
+        const args = {
+            el: HTML.elHudModalBattle,
+            category: 'rules',
+            property,
+            value
+        };
+
+        DataUpdater.scheduleComponentUpdate(args);
+    }
+
+    static updateRulesAchievements() {
+        const isElementVisible = ds.Helper.isElementVisible(HTML.elHudPageAchievements);
+
+        if (!isElementVisible) return;
+
+        HTML.elHudPageAchievements?.updateData?.();
+    }
+
+    static updateSettings(property, value) {
+        const args = {
+            el: HTML.elHudPageSettings,
+            category: 'settings',
+            property,
+            value
+        };
+
+        DataUpdater.scheduleComponentUpdate(args);
+    }
+
+    static updateSettingsEffects(property, value) {
+        const args = {
+            el: HTML.elHudPageSettings,
+            category: 'settings.effects',
+            property,
+            value
+        };
+
+        DataUpdater.scheduleComponentUpdate(args);
+    }
+
+    static updateSettingsMusic(property, value) {
+        const args = {
+            el: HTML.elHudPageSettings,
+            category: 'settings.music',
+            property,
+            value
+        };
+
+        DataUpdater.scheduleComponentUpdate(args);
+    }
+
+    static updateStorage() {
+        if (ds.Helper.isElementVisible(HTML.elHudPageInventory)) HudPageInventory?.pageDetail?.redraw();
+        if (ds.Helper.isElementVisible(HTML.elHudPageEquipments)) HudPageEquipments?.pageDetail?.redraw();
+        if (ds.Helper.isElementVisible(HTML.elHudPageNPC)) {
+            HudPageNPC?.pageDetail?.redraw();
+            HTML.elHudContentMoney?.redraw();
+        }
+    }
+
+
+
+    static #applyNestedData(target, props) {
+        Object.entries(props).forEach(([index, value]) => {
+            const proxyTarget = target[index];
+            if (!proxyTarget) return;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                Object.entries(value).forEach(([key, val]) => { proxyTarget[key] = val; });
+
+                return;
+            }
+
+            target[index] = value;
+        });
+    }
+
+    static #clearAndRepopulate({ target, source, wrap }) {
+        Object.keys(target).forEach(key => delete target[key]);
+        Object.entries(source).forEach(([key, value]) => { target[key] = wrap(value, key); });
+    }
+
+    static #ensureLoginProxy() {
+        if (Data.login) return;
+
+        Data.login = DataProxyFactory.createDeep({}, () => { });
+    }
+
+    static #runBatchMethod(entity, category) {
+        const method = `update${ds.Helper.capitalizeString(entity)}${ds.Helper.capitalizeString(category)}`;
+
+        if (typeof Data[method] === 'function') Data[method]();
+    }
+
+    static #scheduleStorage() {
+        DataScheduler.debounce('storage', () => Data.updateStorage());
+    }
+
+    static #setGroupValue({ basePath, property, target, prop, value }) {
+        const isObject = typeof value === 'object' && value !== null;
+
+        if (isObject) {
+            if (!(prop in target)) target[prop] = {};
+
+            target[prop] = DataProxyFactory.createNestedObservable(value, () => {
+                DataScheduler.batchDebounce(`${basePath}.${property}`, () => Data.#runBatchMethod(basePath, property));
+            });
+
+            DataScheduler.batchDebounce(`${basePath}.${property}`, () => Data.#runBatchMethod(basePath, property));
+        } else {
+            target[prop] = value;
+
+            const method = `update${ds.Helper.capitalizeString(basePath)}${ds.Helper.capitalizeString(property)}`;
+
+            if (typeof Data[method] === 'function') Data[method](prop, value);
+        }
+
+        return true;
+    }
+
+    static #syncProxyData(data, props) {
+        const nextKeys = Object.keys(props || {});
+
+        Object.keys(data).forEach(key => { if (!nextKeys.includes(key)) delete data[key]; });
+        Object.entries(props || {}).forEach(([key, value]) => { data[key] = value; });
+    }
+}
+export class DataProxyFactory {
+    static createDeep(target, onChange) {
+        if (typeof target !== 'object' || target === null) return target;
+
+        return new Proxy(target, {
+            set(obj, prop, value) {
+                obj[prop] = DataProxyFactory.createDeep(value, onChange);
+                onChange(prop, value);
+
+                return true;
+            },
+            deleteProperty(obj, prop) {
+                delete obj[prop];
+                onChange(prop, undefined);
+
+                return true;
+            }
+        });
+    }
+
+    static createGroup({ basePath, properties, onSet, onDelete }) {
+        const response = {};
+
+        properties.forEach(property => {
+            response[property] = new Proxy({}, {
+                set: (target, prop, value) => onSet({ basePath, property, target, prop, value }),
+                deleteProperty: (target, prop) => {
+                    delete target[prop];
+                    onDelete(basePath, property);
+                    return true;
+                }
+            });
+        });
+
+        return response;
+    }
+
+    static createMap(onChange) {
+        const response = new Proxy({}, {
+            set(target, property, value) {
+                target[property] = value;
+                onChange();
+                return true;
+            }
+        });
+
+        return response;
+    }
+
+    static createNestedObservable(target, onSchedule) {
+        const response = new Proxy(target, {
+            set(obj, key, newValue) {
+                obj[key] = newValue;
+                onSchedule();
+                return true;
+            }
+        });
+
+        return response;
+    }
+}
+export class DataScheduler {
+    static #timeouts = new Map();
+    static #batches = new Map();
+
+    static batchDebounce(key, fn) {
+        DataScheduler.#batches.set(key, fn);
+        DataScheduler.debounce('__batch__', () => DataScheduler.#flushBatch());
+    }
+
+    static cancel(key) {
+        if (!DataScheduler.#timeouts.has(key)) return;
+        clearTimeout(DataScheduler.#timeouts.get(key));
+        DataScheduler.#timeouts.delete(key);
+    }
+
+    static debounce(key, fn) {
+        if (DataScheduler.#timeouts.has(key)) clearTimeout(DataScheduler.#timeouts.get(key));
+        DataScheduler.#timeouts.set(key, setTimeout(() => {
+            fn();
+            DataScheduler.#timeouts.delete(key);
+        }, 0));
+    }
+
+
+    static #flushBatch() {
+        DataScheduler.#batches.forEach(fn => fn());
+        DataScheduler.#batches.clear();
+    }
+}
+
+export class DataUpdater {
+    static #pendingUpdates = new Map();
+
+    static dispatchToTargets(props) {
+        const { entity, category, targets, property, value } = props;
+
+        targets.forEach(el => {
+            const args = {
+                el,
+                category: `${entity}.${category}`,
+                property,
+                value
+            };
+
+            DataUpdater.scheduleComponentUpdate(args);
+        });
+    }
+
+    static flush() {
+        DataUpdater.#pendingUpdates.forEach((updates, el) => {
+            if (!el.updates) el.updates = {};
+
+            Object.entries(updates).forEach(([category, properties]) => {
+                const target = category.split('.').reduce((acc, curr) => {
+                    if (!acc[curr]) acc[curr] = {};
+                    return acc[curr];
+                }, el.updates);
+
+                Object.assign(target, properties);
+            });
+
+            if (typeof el?.updateData === 'function') el.updateData();
+        });
+
+        DataUpdater.#pendingUpdates.clear();
+    }
+
+    static scheduleComponentUpdate(props) {
+        const { el, category, property, value } = props;
+
+        if (!property || !el) return;
+
+        if (!DataUpdater.#pendingUpdates.has(el)) DataUpdater.#pendingUpdates.set(el, {});
+
+        const elementUpdates = DataUpdater.#pendingUpdates.get(el);
+
+        if (!elementUpdates[category]) elementUpdates[category] = {};
+
+        elementUpdates[category][property] = value;
+
+        DataScheduler.debounce('__components__', () => DataUpdater.flush());
+    }
+}
+export class Emoji {
+    static agressive = [
+        128520,
+        128530,
+        128544,
+        128545,
+        128548,
+        128127,
+        128128,
+        128170,
+    ];
+    static neutral = [
+        128512,
+        128513,
+        128514,
+        128515,
+        128516,
+        128517,
+        128518,
+        128521,
+        128522,
+        128523,
+        128524,
+        128525,
+        128526,
+        128527,
+        128535,
+        128536,
+        128537,
+        128538,
+        128539,
+        128540,
+        128541,
+        128559,
+        128563,
+        128566,
+        128406,
+        128077,
+        9996,
+        129304,
+        129305,
+        129311,
+        129655,
+    ];
+    static scared = [
+        128519,
+        128528,
+        128529,
+        128531,
+        128532,
+        128533,
+        128534,
+        128542,
+        128543,
+        128546,
+        128547,
+        128549,
+        128550,
+        128551,
+        128552,
+        128553,
+        128554,
+        128555,
+        128556,
+        128557,
+        128558,
+        128560,
+        128561,
+        128562,
+        128565,
+        128567,
+        128078,
+        128064,
+        128169,
+    ];
+    static sleepy = [
+        128564
+    ];
+
+    static activate(entity) {
+        const emoji = this.getRandomEmoji(entity);
+        this.addEmoji(entity, emoji);
+
+        const remove = () => {
+            entity.removeEventListener('mouseenter', remove);
+            this.removeEmoji(entity);
+        };
+
+        entity.addEventListener('mouseenter', remove);
+
+        setTimeout(remove, 3000);
+    }
+
+    static activateChance(entity, behavior, chance = 1) {
+        const roll = Math.random() * 100;
+
+        if (roll > chance) return;
+
+        const list = this[behavior] ?? this.neutral;
+        const index = Math.floor(Math.random() * list.length);
+        const code = list[index];
+        const emoji = this.buildEmoji(code);
+
+        this.addEmoji(entity, emoji);
+
+        setTimeout(() => {
+            this.removeEmoji(entity);
+        }, 2000);
+    }
+
+    static activateSleepyPlayer() {
+        const player = MapGame.player;
+
+        if (!player) return;
+
+        this.sleepyPrevious = player.getAttribute('action');
+        player.setAttribute('action', 'sleep');
+
+        const emoji = this.buildEmoji(this.sleepy[0]);
+
+        this.addEmoji(player, emoji);
+    }
+
+    static addEmoji(target, emoji) {
+        const value = JSON.stringify(emoji);
+
+        target.setAttribute(ds.Prefix.ATTR_EMOJI, value);
+    }
+
+    static buildEmoji(code) {
+        const response = `&#${code};`;
+
+        return response;
+    }
+
+    static buildReactionEntities() {
+        const entity = this.getRandomEntity();
+
+        if (!entity) return;
+
+        this.activate(entity);
+    }
+
+    static getRandomEmoji(entity) {
+        const behavior = entity.getAttribute(ds.Prefix.ATTR_BEHAVIOR);
+        const list = this[behavior] ?? this.neutral;
+        const index = Math.floor(Math.random() * list.length);
+        const code = list[index];
+        const response = this.buildEmoji(code);
+
+        return response;
+    }
+
+    static getRandomEntity() {
+        const data = HTML.elMapGame.map;
+
+        if (!data || !data.monsters || !data.npcs) return;
+
+        const monsters = data.monsters.map(m => ({
+            type: ds.Prefix.MONSTER,
+            id: m.id
+        }));
+
+        const npcs = data.npcs.map(n => ({
+            type: 'npc',
+            id: n.id
+        }));
+
+        const entities = monsters.concat(npcs);
+
+        if (!entities.length) return null;
+
+        const index = Math.floor(Math.random() * entities.length);
+        const entity = entities[index];
+
+        if (entity.type === ds.Prefix.MONSTER) {
+            return MapGame.getMonsterById(entity.id);
+        }
+
+        return MapGame.getNPCById(entity.id);
+    }
+
+    static removeSleepyPlayer() {
+        const player = MapGame.player;
+
+        if (!player) return;
+
+        const previous = this.sleepyPrevious ?? 'stand';
+
+        player.setAttribute('action', previous);
+
+        this.removeEmoji(player);
+    }
+
+    static removeEmoji(target) {
+        target.removeAttribute(ds.Prefix.ATTR_EMOJI);
+    }
+}
+export class FetchData {
+    static namespaceGame = 'Game/';
+    static namespaceLogin = 'Login/';
+    static controller = {
+        game: {
+            advertising: `${this.namespaceGame}Advertising`,
+            battle: `${this.namespaceGame}Battle`,
+            character: `${this.namespaceGame}Character`,
+            item: `${this.namespaceGame}Item`,
+            map: `${this.namespaceGame}Map`,
+            npc: `${this.namespaceGame}NPC`,
+            store: `${this.namespaceGame}Store`,
+            user: `${this.namespaceGame}User`,
+        },
+        login: `${this.namespaceLogin}Login`,
+    };
+
+
+
+    static async acceptQuest(props) {
+        const controller = this.controller.game.npc;
+        const { id, npc } = props;
+        const args = {
+            controller,
+            action: 'acceptQuest',
+            id,
+            npc,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async applyCustomization(props) {
+        const controller = this.controller.game.npc;
+        const { npc, customizations } = props;
+        const args = {
+            controller,
+            action: 'applyCustomization',
+            npc,
+            customizations
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async buildBattle(props) {
+        const {
+            id,
+        } = props;
+        const controller = this.controller.game.battle;
+        const args = {
+            controller,
+            action: 'buildBattle',
+            idMonster: id,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async buyItem(props) {
+        const controller = this.controller.game.npc;
+        const { id, il, npc, quantity } = props;
+        const args = {
+            controller,
+            action: 'buyItem',
+            id,
+            il,
+            npc,
+            quantity,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async buyCustomization(props) {
+        const controller = this.controller.game.npc;
+        const { npc, customizations } = props;
+        const args = {
+            controller,
+            action: 'buyCustomization',
+            npc,
+            customizations
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async changeMap(props) {
+        const controller = this.controller.game.map;
+        const args = {
+            controller,
+            action: 'changeMap',
+            door: props.door,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async createNewCharacter(props) {
+        const { name, customizations, classId } = props;
+        const controller = this.controller.game.character;
+        const args = {
+            controller,
+            action: 'createNewCharacter',
+            name,
+            customizations,
+            classId
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async deleteCharacter(props) {
+        const { id } = props;
+        const controller = this.controller.game.character;
+        const args = {
+            controller,
+            action: 'deleteCharacter',
+            id,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async createStoreTransaction(props) {
+        const { packageId, paymentMethod } = props;
+        const controller = this.controller.game.store;
+        const args = {
+            controller,
+            action: 'createTransaction',
+            packageId,
+            paymentMethod
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getSlotPackages() {
+        const controller = this.controller.game.store;
+        const args = {
+            controller,
+            action: 'getSlotPackages'
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async deleteAccount(props) {
+        const { password } = props;
+        const controller = this.controller.game.user;
+        const args = {
+            controller,
+            action: 'deleteAccount',
+            password
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async deleteItem(props) {
+        const { id, il, quantity } = props;
+        const controller = this.controller.game.item;
+        const args = {
+            controller,
+            action: 'delete',
+            id,
+            il,
+            quantity
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async depositItem(props) {
+        const controller = this.controller.game.npc;
+        const { id, il, npc, quantity } = props;
+        const args = {
+            controller,
+            action: ds.Prefix.DEPOSIT,
+            id,
+            il,
+            npc,
+            quantity
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async equipItem(props) {
+        const { id, il } = props;
+        const controller = this.controller.game.item;
+        const args = {
+            controller,
+            action: 'equip',
+            id,
+            il,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async fetchData(props) {
+        const response = await this.reloadOnInvalidToken(() => ds.DataLoader.fetchData(props));
+
+        if (response) Data.setData(response);
+
+        return response;
+    }
+
+    static async reloadOnInvalidToken(request) {
+        const response = await request();
+
+        if (response?.isError && response?.errorMessage === ds.Prefix.TOKEN_INVALID) {
+            location.reload();
+        }
+
+        return response;
+    }
+
+    static async finishQuest(props) {
+        const controller = this.controller.game.npc;
+        const { id, npc } = props;
+        const args = {
+            controller,
+            action: 'finishQuest',
+            id,
+            npc,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getCharacter(id) {
+        const controller = this.controller.game.character;
+        const args = {
+            controller,
+            action: 'getCharacter',
+            id
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getCraftReward(npc) {
+        const controller = this.controller.game.npc;
+        const args = {
+            controller,
+            action: 'getCraftReward',
+            npc
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getLoginData() {
+        const controller = this.controller.game.user;
+        const args = {
+            controller,
+            action: 'getData',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getMap(props) {
+        const {
+            map,
+            door,
+            position = 0,
+        } = props;
+        const controller = this.controller.game.map;
+        const args = {
+            controller,
+            action: 'getMap',
+            map,
+            door,
+            position
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getNPC(target) {
+        const controller = this.controller.game.npc;
+        const args = {
+            controller,
+            action: 'talk',
+            name: target
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getSkill(props) {
+        const { action, id, il, quantity } = props;
+        const controller = this.controller.game.battle;
+        const capitalizeSkill = ds.Helper.capitalizeString(action);
+        const args = {
+            controller,
+            action: `getSkill${capitalizeSkill}`,
+        };
+
+        if (id) args.id = id;
+        if (il) args.il = il;
+        if (quantity) args.quantity = quantity;
+
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getSkillOpponent() {
+        const controller = this.controller.game.battle;
+        const args = {
+            controller,
+            action: 'getSkillOpponent',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getStorePackages() {
+        const controller = this.controller.game.store;
+        const args = {
+            controller,
+            action: 'getPackages',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getStorePaymentMethods() {
+        const controller = this.controller.game.store;
+        const args = {
+            controller,
+            action: 'getPaymentMethods',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async getStoreTransactionStatus(props) {
+        const controller = this.controller.game.store;
+        const { transactionId, paymentMethod } = props;
+        const args = {
+            controller,
+            action: 'getTransactionStatus',
+            transactionId,
+            paymentMethod,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async logOut() {
+        const controller = this.controller.login;
+        const args = {
+            controller,
+            action: 'logOut',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async pickUpCollectable(id) {
+        const controller = this.controller.game.map;
+        const args = {
+            controller,
+            action: 'pickUpCollectable',
+            id
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async repairCombat(props) {
+        const controller = this.controller.game.npc;
+        const { ids, npc } = props;
+        const args = {
+            controller,
+            action: 'repairCombat',
+            ids,
+            npc,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async repairMagic(props) {
+        const controller = this.controller.game.npc;
+        const { ids, npc } = props;
+        const args = {
+            controller,
+            action: 'repairMagic',
+            ids,
+            npc,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async sellItem(props) {
+        const controller = this.controller.game.npc;
+        const { id, il, npc, quantity } = props;
+        const args = {
+            controller,
+            action: ds.Prefix.SELL,
+            id,
+            il,
+            npc,
+            quantity
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async speedUpCraft(props) {
+        const controller = this.controller.game.npc;
+        const { npc } = props;
+        const args = {
+            controller,
+            action: 'speedUpCraft',
+            npc,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async submitAdvertising(props) {
+        const controller = this.controller.game.advertising;
+        const { kind, link } = props;
+        const args = {
+            controller,
+            action: 'submit',
+            kind,
+            link,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async setCharacterStory(props) {
+        const controller = this.controller.game.character;
+        const { idCharacter, act, scene } = props;
+        const args = {
+            controller,
+            action: 'setStory',
+            idCharacter,
+            act,
+            scene,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async setEmail(props) {
+        const { email, password } = props;
+        const controller = this.controller.game.user;
+        const args = {
+            controller,
+            action: 'setEmail',
+            email,
+            password
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async setUsername(props) {
+        const { username, password } = props;
+        const controller = this.controller.game.user;
+        const args = {
+            controller,
+            action: 'setUsername',
+            username,
+            password
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async setPassword(props) {
+        const { password, passwordNew } = props;
+        const controller = this.controller.game.user;
+        const args = {
+            controller,
+            action: 'setPassword',
+            password,
+            passwordNew
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async setNewsletter(props) {
+        const { newsletter } = props;
+        const controller = this.controller.game.user;
+        const args = {
+            controller,
+            action: 'setNewsletter',
+            newsletter
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async setUserDataEmail() {
+        const controller = this.controller.login;
+        const args = {
+            controller,
+            action: 'setUserEmail',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async startCraft(props) {
+        const controller = this.controller.game.npc;
+        const { id, il, npc, quantity } = props;
+        const args = {
+            controller,
+            action: 'startCraft',
+            id,
+            il,
+            npc,
+            quantity,
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async unequipItem(props) {
+        const { id, il } = props;
+        const controller = this.controller.game.item;
+        const args = {
+            controller,
+            action: 'unequip',
+            id,
+            il
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async useItem(props) {
+        const { id, il, quantity } = props;
+        const controller = this.controller.game.item;
+        const args = {
+            controller,
+            action: 'useItem',
+            id,
+            il,
+            quantity
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async withdrawItem(props) {
+        const controller = this.controller.game.npc;
+        const { id, il, npc, quantity } = props;
+        const args = {
+            controller,
+            action: ds.Prefix.WITHDRAW,
+            id,
+            il,
+            npc,
+            quantity
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async openBank() {
+        const controller = this.controller.game.npc;
+        const args = {
+            controller,
+            action: 'openBank',
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+}
+export class Hotkeys {
+    static addEventListeners() {
+        document.addEventListener('keydown', (event) => {
+            if (Hotkeys.isInputFocused(event)) return;
+
+            const key = event.key.toLowerCase();
+            const isBattle = Battle.isBattle;
+            const preventReload = [
+                event.key === 'F5',
+                event.ctrlKey && key === 'r',
+                event.ctrlKey && event.shiftKey && key === 'r',
+                event.ctrlKey && event.key === 'F5',
+                event.ctrlKey && event.shiftKey && event.key === 'F5',
+                event.metaKey && key === 'r',
+                event.metaKey && event.shiftKey && key === 'r',
+                event.ctrlKey && key === 'w',
+                event.metaKey && key === 'w'
+            ].some(Boolean);
+
+            if (preventReload && isBattle) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            const data = this.getData(event.key, 'key');
+            const action = data?.action;
+            const isGameKey = data?.isGameKey;
+            const isPlaying = HTML?.elGame?.isPlaying;
+            const isValid = this.isValidAction({
+                isGameKey,
+                isPlaying
+            });
+
+            if (isValid) this.runAction(action);
+        }, true);
+
+
+        window.addEventListener('beforeunload', (event) => {
+            const isBattle = Battle.isBattle;
+
+            if (!isBattle) return;
+
+            event.preventDefault();
+            event.returnValue = '';
+        });
+    }
+
+    static buildAction(argsObjectAction) {
+        const response = () => {
+            argsObjectAction?.callback?.();
+        };
+
+        return response;
+    }
+
+    static buildActionOpenPage(page, position) {
+        const response = this.buildAction({
+            callback: () => {
+                HTML.elHud.openPage({
+                    detail: {
+                        pageTarget: page,
+                        pagePosition: position
+                    }
+                });
+            }
+        });
+
+        return response;
+    }
+
+    static getAction(target) {
+        const response = this.getData(target)?.action;
+
+        return response;
+    }
+
+    static getData(target, prop = 'id') {
+        const hotkeys = Statics.hotkeys;
+        const response = hotkeys.find(property => property[prop] === target);
+
+        return response;
+    }
+
+    static getKey(target) {
+        const response = this.getData(target)?.key;
+
+        return response;
+    }
+
+    static init() {
+        this.addEventListeners();
+    }
+
+    static isInputFocused(event) {
+        const path = event.composedPath ? event.composedPath() : [event.target, document.activeElement];
+
+        return path.some(el => {
+            if (!el || !el.tagName) return false;
+
+            const tagName = el.tagName.toLowerCase();
+
+            return tagName === 'input' || tagName === 'textarea' || el.isContentEditable;
+        });
+    }
+
+    static isValidAction(argsObjectAction) {
+        const isGameKey = argsObjectAction?.isGameKey;
+        const isPlaying = argsObjectAction?.isPlaying;
+        let response = true;
+
+        if (isGameKey && !isPlaying) response = false;
+
+        return response;
+    }
+
+    static runAction(action) {
+        if (typeof action !== 'function') return;
+
+        action();
+    }
+}
+export class HTML {
+    static idHud = 'hud';
+    static idHudModal = 'hud_modal';
+    static idHudMenu = 'hud_menu';
+    static idTransition = 'hud_transition';
+    static idHudPageLeft = 'hud_page_left';
+    static idHudPageRight = 'hud_page_right';
+    static idHudProgressExperience = 'hud_progress_experience';
+    static idHudProgressLife = 'hud_progress_life';
+    static idHudProgressMana = 'hud_progress_mana';
+    static idHudStatus = 'hud_status';
+    static idHudFooter = 'hud_footer';
+    static idTooltipArrow = 'tooltip_arrow';
+    static idGame = 'game';
+    static idGameBattle = 'game_battle';
+    static idGameMain = 'game_main';
+    static idMapGame = 'game_map';
+    static idGamePlayer = 'game_player';
+
+
+
+
+    static get elGame() {
+        const response = this.elHud.shadowRoot.getElementById(this.idGame);
+
+        return response;
+    }
+
+    static get elGamePlayer() {
+        const response = this.elMapGame.shadowRoot.getElementById(this.idGamePlayer);
+
+        return response;
+    }
+
+    static get elGameBattle() {
+        const response = this.elGame.shadowRoot.getElementById(this.idGameBattle);
+
+        return response;
+    }
+
+    static get elGameMain() {
+        const response = this.elGame.shadowRoot.getElementById(this.idGameMain);
+
+        return response;
+    }
+
+    static get elHudContentMoney() {
+        const dataId = `[data-id="${ds.Page.dataIdPage}"]`;
+        const component = Components.cHudContentMoney;
+        const response = this.elHudPageNPC.shadowRoot.querySelector(dataId)?.shadowRoot.querySelector(component);
+
+        return response;
+    }
+
+    static get elHudPageAchievements() {
+        const response = this.getPage('achievements');
+
+        return response;
+    }
+
+    static get elHudPageAttributes() {
+        const response = this.getPage('attributes');
+
+        return response;
+    }
+
+    static get elHudPageBattle() {
+        const response = this.getPage('battle');
+
+        return response;
+    }
+
+    static get elHudPageDetail() {
+        const response = this.getPage('detail');
+
+        return response;
+    }
+
+    static get elHudPageEquipments() {
+        const response = this.getPage('equipments');
+
+        return response;
+    }
+
+    static get elHudPageInventory() {
+        const response = this.getPage('inventory');
+
+        return response;
+    }
+
+    static get elHudPageMap() {
+        const response = this.getPage('map');
+
+        return response;
+    }
+
+    static get elHudPageNPC() {
+        const response = this.getPage('npc');
+
+        return response;
+    }
+
+    static get elHudPageQuests() {
+        const response = this.getPage('quests');
+
+        return response;
+    }
+
+    static get elHudPageSettings() {
+        const response = this.getPage('settings');
+
+        return response;
+    }
+
+    static get elHudPageStatistics() {
+        const response = this.getPage('statistics');
+
+        return response;
+    }
+
+    static get elHud() {
+        const response = document.getElementById(this.idHud);
+
+        return response;
+    }
+
+    static get elHudMenu() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudMenu);
+
+        return response;
+    }
+
+    static get elHudPageLeft() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudPageLeft);
+
+        return response;
+    }
+
+    static get elHudPageRight() {
+        const response = this.elHud?.shadowRoot.getElementById(this.idHudPageRight);
+
+        return response;
+    }
+
+    static get elHudProgressExperience() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudProgressExperience);
+
+        return response;
+    }
+
+    static get elHudProgressLife() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudProgressLife);
+
+        return response;
+    }
+
+    static get elHudProgressMana() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudProgressMana);
+
+        return response;
+    }
+
+    static get elHudModal() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudModal);
+
+        return response;
+    }
+
+    static get elHudStatus() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudStatus);
+
+        return response;
+    }
+
+    static get elHudFooter() {
+        const response = this.elHud.shadowRoot.getElementById(this.idHudFooter);
+
+        return response;
+    }
+
+    static get elMapGame() {
+        const response = this.elGame.shadowRoot.getElementById(this.idMapGame);
+
+        return response;
+    }
+
+    static get elMapGameTiles() {
+        const response = this.elMapGame.shadowRoot.getElementById(this.idMapGame);
+
+        return response;
+    }
+
+    static get elTransition() {
+        const response = this.elHud.shadowRoot.getElementById(this.idTransition);
+
+        return response;
+    }
+
+    static getPage(page) {
+        const length = ds.Components.prefixComponent.length;
+        const component = Components.buildHudPageName(page).slice(length);
+        const response = this.elHud.shadowRoot.querySelector(`[page="${component}"]`);
+
+        return response;
+    }
+}
+export class Interval {
+    static interval = 1000;
+    static idleTime = 60000;
+
+    static countEmoji = 0;
+
+    static lastActivity = Date.now();
+    static lastActivityEvent = 0;
+
+    static sleepyActive = false;
+
+    static init() {
+        this.registerActivity();
+
+        setInterval(() => {
+            this.update();
+        }, this.interval);
+    }
+
+    static registerActivity() {
+        const update = () => {
+            const now = Date.now();
+
+            if (now - this.lastActivityEvent < 500) return;
+
+            this.lastActivityEvent = now;
+            this.lastActivity = now;
+
+            if (this.sleepyActive) {
+                this.sleepyActive = false;
+                Emoji.removeSleepyPlayer();
+            }
+        };
+
+        document.addEventListener('pointermove', update);
+        document.addEventListener('keydown', update);
+        document.addEventListener('mousedown', update);
+    }
+
+    static update() {
+        if (Battle.isBattle) return;
+
+        this.updateEmoji();
+        this.updateSleepy();
+    }
+
+    static updateEmoji() {
+        this.countEmoji++;
+
+        if (this.countEmoji < 5) return;
+
+        this.countEmoji = 0;
+
+        Emoji.buildReactionEntities();
+    }
+
+    static updateSleepy() {
+        const idleTime = Date.now() - this.lastActivity;
+
+        if (idleTime < this.idleTime) return;
+        if (this.sleepyActive) return;
+
+        this.sleepyActive = true;
+
+        Emoji.activateSleepyPlayer();
+    }
+}
+export class Layout {
+    static game = {
+        height: 0,
+        width: 0
+    };
+    static screen = {
+        height: 0,
+        width: 0
+    };
+    static idSeparator = '_';
+
+
+
+    static addEventListeners() {
+        window.addEventListener('resize', () => {
+            this.resize();
+            Camera.center();
+            ds.Tooltip?.elTooltipWrapper?.handleMouseOut();
+        });
+    }
+
+    static buildCardItem(props) {
+        const { item, id, index, isPrice, isFooter } = props;
+        const durabilityStorage = Storage.getItemDurabilityById(id);
+        const quantityItem = Storage.buildItem(index).quantity;
+        const itemTarget = item?.id_lore ? item.id_lore : item;
+        const itemId = id ?? item?.id ?? item?.id_lore ?? index?.id ?? index?.[0] ?? itemTarget;
+        const argsItem = {
+            target: itemTarget,
+            quantity: quantityItem
+        };
+        const itemProperties = Storage.getProperties(argsItem);
+        const isDurability = itemProperties?.isDurability;
+        const quantity = argsItem.quantity;
+        const itemData = {
+            isDurability,
+            quantity,
+            id: itemId,
+            item: itemProperties?.idLore ?? itemTarget,
+            id_lore: itemProperties?.idLore ?? itemTarget,
+            idLore: itemProperties?.idLore ?? itemTarget,
+            kind: itemProperties?.itemLoot?.kind,
+        };
+        const dataHandlerProps = `[${ds.Helper.buildJSONToHTML(itemData)}]`;
+        const argsIcon = { item, isDurability, durabilityStorage };
+        const icon = lo.HTML.drawLoot(argsIcon);
+        const args = { dataHandlerProps, icon, quantity, isPrice, isFooter };
+        const response = this.drawCardItem(args);
+
+        return response;
+    }
+
+    static buildEffectTime(seconds) {
+        const translation = ds.Translation.gameGeneric;
+        let value = seconds;
+        let label = translation?.time_second;
+
+        const secondsMinute = 60;
+        const secondsHour = 3600;
+        const secondsDay = 86400;
+        const hasDayTranslation = !!translation?.time_day;
+
+        if (value >= secondsDay && hasDayTranslation) {
+            value = Math.floor(value / secondsDay);
+            label = translation.time_day;
+        } else if (value >= secondsHour) {
+            value = Math.floor(value / secondsHour);
+            label = translation?.time_hour ?? label;
+        } else if (value >= secondsMinute) {
+            value = Math.floor(value / secondsMinute);
+            label = translation?.time_minute ?? label;
+        }
+
+        const unit = label.replace('(s)', '');
+        const response = `${value} ${value === 1 ? unit : `${unit}s`}`;
+
+        return response;
+    }
+
+    static buildId(id, index) {
+        const response = `${id + this.idSeparator + index}`;
+
+        return response;
+    }
+
+    static changeThemeButton(button, theme = ds.Layout.theme.menuDefault) {
+        const response = Statics.buttons[button];
+
+        response.theme = theme;
+
+        return response;
+    }
+
+    static drawButtonComponent(props) {
+        const { id, label, handler, handlerProps, theme, isDisabled = false } = props;
+        const componentButton = ds.Components.componentButton;
+        const response = `
+            <${componentButton}
+                data-id="${id}"
+                theme="${theme}"
+                size="small"
+                label="${label}"
+                data-handler="${handler}"
+                data-handler-props='${handlerProps}'
+                data-kind='button'
+                is-disabled="${isDisabled}"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    static drawCardItem(props) {
+        const {
+            icon,
+            quantity,
+            dataHandlerProps,
+            isPrice,
+            isFooter = true
+        } = props;
+        const cssCard = ds.Layout.theme.card;
+        const coin = isPrice ? '<span class="ds-color-black--light">$</span> ' : '';
+        const footerHTML = `
+            <div class="ds-card__footer ds-right">
+                <div class="ds-truncate">
+                    ${coin}
+                    ${quantity}
+                </div>
+            </div>
+        `;
+        const footer = isFooter ? footerHTML : '';
+        const response = `
+            <button
+                class="ds-card--small gm-card__item ${cssCard}"
+                type="button"
+                data-handler="handleOpenDetails"
+                data-handler-props='${dataHandlerProps}'
+                data-kind='button'
+            >
+                <div class="ds-card__header">
+                </div>
+                <div class="ds-card__body">
+                    ${icon}
+                </div>
+                ${footer}
+            </button>
+        `;
+
+        return response;
+    }
+
+    static drawCardItemList(items, isShowMoney = true) {
+        let cards = '';
+
+        items.forEach((index) => {
+            const il = index.id_lore;
+            const id = index.id;
+            const argsItem = {
+                target: il,
+                quantity: index.quantity
+            };
+            const itemProperties = Storage.getProperties(argsItem);
+            const kind = itemProperties.itemLoot.kind;
+            const isMoney = isShowMoney ? false : Storage.getItemKind(kind).isMoney;
+            if (!isMoney) {
+                const args = {
+                    item: il,
+                    index,
+                    id
+                };
+                cards += this.buildCardItem(args);
+            }
+        });
+
+        const response = this.drawCardWrapper(cards);
+
+        return response;
+    }
+
+    static drawCardWrapper(items) {
+        const response = `
+            <div class="ds-row ds-card-wrapper">
+                ${items}
+            </div>
+        `;
+
+        return response;
+    }
+
+    static drawEmpty(text) {
+        const content = text ? text : ds.Translation.gameGeneric.no_data_yet;
+        const response = `
+            <div class="ds-row gm-text-empty gm-text-destak">
+                ${content}
+            </div>
+        `;
+
+        return response;
+    }
+
+    static drawEmptyContent() {
+        const translation = ds.Translation.interfaceDefault.no_items;
+        const response = this.drawEmpty(translation);
+
+        return response;
+    }
+
+    static drawEmptyQuest() {
+        const translation = ds.Translation.getTranslationPage('quest').empty;
+        const response = this.drawEmpty(translation);
+
+        return response;
+    }
+
+    static drawSubtitle(text) {
+        const response = `
+            <div class="ds-row ds-center">
+                <h2 class="ds-title">${text}</h2>
+            </div>
+        `;
+
+        return response;
+    }
+
+    static drawTable(header, content) {
+        const contentTr = this.drawTableTr(header);
+        const css = ds.Layout.theme.table;
+        const response = `
+            <table class="${css}">
+                <thead>
+                    ${contentTr}
+                </thead>
+                <tbody>
+                    ${content}
+                </tbody>
+            </table>
+        `;
+
+        return response;
+    }
+
+    static drawTableTr(content) {
+        const response = `<tr>${content}</tr>`;
+
+        return response;
+    }
+
+    static drawTextItemQuantity(target, quantity) {
+        const item = Storage.getProperties({ target });
+        const itemName = item.translationName;
+        const text = `${itemName} (${quantity}). `;
+        const response = ds.Layout.buildSpan(text);
+
+        return response;
+    }
+
+    static resize() {
+        this.game.width = HTML.elGame?.offsetWidth;
+        this.game.height = HTML.elGame?.offsetHeight;
+        this.screen.width = window.innerWidth;
+        this.screen.height = window.innerHeight;
+    }
+
+    static toggleButtonDisabled(isEnabled, button) {
+        if (!button) return;
+
+        if (isEnabled) {
+            button.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+        } else {
+            button.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+        }
+    }
+
+    static replaceInText(text, isRuleLayout = false) {
+        const ruleList = Data.rules;
+        const args = {
+            text,
+            isRuleLayout,
+            ruleList,
+        };
+        const response = ds.Helper.replaceInText(args);
+
+        return response;
+    }
+
+    static unBuildId(prefix, id) {
+        const lenght = prefix.length + this.idSeparator.length;
+        const response = id.substring(lenght);
+
+        return response;
+    }
+}
+export class Management {
+    static temp = {};
+
+    static applyTranslation() {
+        HTML.elHudStatus.updateData?.();
+        HTML.elHudMenu.updateData?.();
+    }
+
+    static async buildGameByCharacterId(id) {
+        HTML.elGame.setIsPlaying(true);
+        HTML.elTransition.openByKind('tip');
+
+        const characterData = await FetchData.getCharacter(id);
+
+        const args = {
+            character: id,
+            map: characterData.map,
+            door: 0
+        };
+
+        const isDeathPenalty = characterData.player.isDeathPenalty ?? false;
+
+        if (isDeathPenalty) {
+            Battle.showDeathPenalty();
+        }
+
+        await MapGame.updateDataMap(args);
+
+        Player.id = id;
+
+        Data.updateDataPlayer(id);
+
+        Camera.center();
+
+        HTML.elTransition.close();
+
+        Tutorial.showAct1Scene1();
+    }
+
+    static init(props) {
+        deps = props;
+        ds = deps.ds;
+        lo = deps.lo;
+
+        ds.Helper.addEventListenerDOM(this);
+        ds.Tooltip.init();
+        ds.Notification.init();
+        ds.Analytics.load();
+
+        Data.init();
+
+        Layout.addEventListeners();
+
+        this.initComponents();
+    }
+
+    static initClasses() {
+        HTML.elTransition?.init();
+        Hotkeys.init();
+        Settings.init();
+        Interval.init();
+    }
+
+    static initComponents() {
+        const component = Components.cHud;
+        const html = `
+            <${component}
+                id="${HTML.idHud}"
+            ></${component}>
+        `;
+        const args = { html };
+        ds.Components.insert(args);
+
+        ds.Components.init(Components.components);
+    }
+
+    static async handleLoaded() {
+        this.initClasses();
+
+        await Statics.update();
+
+        await this.translate();
+
+        await FetchData.getLoginData();
+
+        HTML.elHud?.openModalSelectCharacter(false);
+        this.removeTransition();
+    }
+
+    static removeTransition() {
+        setTimeout(() => {
+            if (HTML.elTransition) HTML.elTransition.isInitial = false;
+            if (HTML.elHud) HTML.elHud.close(HTML.elTransition);
+        }, HTML.elTransition?.timeout);
+    }
+
+    static play(event) {
+        const id = event?.currentTarget?.id ?? event;
+
+        ds.Page.currentFilter = undefined;
+
+        HTML.elHudModal.setAttribute('is-close-button', true);
+
+        HTML.elHud.closeModal();
+        HTML.elHud.closeHudPages();
+
+        Audio.init();
+
+        const character = Data.login?.characters?.find(c => c.id === Number(id));
+
+        Analytics.send({
+            event_name: 'game_start',
+            character_id: id,
+            character_level: character?.attributes?.level,
+            character_class: character?.attributes?.class,
+        });
+
+        Management.buildGameByCharacterId(Number(id));
+    }
+
+    static async translate() {
+        await ds.Translation.translate('game');
+        await ds.Translation.translate('dialog');
+        await ds.Translation.translate('interface');
+        await ds.Translation.translate('login');
+
+        this.applyTranslation();
+    }
+}
+export class Monsters {
+    static prefix = 'monster';
+
+
+
+    static addClick() {
+        const el = HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id='${this.prefix}']`);
+
+        HTML.elMapGame.addClick(el);
+    }
+
+    static getById(id) {
+        const response = ds.Helper.findById(ds.Modules.monsters, id);
+
+        return response;
+    }
+
+    static draw(target) {
+        const translationMonster = ds.Translation.gameMonster;
+        const translationLevel = ds.Translation.interface.page_attribute.level;
+        let response = '';
+
+        target.forEach((index) => {
+            const attributes = index.attributes;
+            const behavior = attributes.behavior;
+            const level = index.level;
+            const monsterData = this.getById(index.idMonster);
+            const kind = monsterData?.translation;
+            const walk = monsterData?.walk;
+            const translationName = translationMonster[kind];
+            const tooltip = `
+                ${ds.Helper.escapeHTML(translationName)}. <br/>
+                ${translationLevel}: <span>${level}</span>
+            `;
+            const id = Layout.buildId(this.prefix, index.id);
+            const el = `
+                <${lo.Components.entity}
+                    id="${id}"
+                    class="gm-alive gm-monster"
+                    ${ds.Layout.attributePositionX}=""
+                    ${ds.Layout.attributePositionY}=""
+                    data-level="${level}"
+                    data-id="${this.prefix}"
+                    data-kind="${ds.Helper.escapeHTML(kind)}"
+                    data-tooltip="${tooltip}"
+                    data-behavior="${behavior}"
+                    data-walk-steps="${walk}"
+                    data-speed="${attributes.speed ?? 300}"
+                    kind="${this.prefix}"
+                    entity="${this.prefix}"
+                    direction="down"
+                    action="stand"
+                    is-walk-back="false"
+                    tabindex="-1"
+                ></${lo.Components.entity}>
+            `;
+
+            response += el;
+        });
+
+        return response;
+    }
+
+    static setPosition() {
+        const elements = HTML.elMapGame.shadowRoot.querySelectorAll(`[data-id="${this.prefix}"]`);
+
+        MapGame.setPositionEntity(elements);
+    }
+
+    static unBuildId(id) {
+        const response = Layout.unBuildId(this.prefix, id);
+
+        return response;
+    }
+}
+export class Notification {
+    static colorDefault = 'orange';
+    static colorError = 'red';
+
+
+
+
+
+    static add(props) {
+        const {
+            content,
+            color = Notification.colorDefault,
+            position = 'right',
+            size = 'regular'
+        } = props;
+
+        if (Notification.#isContentVisible(content)) return;
+
+        const args = {
+            content,
+            color,
+            position,
+            size
+        };
+
+        ds.Notification.add(args);
+    }
+
+
+
+
+
+    static #isContentVisible(content) {
+        const items = document.querySelectorAll('.ds-notification__text');
+
+        for (const item of items) {
+            if (item.textContent.trim() === content) return true;
+        }
+
+        return false;
+    }
+}
+export class NPCs {
+    static prefix = 'npc';
+
+
+
+    static addClick() {
+        const el = HTML.elMapGame.shadowRoot.querySelectorAll(`[kind='${this.prefix}']`);
+
+        el.forEach(index => {
+            this.addListener(index);
+        });
+    }
+
+    static addListener(target) {
+        const name = target.getAttribute('data-name');
+        const id = target.getAttribute('data-id');
+
+        target.addEventListener('click', () => {
+            const isValidDistance = this.isValidDistance(target);
+
+            if (isValidDistance) {
+                if (this.isInMaintenance(name)) {
+                    this.showMaintenanceError();
+
+                    return;
+                }
+
+                HudPageNPC.id = Number(id);
+
+                const args = {
+                    detail: {
+                        pageTarget: `${this.prefix}-${name}`,
+                        pagePosition: 'left',
+                        isNPC: true,
+                        name
+                    }
+                };
+                HTML.elHud.openPage(args);
+            } else {
+                this.showDistanceError();
+            }
+        });
+    }
+
+    static buildPosition(target) {
+        const response = target.npcs.map(index => ({
+            id: index.id_npc,
+            position: [
+                index.position_x,
+                index.position_y
+            ]
+        }));
+
+        return response;
+    }
+
+    static draw(target) {
+        let response = '';
+
+        target.forEach((index) => {
+            const dataId = index.id;
+            const id = Layout.buildId(this.prefix, index.id);
+            const position = index.position;
+            const positionX = position[0];
+            const positionY = position[1];
+            const customizations = ds.Helper.buildJSONToHTML(index.customizations);
+            const equipments = ds.Helper.buildJSONToHTML(index.equipments);
+            const name = ds.Helper.escapeHTML(index.name);
+            const tooltip = `${name}`;
+            const steps = index.steps;
+            const walkRadius = index.walkRadius;
+
+            response += `
+                <${lo.Components.entity}
+                    id="${id}"
+                    class="gm-alive gm-person gm-npcs"
+                    ${ds.Layout.attributePositionX}="${positionX}"
+                    ${ds.Layout.attributePositionY}="${positionY}"
+                    ${ds.Layout.attributePositionXInitial}="${positionX}"
+                    ${ds.Layout.attributePositionYInitial}="${positionY}"
+                    data-tooltip="${tooltip}"
+                    data-id="${dataId}"
+                    data-walk-steps="${steps}"
+                    data-speed="300"
+                    data-name="${name}"
+                    data-walk-radius="${walkRadius}"
+                    kind="${this.prefix}"
+                    entity="person"
+                    direction="down"
+                    action="stand"
+                    is-walk-back="true"
+                    customizations=${customizations}
+                    equipments=${equipments}
+                    tabindex="-1"
+                ></${lo.Components.entity}>
+            `;
+        });
+
+        return response;
+    }
+
+    static getData(id) {
+        const response = ds.Modules.npcs.find(index => index.id === Number(id));
+
+        return response;
+    }
+
+    static getTranslationDistance() {
+        const response = ds.Translation.dialogDefault?.need_be_close;
+
+        return response;
+    }
+
+    static getTranslationMaintenance() {
+        const response = ds.Translation.dialogDefault?.npc_unavailable;
+
+        return response;
+    }
+
+    static get isBankLevel() {
+        const levelRequired = Data.rules.npcs.bank.level;
+        const levelCharacter = Player.attributes.level;
+        let response = false;
+
+        if (levelCharacter >= levelRequired) return true;
+
+        return response;
+    }
+
+    static isInMaintenance(name) {
+        const maintenance = Data.rules?.npcs?.maintenanceNPCS;
+
+        if (!maintenance) return false;
+
+        const response = Boolean(maintenance[name?.toLowerCase()]);
+
+        return response;
+    }
+
+    static isValidDistance(target) {
+        const getAtt = (attribute) => ds.Layout[`attributePosition${attribute}`];
+        const getValue = (index, attribute) => Number(index.getAttribute(getAtt(attribute)));
+        const player = HTML.elGamePlayer;
+        const targetX = getValue(target, 'X');
+        const targetY = getValue(target, 'Y');
+        const playerX = getValue(player, 'X');
+        const playerY = getValue(player, 'Y');
+        const distanceDefault = 5;
+        const distanceX = Math.abs(targetX - playerX);
+        const distanceY = Math.abs(targetY - playerY);
+        const isDistanceX = distanceX <= distanceDefault;
+        const isDistanceY = distanceY <= distanceDefault;
+        const response = isDistanceX && isDistanceY;
+
+        return response;
+    }
+
+    static setPosition(target) {
+        target.forEach((index) => {
+            const id = index.id;
+            const el = HTML.elMapGame.shadowRoot.getElementById(`${this.prefix}_${id}`);
+            const args = {
+                target: el,
+                positionX: el.getAttribute(ds.Layout.attributePositionX),
+                positionY: el.getAttribute(ds.Layout.attributePositionY)
+            };
+
+            HTML.elMapGame.setPosition(args);
+        });
+    }
+
+    static showDistanceError() {
+        const transitionDistance = this.getTranslationDistance();
+        const argsNotification = {
+            content: transitionDistance,
+            color: 'orange',
+            position: 'right',
+            size: 'regular'
+        };
+
+        ds.Notification.add(argsNotification);
+    }
+
+    static showMaintenanceError() {
+        const translation = this.getTranslationMaintenance();
+        const argsNotification = {
+            content: translation,
+            color: 'orange',
+            position: 'right',
+            size: 'regular'
+        };
+
+        ds.Notification.add(argsNotification);
+    }
+
+    static updateDataNPC(map) {
+        const npcs = map.npcs;
+
+        npcs.forEach((index) => {
+            const id = index.id;
+            const data = NPCs.getData(id);
+
+            index.name = data?.name;
+            index.customizations = data?.customizations;
+            index.equipments = data?.equipments;
+            index.steps = data?.steps;
+            index.walkRadius = data?.walk_radius;
+        });
+
+        return map;
+    }
+
+    static validateBankLevel() {
+        const isValid = this.isBankLevel;
+
+        if (!isValid) {
+            const translation = ds.Translation.gameGeneric.level_bank;
+            const content = Layout.replaceInText(translation);
+            const argsNotification = {
+                content,
+                color: 'red'
+            };
+
+            Notification.add(argsNotification);
+        }
+
+        return isValid;
+    }
+}
+export class PageCustomizations extends HTMLElement {
+    _selectedKeys = new Set();
+    static _selectsMap = new Map();
+
+    addEventListenersCustomization() {
+        const elCustomization = ds.Helper.getElementByDataId(
+            this.shadowRoot,
+            HudPageSelectCustomization.idCharacterCustomization
+        );
+
+        elCustomization.addEventListener(CharacterCustomization.eventCustomizationChange, (event) => {
+            this.handleCustomizationChange(event.detail);
+            this.trackSelectedKey(event.detail);
+            this.updateFieldPrice(elCustomization);
+            this.toggleActionButton();
+        });
+    }
+
+    countSelectedOptions() {
+        const elCustomization = ds.Helper.getElementByDataId(
+            this.shadowRoot,
+            HudPageSelectCustomization.idCharacterCustomization
+        );
+        const selects = elCustomization?.shadowRoot?.querySelectorAll('select') ?? [];
+        const response = [...selects].filter(el => el.value !== '').length;
+
+        return response;
+    }
+
+    static drawButton(button) {
+        const response = Layout.drawButtonComponent(button);
+
+        return response;
+    }
+
+    static drawNPC(button, action) {
+        this.setData();
+
+        const customizations = CharacterCustomization.getData(action);
+        const componentCustomization = Components.characterCustomization;
+        const componentRotation = Components.characterRotation;
+        const content = `
+            <div class="ds-row gm-character-customizarion">
+                <div class="ds-column gm-column--1 ds-card-wrapper">
+                    <${componentRotation}
+                        class="gm-character"
+                    ></${componentRotation}>
+                </div>
+                <div class="ds-column gm-column--2">
+                    <${componentCustomization}
+                        data="${customizations}"
+                        data-id="${HudPageSelectCustomization.idCharacterCustomization}"
+                    ></${componentCustomization}>
+                    <div class="ds-row ds-right">
+                        ${button}
+                    </div>
+                </div>
+            </div>
+        `;
+        const response = HudPageNPC.drawWrapper(content);
+
+        return response;
+    }
+
+    static get cost() {
+        const response = Data.rules.npcs.customization.cost;
+
+        return response;
+    }
+
+    get totalCost() {
+        const response = this.cost * this._selectedKeys.size;
+
+        return response;
+    }
+
+    static get selectsValue() {
+        const els = [...PageCustomizations._selectsMap.entries()];
+        const response = els.map(([id, value]) => ({ id, value }));
+
+        return response;
+    }
+
+    async handleAction(fetchFn) {
+        if (!this.isAffordable()) return;
+
+        this.elActionButton.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+
+        const args = {
+            npc: HudPageNPC.id,
+            customizations: PageCustomizations.selectsValue
+        };
+
+        const dataFetch = await fetchFn(args);
+
+        this.elActionButton.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'false');
+
+        if (!dataFetch) return;
+
+        return dataFetch;
+    }
+
+    handleCustomizationChange({ key, value }) {
+        const componentRotation = Components.characterRotation;
+        const elRotation = this.shadowRoot.querySelector(componentRotation);
+
+        if (!elRotation) return;
+
+        elRotation.updateCustomizations({ key, value });
+    }
+
+    isAffordable() {
+        const response = this.inventoryDiamonds >= this.totalCost;
+
+        return response;
+    }
+
+    resetCustomizations() {
+        const elCustomization = ds.Helper.getElementByDataId(
+            this.shadowRoot,
+            HudPageSelectCustomization.idCharacterCustomization
+        );
+
+        this.resetSelects(elCustomization);
+
+        CharacterRotation.customizations = CharacterRotation.customizationsCurrent;
+        CharacterRotation.equipments = CharacterRotation.equipmentsCurrent;
+
+        const componentRotation = Components.characterRotation;
+        const elRotation = this.shadowRoot.querySelector(componentRotation);
+
+        if (elRotation) elRotation.render();
+
+        this.updateFieldPrice(elCustomization);
+        this.toggleActionButton();
+    }
+
+    resetSelects(elCustomization) {
+        const selects = elCustomization?.shadowRoot?.querySelectorAll(
+            ds.Components.componentSelect
+        ) ?? [];
+
+        selects.forEach((elSelect) => {
+            elSelect.setValue('');
+        });
+
+        this._selectedKeys.clear();
+
+        PageCustomizations.resetMap();
+    }
+
+    static resetMap() {
+        PageCustomizations._selectsMap.clear();
+    }
+
+    static setData() {
+        CharacterRotation.customizations = Player.customizations;
+        CharacterRotation.customizationsCurrent = Player.customizations;
+
+        CharacterRotation.equipments = Player.equipmentsForHTML;
+        CharacterRotation.equipmentsCurrent = Player.equipmentsForHTML;
+    }
+
+    toggleActionButton() {
+        const hasSelection = PageCustomizations._selectsMap.size > 0;
+        const isEnabled = hasSelection && this.isAffordable();
+
+        Layout.toggleButtonDisabled(isEnabled, this.elActionButton);
+    }
+
+    trackSelectedKey({ key, value }) {
+        const isValid = value !== '' && value !== null && value !== undefined;
+
+        if (isValid) {
+            this._selectedKeys.add(key);
+
+            PageCustomizations._selectsMap.set(key, value);
+        } else {
+            this._selectedKeys.delete(key);
+
+            PageCustomizations._selectsMap.delete(key);
+        }
+    }
+
+    updateFieldPrice(elCustomization) {
+        const el = elCustomization.shadowRoot.getElementById(CharacterCustomization.idFieldPrice);
+
+        if (!el) return;
+
+        el.setAttribute('input-value', this.totalCost);
+    }
+}
+export class PageDetail {
+    static calculateQuantity(lootId, isDurability) {
+        const quantity = isDurability ? 1 : Player.getStorageQuantity(lootId);
+        const response = {
+            min: 1,
+            max: quantity,
+        };
+
+        return response;
+    }
+
+    static calculateQuantityBuy(price, payWith) {
+        const currency = Player.getInventoryByCurrency(payWith);
+        let max = 0;
+
+        if (price > 0 && currency > 0) {
+            max = Math.floor(currency / price);
+        }
+
+        const response = {
+            min: max > 0 ? 1 : 0,
+            max
+        };
+
+        return response;
+    }
+
+    static calculateQuantityWithdraw(lootId, isDurability) {
+        const quantity = isDurability ? 1 : Player.getBankStorageById(lootId);
+        const response = {
+            min: 1,
+            max: quantity,
+        };
+
+        return response;
+    }
+
+    static get isBuy() {
+        const response = HudPageDetail.npcAction === ds.Prefix.BUY;
+
+        return response;
+    }
+
+    static get isCraft() {
+        const response = HudPageDetail.npcAction === ds.Prefix.CRAFT;
+
+        return response;
+    }
+
+    static get isDeposit() {
+        const response = HudPageDetail.npcAction === ds.Prefix.DEPOSIT;
+
+        return response;
+    }
+
+    static get isSell() {
+        const response = HudPageDetail.npcAction === ds.Prefix.SELL;
+
+        return response;
+    }
+
+    static get isWithdraw() {
+        const response = HudPageDetail.npcAction === ds.Prefix.WITHDRAW;
+
+        return response;
+    }
+}
+export class PageDetailCraft {
+    static idDrawReward = 'draw_reward';
+    static isWaitingBack = false;
+    static isReward = false;
+
+    static buildTime(root) {
+        const time = PageDetailCraft.getTimeRemaining;
+
+        this._timerInterval = setInterval(() => {
+            const el = root.querySelector('[data-craft-timer]');
+            if (!el) return;
+            el.textContent = PageDetailCraft.getTimeRemaining;
+
+            const elSpeedUp = root.querySelector(`[data-id="${Statics.buttons.speedUpCraft.id}"]`);
+            if (elSpeedUp) {
+                elSpeedUp.setAttribute('label', PageDetailCraft.buildSpeedUpLabel());
+                ds.Layout.setButtonDisabled(elSpeedUp, Player.inventoryDiamonds < PageDetailCraft.speedUpDiamonds);
+            }
+
+            if (PageDetailCraft.isCraftDone) {
+                el.textContent = '00:00';
+                elSpeedUp?.remove();
+
+                clearInterval(this._timerInterval);
+                this._timerInterval = null;
+
+                PageDetailCraft.buildTimeAddButton(el, root);
+            }
+        }, 1000);
+
+        setTimeout(() => {
+            const elSpeedUp = root.querySelector(`[data-id="${Statics.buttons.speedUpCraft.id}"]`);
+
+            if (!elSpeedUp) return;
+
+            elSpeedUp.addEventListener('click', () => {
+                PageDetailCraft.speedUp(root);
+            });
+        }, 50);
+
+        const response = this.drawTimer(time);
+
+        return response;
+    }
+
+    static buildTimeAddButton(el, root) {
+        const button = Layout.drawButtonComponent(Statics.buttons.back);
+
+        ds.Components.insert({
+            el: el.parentNode.parentNode,
+            position: 'afterend',
+            html: button
+        });
+
+        const insertedButton = root.querySelector(`[data-id="${Statics.buttons.back.id}"]`);
+
+        if (insertedButton) {
+            insertedButton.addEventListener('click', () => {
+                HudPageNPC.pageDetail.handleCraftRewardBack();
+            });
+        }
+    }
+
+    static buildTimeText(seconds) {
+        const defaultString = '00:00';
+
+        if (!seconds || seconds <= 0) return defaultString;
+
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secondes = seconds % 60;
+
+        const buildString = (data) => String(data).padStart(2, '0');
+
+        if (hours > 0) {
+            const hh = buildString(hours);
+            const mm = buildString(minutes);
+            const ss = buildString(secondes);
+
+            return `${hh}:${mm}:${ss}`;
+        }
+
+        const mm = buildString(minutes);
+        const ss = buildString(secondes);
+        const response = `${mm}:${ss}`;
+
+        return response;
+    }
+
+    static buildSpeedUp() {
+        const isDisabled = Player.inventoryDiamonds < PageDetailCraft.speedUpDiamonds;
+        const button = {
+            ...Statics.buttons.speedUpCraft,
+            label: PageDetailCraft.buildSpeedUpLabel(),
+            isDisabled,
+        };
+        const response = Layout.drawButtonComponent(button);
+
+        return response;
+    }
+
+    static buildSpeedUpLabel() {
+        const quantity = PageDetailCraft.speedUpDiamonds;
+        const translationDefault = ds.Translation.interfaceDefault;
+        const translationLoot = ds.Translation.gameLoot;
+        const label = translationDefault?.speed_up;
+        const diamond = translationLoot?.diamond;
+        const value = `${quantity} ${diamond}`;
+        const response = `${label} (${value})`;
+
+        return response;
+    }
+
+    static calculateQuantity(recipe) {
+        let max = Infinity;
+
+        for (const part of recipe) {
+            const have = Player.getInventoryByIl(part.id);
+            if (have < part.quantity) return { min: 0, max: 0 };
+            const possible = Math.floor(have / part.quantity);
+            if (possible < max) max = possible;
+        }
+
+        const min = max > 0 ? 1 : 0;
+        const response = {
+            min,
+            max
+        };
+
+        return response;
+    }
+
+    static drawRecipe(data, quantity = 1) {
+        PageDetailCraft.isWaitingBack = false;
+
+        if (!data) return '';
+
+        let items = this.drawCards(data, quantity);
+        const subtitle = Layout.drawSubtitle(this.translationDefault?.recipe);
+        const content = Layout.drawCardWrapper(items);
+        const response = `
+            ${subtitle}
+            ${content}
+        `;
+
+        return response;
+    }
+
+    static async drawReward(npc) {
+        PageDetailCraft.isWaitingBack = true;
+
+        const data = await FetchData.getCraftReward(npc);
+        const items = this.drawCards(data.craftResult);
+        const subtitle = Layout.drawSubtitle(this.translationDefault?.reward);
+        const content = Layout.drawCardWrapper(items);
+        const text = this.translationGameCraft?.done_text;
+
+        PageDetailCraft.isReward = true;
+
+        const resultItems = this.normalizeItems(data.craftResult);
+        const resultSummary = resultItems.map(item => `${item.id}:${item.quantity}`).join(',');
+
+        Analytics.send({
+            event_name: 'craft_reward',
+            npc: npc,
+            result_items: resultSummary,
+        });
+
+        const translation = ds.Translation.interface.response;
+        const checkInventory = translation.check_inventory;
+        const args = {
+            content: checkInventory,
+        };
+
+        Notification.add(args);
+
+        const response = `
+            ${subtitle}
+            <div class="ds-row">
+                <p>${text}</p>
+            </div>
+            <div class="ds-row gm-detail">
+                ${content}
+            </div>
+        `;
+
+        return response;
+    }
+
+    static drawCards(data, quantity = 1) {
+        const items = this.normalizeItems(data);
+        let response = '';
+
+        items.forEach(({ id, quantity: baseQuantity }) => {
+            const argsCard = {
+                item: id,
+                index: [id, baseQuantity * quantity]
+            };
+
+            response += Layout.buildCardItem(argsCard);
+        });
+
+        return response;
+    }
+
+    static drawTimer(time) {
+        PageDetailCraft.isWaitingBack = true;
+
+        const title = this.translation.is_crafting_title;
+        const text = this.translation.is_crafting_text;
+        const subtitle = Layout.drawSubtitle(title);
+        const speedUp = this.buildSpeedUp();
+
+        const response = `
+            <div class="ds-row gm-detail">
+                <div class="ds-row">
+                    ${subtitle}
+                </div>
+                <div class="ds-row">
+                    ${text}
+                </div>
+                <div class="ds-row">
+                    <span data-craft-timer class="gm-text-destak">
+                        ${time}
+                    </span>
+                </div>
+                <div class="ds-row ds-center">
+                    ${speedUp}
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+
+    static get currentCraft() {
+        const response = [];
+        const craftList = this.craftList;
+
+        craftList.forEach((index) => {
+            const idNPC = index.id_npc;
+            const idNPCCurrent = HudPageNPC.id;
+
+            const isFound = idNPC === idNPCCurrent;
+            if (isFound) response.push(index);
+        });
+
+        return response;
+    }
+
+    static get isCraftDone() {
+        const craft = this.currentCraft[0];
+
+        if (!craft) return false;
+
+        const now = ds.Helper.getNow();
+
+        return craft.end <= now;
+    }
+
+    static get isCraftingNPC() {
+        let response = false;
+
+        const craftList = this.currentCraft;
+        const isValid = craftList.length > 0;
+
+        if (isValid) response = true;
+
+        return response;
+    }
+
+    static get craftList() {
+        const response = Data.player.craft;
+
+        return response;
+    }
+
+    static get getTimeRemaining() {
+        const response = this.buildTimeText(this.getTimeRemainingSeconds);
+
+        return response;
+    }
+
+    static get getTimeRemainingSeconds() {
+        const craft = this.currentCraft[0];
+
+        if (!craft) return 0;
+
+        const now = ds.Helper.getNow();
+        const diff = craft.end - now;
+        const response = diff > 0 ? diff : 0;
+
+        return response;
+    }
+
+    static get speedUpDiamonds() {
+        const seconds = this.getTimeRemainingSeconds;
+        const hours = Math.ceil(seconds / 3600);
+        const response = hours > 0 ? hours : 1;
+
+        return response;
+    }
+
+    static get translationDefault() {
+        const response = ds.Translation.interfaceDefault;
+
+        return response;
+    }
+
+    static get translationGameCraft() {
+        const response = ds.Translation.gameCraft;
+
+        return response;
+    }
+
+    static normalizeItems(data) {
+        if (Array.isArray(data)) {
+            return data.map(item => ({
+                id: item.id,
+                quantity: item.quantity
+            }));
+        }
+
+        return Object.entries(data).map(([id, quantity]) => ({
+            id,
+            quantity
+        }));
+    }
+
+    static async speedUp(root) {
+        const npc = HudPageNPC.name;
+        const elSpeedUp = root.querySelector(`[data-id="${Statics.buttons.speedUpCraft.id}"]`);
+
+        if (Player.inventoryDiamonds < PageDetailCraft.speedUpDiamonds) {
+            if (elSpeedUp) elSpeedUp.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+            return;
+        }
+
+        if (elSpeedUp) elSpeedUp.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+
+        const response = await FetchData.speedUpCraft({ npc });
+
+        if (response?.isError) {
+            if (elSpeedUp) elSpeedUp.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+            return;
+        }
+
+        clearInterval(this._timerInterval);
+        this._timerInterval = null;
+
+        HudPageNPC.pageDetail.renderCraft();
+    }
+
+    static get translation() {
+        const response = ds.Translation.gameCraft;
+
+        return response;
+    }
+}
+export class PageDetailMenu {
+    static itemProperties;
+    static lastPageData;
+
+
+
+    static addButtonBack(buttons) {
+        buttons.push(Statics.buttons.back);
+    }
+
+    static addButtonBuy(buttons) {
+        const isBuy = PageDetail.isBuy;
+        const isFromNPC = HudPageDetail.isFromNPC;
+        const isValid = isBuy && isFromNPC;
+
+        if (isValid) {
+            const button = Layout.changeThemeButton(ds.Prefix.BUY);
+
+            buttons.push(button);
+        }
+    }
+
+    static addButtonCraft(buttons) {
+        const isCraft = PageDetail.isCraft;
+        const isCraftDone = PageDetailCraft.isCraftDone;
+        const isCraftingNPC = PageDetailCraft.isCraftingNPC;
+        const isWaitingBack = PageDetailCraft.isWaitingBack;
+        const isFromNPC = HudPageDetail.isFromNPC;
+        const isValid = isCraft && !isCraftDone && !isCraftingNPC && isFromNPC && !isWaitingBack;
+
+        if (isValid) {
+            const button = Layout.changeThemeButton(ds.Prefix.CRAFT);
+
+            buttons.push(button);
+        }
+    }
+
+    static addButtonDelete(buttons) {
+        const isFromNpc = HudPageDetail?.isFromNPC;
+        const pagePrefix = HudPageEquipments?.pageDetail?.args?.cssPrefix;
+        const from = Hud?.pageDetail?.from;
+        const isFromEquipments = from === `gm-${pagePrefix}`;
+        const isValid = !isFromNpc && !isFromEquipments;
+
+        if (isValid) buttons.push(Statics.buttons.delete);
+    }
+
+    static addButtonDeposit(buttons) {
+        const isDeposit = PageDetail.isDeposit;
+
+        if (isDeposit) {
+            const button = Layout.changeThemeButton(ds.Prefix.DEPOSIT);
+
+            buttons.push(button);
+        }
+    }
+
+    static addButtonEquip(buttons) {
+        const isFromNPC = HudPageDetail.isFromNPC;
+        const isValid = this.itemProperties.isEquipment && !isFromNPC;
+
+        if (isValid) {
+            const isPageEquipments = this.lastPageData.from.includes('equipments');
+            const button = isPageEquipments
+                ? Statics.buttons.unequip
+                : Statics.buttons.equip;
+
+            buttons.push(button);
+        }
+    }
+
+    static addButtonSell(buttons) {
+        const isSell = PageDetail.isSell;
+        const isFromNPC = HudPageDetail.isFromNPC;
+        const isValid = isSell && isFromNPC;
+
+        if (isValid) {
+            const button = Layout.changeThemeButton(ds.Prefix.SELL);
+
+            buttons.push(button);
+        }
+    }
+
+    static addButtonUse(buttons) {
+        const isFromNPC = HudPageDetail.isFromNPC;
+        const isValid = this.itemProperties.isUsable && !isFromNPC;
+
+        if (isValid) buttons.push(Statics.buttons.use);
+    }
+
+    static addButtonWithdraw(buttons) {
+        const isValid = PageDetail.isWithdraw;
+
+        if (isValid) {
+            const button = Layout.changeThemeButton(ds.Prefix.WITHDRAW);
+
+            buttons.push(button);
+        }
+    }
+
+    static drawMenu(itemProperties, lastPageData) {
+        let response = '';
+        const buttons = [];
+
+        this.itemProperties = itemProperties;
+        this.lastPageData = lastPageData;
+
+        this.addButtonBack(buttons);
+        this.addButtonBuy(buttons);
+        this.addButtonCraft(buttons);
+        this.addButtonDelete(buttons);
+        this.addButtonDeposit(buttons);
+        this.addButtonEquip(buttons);
+        this.addButtonSell(buttons);
+        this.addButtonUse(buttons);
+        this.addButtonWithdraw(buttons);
+
+        buttons.forEach(button => {
+            response += Layout.drawButtonComponent(button);
+        });
+
+        return response;
+    }
+}
+export class Pathfinding {
+    static findPath(map, start, end) {
+        const cameFrom = new Map();
+        const gScore = new Map();
+
+        gScore.set(this.getCoordToIndex(start), 0);
+
+        const openSet = [{ position: start, fScore: this.heuristic(start, end) }];
+        const visited = new Set();
+
+        while (openSet.length > 0) {
+            openSet.sort((a, b) => a.fScore - b.fScore);
+
+            const { position: current } = openSet.shift();
+
+            if (current[0] === end[0] && current[1] === end[1]) {
+                return this.reconstructPath(cameFrom, current);
+            }
+
+            visited.add(this.getCoordToIndex(current));
+
+            for (const neighbor of this.getNeighbors(current, map)) {
+                if (visited.has(this.getCoordToIndex(neighbor))) {
+                    continue;
+                }
+
+                const tentativeGScore = gScore.get(this.getCoordToIndex(current)) + 1;
+
+                if (tentativeGScore < (gScore.get(this.getCoordToIndex(neighbor)) || Infinity)) {
+                    cameFrom.set(this.getCoordToIndex(neighbor), current);
+                    gScore.set(this.getCoordToIndex(neighbor), tentativeGScore);
+
+                    const fScore = tentativeGScore + this.heuristic(neighbor, end);
+                    if (!openSet.some(item => item.position[0] === neighbor[0] && item.position[1] === neighbor[1])) {
+                        openSet.push({ position: neighbor, fScore });
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    static getCoordToIndex([x, y]) {
+        const response = `${x},${y}`;
+
+        return response;
+    }
+
+    static getNeighbors([x, y], map) {
+        const response = [];
+        const directions = [
+            [0, -1],
+            [0, 1],
+            [-1, 0],
+            [1, 0]
+        ];
+
+        for (const [dx, dy] of directions) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (this.isWalkable([nx, ny], map)) {
+                response.push([nx, ny]);
+            }
+        }
+
+        return response;
+    }
+
+    static heuristic(a, b) {
+        const response = Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+        return response;
+    }
+
+    static isWalkable([x, y], map) {
+        const response = map[y] && map[y][x] === 0;
+
+        return response;
+    }
+
+    static reconstructPath(cameFrom, current) {
+        const response = [current];
+        const visited = new Set([this.getCoordToIndex(current)]);
+
+        while (cameFrom.has(this.getCoordToIndex(current))) {
+            const currentIndex = this.getCoordToIndex(current);
+            current = cameFrom.get(currentIndex);
+
+            if (visited.has(this.getCoordToIndex(current))) return null;
+
+            visited.add(this.getCoordToIndex(current));
+            response.unshift(current);
+        }
+
+        return response;
+    }
+}
+export class Player {
+    static id;
+
+    static buildPosition(target) {
+        const currentPosition = target.playerPosition;
+        const response = {
+            position: [
+                currentPosition.position_x,
+                currentPosition.position_y
+            ]
+        };
+
+        return response;
+    }
+
+    static draw() {
+        const response = `
+            <${lo.Components.entity}
+                id="${HTML.idGamePlayer}"
+                class="gm-alive gm-alive"
+                entity="person"
+                ${ds.Layout.attributePositionX}=""
+                ${ds.Layout.attributePositionY}=""
+                direction="down"
+                action="stand"
+                tabindex="-1"
+            ></${lo.Components.entity}>
+        `;
+
+        return response;
+    }
+
+    static get attacks() {
+        const response = this.player.attacks;
+
+        return response;
+    }
+
+    static get attributes() {
+        const response = this.player.attributes;
+
+        return response;
+    }
+
+    static get bank() {
+        const response = Data.bank;
+
+        return response;
+    }
+
+    static get bankReceive() {
+        const response = Storage.getDataFiltered(2);
+
+        return response;
+    }
+
+    static get bankStorage() {
+        const response = Storage.getDataFiltered(1);
+
+        return response;
+    }
+
+    static get buffs() {
+        const response = this.player.buffs;
+
+        return response;
+    }
+
+    static get customizations() {
+        const response = this.player.customizations;
+
+        return response;
+    }
+
+    static get defenses() {
+        const response = this.player.defenses;
+
+        return response;
+    }
+
+    static get inventory() {
+        const data = Storage.getDataFiltered(0);
+        const response = ds.Helper.sortData(data, 'id_lore');
+
+        return response;
+    }
+
+    static get inventoryConsumables() {
+        const response = Storage.getUsables(this.inventory);
+
+        return response;
+    }
+
+    static get equipments() {
+        const response = this.player.equipments;
+
+        return response;
+    }
+
+    static get equipmentsInStorage() {
+        const response = Storage.getDataFiltered(3);
+
+        return response;
+    }
+
+    static get equipmentsForHTML() {
+        const storage = this.equipmentsInStorage;
+        const response = Character.buildEquipments(this.equipments, storage);
+
+        return response;
+    }
+
+    static get player() {
+        const response = Data.player;
+
+        return response;
+    }
+
+    static get quests() {
+        const response = this.player.quests;
+
+        return response;
+    }
+
+    static get statistics() {
+        const response = this.player.statistics;
+
+        return response;
+    }
+
+    static get stories() {
+        const response = this.player.stories;
+
+        return response;
+    }
+
+    static getBankStorageById(id) {
+        const data = this.bankStorage;
+        const response = Character.getItemQuantityByIdLore(data, id);
+
+        return response;
+    }
+
+    static getBankStorageQuantity(id) {
+        const response = this.getBankStorageById(id);
+
+        return response;
+    }
+
+    static getInventoryByCurrency(payWith) {
+        const isGold = payWith === Statics.idItems.gold;
+        const response = isGold ? this.inventoryGold : this.inventoryDiamonds;
+
+        return response;
+    }
+
+    static getInventoryByIl(id) {
+        const data = this.inventory;
+        const response = Character.getItemQuantityByIdLore(data, id);
+
+        return response;
+    }
+
+    static get inventoryDiamonds() {
+        const id = Statics.idItems['diamond'];
+        const response = this.getInventoryByIl(id);
+
+        return response;
+    }
+
+    static get inventoryGold() {
+        const id = Statics.idItems['gold'];
+        const response = this.getInventoryByIl(id);
+
+        return response;
+    }
+
+    static getStorageQuantity(id) {
+        const response = this.getInventoryByIl(id);
+
+        return response;
+    }
+
+    static setPosition(target) {
+        const args = {
+            target: HTML.elGamePlayer,
+            positionX: target[0],
+            positionY: target[1]
+        };
+
+        HTML.elMapGame.setPosition(args);
+    }
+
+    static updateCustomizations() {
+        const value = this.customizations;
+
+        lo.Entity.setCustomizations(HTML.elGamePlayer, value);
+    }
+
+    static updateEquipments() {
+        const equipments = this.equipmentsForHTML;
+
+        lo.Entity.setEquipments(HTML.elGamePlayer, equipments);
+    }
+
+    static updateLayout() {
+        this.updateCustomizations();
+        this.updateEquipments();
+    }
+}
+export class Quest {
+    static buildFullQuestList(isFromNPC) {
+        const npcs = ds.Modules.npcs;
+        let response = [];
+
+        npcs.forEach(npc => {
+            const questsNPC = npc.quests;
+
+            if (questsNPC) {
+                questsNPC.forEach(quest => {
+                    const statusQuest = this.buildQuestStatus(quest, isFromNPC);
+                    const isDone = statusQuest.isDone;
+                    const isKnown = statusQuest.isKnown;
+                    const action = statusQuest.action;
+                    const translation = this.getQuestTranslationById(quest);
+                    const title = this.getTitle(translation);
+                    const description = this.getDescription(quest);
+                    const args = {
+                        idQuest: quest,
+                        idNPC: npc.id,
+                        requester: npc.name,
+                        isKnown,
+                        title,
+                        description,
+                        isDone,
+                        action
+                    };
+
+                    if (isFromNPC) {
+                        response.push(args);
+                    } else {
+                        if (isKnown) response.push(args);
+                    }
+                });
+            }
+        });
+
+        return response;
+    }
+
+    static buildQuestListByNPC(id) {
+        const quests = this.buildFullQuestList(true);
+        const response = quests.filter(quest => quest.idNPC === id);
+
+        return response;
+    }
+
+    static buildQuestStatus(quest, isFromNPC) {
+        const drawButton = (target) => Layout.drawButtonComponent(target);
+        const questsPalyer = Player.quests;
+        const currentQuest = questsPalyer[quest];
+        const isDone = currentQuest === 1 ?? false;
+        const isKnown = currentQuest !== undefined;
+        const icon = ds.HTML.drawDivCentered(ds.HTML.drawIconStatus(isDone));
+        const isAccept = !isDone && !isKnown && isFromNPC;
+        const isFinish = !isDone && isKnown && isFromNPC;
+        let action;
+
+        if (isAccept) {
+            const buttonAccept = this.buildQuestStatusButton(quest, ds.Prefix.ACCEPT);
+
+            action = drawButton(buttonAccept);
+        } else if (isFinish) {
+            const buttonFinish = this.buildQuestStatusButton(quest, ds.Prefix.FINISH);
+
+            action = drawButton(buttonFinish);
+        } else {
+            action = icon;
+        }
+
+        const response = {
+            isDone,
+            isKnown,
+            action
+        };
+
+        return response;
+    }
+
+    static buildQuestStatusButton(index, action) {
+        const button = Statics.buttons[action];
+        const handler = `["${index}"]`;
+
+        button.handlerProps = handler;
+        button.id = Layout.buildId(action, index);
+
+        const isFinish = action === ds.Prefix.FINISH;
+
+        if (isFinish) button.isDisabled = this.buildQuestStatusButtonDisabled(index);
+
+        return button;
+    }
+
+    static buildQuestStatusButtonDisabled(index) {
+        const needs = this.getQuestData(index, ds.Prefix.NEEDS) ?? [];
+        const inventory = Player.inventory;
+        const length = needs.length;
+        let response = false;
+
+        for (let i = 0; i < length; i++) {
+            const index = needs[i];
+            const id = index.id;
+            const quantity = index.quantity;
+            const isInvalid = (inventory[id] ?? 0) < quantity;
+
+            if (isInvalid) {
+                response = true;
+                break;
+            }
+        }
+
+        return response;
+    }
+
+    static get quests() {
+        const response = ds.Modules.quests;
+
+        return response;
+    }
+
+    static get translation() {
+        const response = ds.Translation.gameQuest;
+
+        return response;
+    }
+
+    static getQuestTranslationById(index) {
+        const response = this.quests[index].translation;
+
+        return response;
+    }
+
+    static getDescription(index) {
+        const translation = this.getQuestTranslationById(index);
+        const prefix = this.getPrefix(translation);
+        const description = this.translation?.[`${prefix}description`];
+        const needs = this.getNeeds(index);
+        const rewards = this.getRewards(index);
+        const response = `
+            ${description}
+            ${needs}
+            ${rewards}
+        `;
+
+        return response;
+    }
+
+    static getQuestData(index, property) {
+        const response = this.quests[index][property];
+
+        return response;
+    }
+
+    static getQuestDataText(index, property) {
+        const data = this.getQuestData(index, property);
+        let response = '';
+
+        if (data) {
+            const translation = this.translation[property];
+            response += `${translation} `;
+
+            data.forEach((item) => {
+                const isItem = item.kind === 1;
+                if (isItem) {
+                    const id = item.id;
+                    const quantity = item.quantity;
+
+                    response += Layout.drawTextItemQuantity(id, quantity);
+                }
+            });
+        }
+
+        return response;
+    }
+
+    static getNeeds(index) {
+        const response = this.getQuestDataText(index, ds.Prefix.NEEDS);
+
+        return response;
+    }
+
+    static getRewards(index) {
+        const response = this.getQuestDataText(index, ds.Prefix.REWARDS);
+
+        return response;
+    }
+
+    static getPrefix(index) {
+        const response = `quest_${index}_`;
+
+        return response;
+    }
+
+    static getTitle(index) {
+        const prefix = this.getPrefix(index);
+        const response = this.translation?.[`${prefix}title`];
+
+        return response;
+    }
+}
+export class Settings {
+    static prefix = 'settings';
+    static properties = ['isPlay', 'value'];
+    static valueMaximum = 1;
+    static valueModifier = Settings.valueMaximum / 5;
+
+
+
+
+    static get data() {
+        const data = ds.Storage.getValue(this.prefix);
+        const response = data ? JSON.parse(data) : undefined;
+        return response;
+    }
+
+    static init() {
+        let data = this.data;
+
+        if (!data) {
+            this.setDataInitial();
+            data = this.data;
+        }
+
+        Audio.categories.forEach((target) => {
+            this.properties.forEach((property) => {
+                const value = data[target][property];
+                const args = {
+                    target,
+                    property,
+                    value
+                };
+                this.setProperty(args);
+            });
+        });
+    }
+
+    static isDecreaseDisabled(target) {
+        const data = this.data[target][this.properties[1]];
+        const response = data <= this.valueModifier;
+
+        return response;
+    }
+
+    static isIncreaseDisabled(target) {
+        const data = this.data[target][this.properties[1]];
+
+        const response = data >= this.valueMaximum;
+        return response;
+    }
+
+    static setIsPlay(props) {
+        const { value, target } = props;
+        const property = this.properties[0];
+        const args = {
+            target,
+            property,
+            value
+        };
+
+        this.setProperty(args);
+    }
+
+    static setValue(props) {
+        const { action, target } = props;
+        const property = this.properties[1];
+        const isIncrease = action === 'increase';
+        const data = this.data;
+        const dataValue = data[target][property];
+        const value = isIncrease ? dataValue + this.valueModifier : dataValue - this.valueModifier;
+        const valueMax = this.valueMaximum;
+        const mathIncrease = value > valueMax ? this.valueMaximum : value;
+        const mathDecrease = value <= 0 ? 0 : value;
+        const mathResponse = isIncrease ? mathIncrease : mathDecrease;
+        const args = {
+            target,
+            property,
+            value: mathResponse
+        };
+
+        this.setProperty(args);
+    }
+
+    static setDataInitial() {
+        const value = {
+            effects: {
+                isPlay: true,
+                value: 1
+            },
+            music: {
+                isPlay: true,
+                value: 1
+            }
+        };
+
+        this.setStorage(value);
+    }
+
+    static setProperty(props) {
+        const { target, property, value } = props;
+
+        Data.settings[target][property] = value;
+
+        const data = this.data;
+
+        data[target][property] = value;
+        this.setStorage(data);
+
+        const isMusic = target === 'music';
+        const isValue = property === 'value';
+
+        if (isValue) {
+            Audio.setVolume(target, value);
+
+            if (isMusic) Audio.setVolume('battle', value);
+        }
+
+        const isPlay = property === 'isPlay';
+
+        if (isPlay) {
+            value ? Audio.play(target) : Audio.pause(target);
+
+            if (isMusic) value ? Audio.play('battle') : Audio.pause('battle');
+        }
+    }
+
+    static setStorage(value) {
+        const target = this.prefix;
+        const args = {
+            target: target,
+            value: JSON.stringify(value)
+        };
+
+        ds.Storage.setValue(args);
+    }
+}
+export class Statics {
+    static timePerCharacter = gbIsLocalHost ? 0 : 40;
+    static isGuest = true;
+    static isNewbie = false;
+    static idMapDivisionPadixa = 25;
+    static temp = {
+        page: '',
+        itemData: {
+            item: undefined,
+            isDurability: undefined,
+            isEquipment: undefined,
+            isTooltip: undefined,
+            kind: undefined,
+        }
+    };
+
+    static actions = [
+        {
+            id: 0,
+            label: 'buy'
+        },
+        {
+            id: 1,
+            label: 'sell'
+        },
+        {
+            id: 2,
+            label: 'quest'
+        },
+        {
+            id: 3,
+            label: 'craft'
+        },
+        {
+            id: 4,
+            label: 'apply'
+        },
+        {
+            id: 5,
+            label: 'buyCustomization'
+        },
+        {
+            id: 6,
+            label: 'deposit'
+        },
+        {
+            id: 7,
+            label: 'withdraw'
+        },
+        {
+            id: 9,
+            label: 'repairMagic'
+        },
+        {
+            id: 10,
+            label: 'repairCombat'
+        }
+    ];
+
+    static backgroundBattle = [
+        23, 24, 23, 24, 23,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        23, 25, 26, 23, 23,
+    ];
+
+    static get buttons() {
+        const translationInterface = ds.Translation?.interface;
+        const translationDefault = ds.Translation?.interfaceDefault;
+        const translationLogin = ds.Translation?.loginDefault;
+        const buildTranslationFilter = (target) => translationDefault?.[target];
+        const theme = ds.Layout.theme;
+        const themeDefault = theme.menuDefault;
+        const themeProceed = theme.menuProceed;
+        const themeDanger = theme.menuDanger;
+        const themeTab = theme.menuTab;
+        const buttons = {
+            accept: {
+                id: 'accept',
+                label: translationDefault?.accept,
+                handler: 'handleAccept',
+                handlerProps: '["accept"]',
+                theme: themeProceed
+            },
+            apply: {
+                id: 'apply',
+                label: translationDefault?.apply,
+                handler: 'handleApply',
+                handlerProps: '["apply"]',
+                theme: themeDefault
+            },
+            back: {
+                id: 'back',
+                label: translationDefault?.back,
+                handler: 'handleBack',
+                handlerProps: '["back"]',
+                theme: themeDefault
+            },
+            cancel: {
+                id: 'cancel',
+                label: translationDefault?.cancel,
+                handler: 'handleCancel',
+                handlerProps: '["cancel"]',
+                theme: themeDefault
+            },
+            buy: {
+                id: 'buy',
+                label: translationDefault?.buy,
+                handler: 'handleBuy',
+                handlerProps: '["buy"]',
+                theme: themeDefault
+            },
+            continue: {
+                id: 'continue',
+                label: translationDefault?.continue,
+                handler: 'handleContinue',
+                handlerProps: '["craft"]',
+                theme: themeDefault
+            },
+            craft: {
+                id: 'craft',
+                label: translationDefault?.craft,
+                handler: 'handleCraft',
+                handlerProps: '["craft"]',
+                theme: themeDefault
+            },
+            deposit: {
+                id: 'deposit',
+                label: translationDefault?.deposit,
+                handler: 'handleDeposit',
+                handlerProps: '["deposit"]',
+                theme: themeDefault
+            },
+            delete: {
+                id: 'delete',
+                label: translationDefault?.delete,
+                handler: 'handleDelete',
+                handlerProps: '["delete"]',
+                theme: themeDanger
+            },
+            deleteAccount: {
+                id: 'deleteAccount',
+                label: translationDefault?.delete_account,
+                handler: 'handleDeleteAccount',
+                handlerProps: '["delete"]',
+                theme: themeDanger
+            },
+            equip: {
+                id: 'equip',
+                label: translationDefault?.equip,
+                handler: 'handleEquip',
+                handlerProps: '["equip"]',
+                theme: themeDefault
+            },
+            finish: {
+                id: 'finish',
+                label: translationDefault?.finish,
+                handler: 'handleFinish',
+                handlerProps: '["finish"]',
+                theme: themeProceed
+            },
+            repair: {
+                id: 'repair',
+                label: translationDefault?.repair,
+                handler: 'handleRepair',
+                handlerProps: '["repair"]',
+                theme: themeDefault
+            },
+            repairAll: {
+                id: 'repair-all',
+                label: translationDefault?.repair_all,
+                handler: 'handleRepairAll',
+                handlerProps: '["repairAll"]',
+                theme: themeDefault
+            },
+            sell: {
+                id: 'sell',
+                label: translationDefault?.sell,
+                handler: 'handleSell',
+                handlerProps: '["sell"]',
+                theme: themeDefault
+            },
+            speedUpCraft: {
+                id: 'speedUpCraft',
+                label: 'XXXXX',
+                handler: 'handleSpeedUpCraft',
+                handlerProps: '["speedUpCraft"]',
+                theme: themeProceed
+            },
+            unequip: {
+                id: 'unequip',
+                label: translationDefault?.unequip,
+                handler: 'handleUnequip',
+                handlerProps: '["unequip"]',
+                theme: themeDefault
+            },
+            use: {
+                id: 'use',
+                label: translationDefault?.use,
+                handler: 'handleUse',
+                handlerProps: '["use"]',
+                theme: themeDefault
+            },
+            quest: {
+                id: 'quest',
+                label: translationInterface?.page_quest.title,
+                handler: 'handleOpenPage',
+                handlerProps: '["quest"]',
+                theme: themeDefault
+            },
+            filterAbout: {
+                id: 'gm-hud-page-about',
+                label: translationDefault?.about,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-about"]',
+                theme: themeTab
+            },
+            filterAll: {
+                id: 'all',
+                label: buildTranslationFilter('all'),
+                handler: 'handleFilter',
+                handlerProps: '["all"]',
+                theme: themeTab
+            },
+            filterApply: {
+                id: 'gm-hud-page-apply-customization',
+                label: buildTranslationFilter('apply'),
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-apply-customization"]',
+                theme: themeTab
+            },
+            filterBuy: {
+                id: 'gm-hud-page-buy',
+                label: translationDefault?.buy,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-buy"]',
+                theme: themeTab
+            },
+            filterBuyCustomization: {
+                id: 'gm-hud-page-buy-customization',
+                label: translationDefault?.buy,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-buy-customization"]',
+                theme: themeTab
+            },
+            filterCollectable: {
+                id: 'collectable',
+                label: buildTranslationFilter('collectable'),
+                handler: 'handleFilter',
+                handlerProps: '["collectable"]',
+                theme: themeTab
+            },
+            filterCombat: {
+                id: 'gm-hud-page-combat',
+                label: translationDefault?.combat,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-combat"]',
+                theme: themeTab
+            },
+            filterCraft: {
+                id: 'gm-hud-page-craft',
+                label: translationDefault?.craft,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-craft"]',
+                theme: themeTab
+            },
+            filterDeposit: {
+                id: 'gm-hud-page-deposit',
+                label: buildTranslationFilter('deposit'),
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-deposit"]',
+                theme: themeTab
+            },
+            filterEquipment: {
+                id: 'equipment',
+                label: buildTranslationFilter('equipment'),
+                handler: 'handleFilter',
+                handlerProps: '["equipment"]',
+                theme: themeTab
+            },
+            filterMoney: {
+                id: 'money',
+                label: buildTranslationFilter('money'),
+                handler: 'handleFilter',
+                handlerProps: '["money"]',
+                theme: themeTab
+            },
+            filterQuest: {
+                id: 'gm-hud-page-quest',
+                label: translationInterface?.page_quest.title,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-quest"]',
+                theme: themeTab
+            },
+            filterRepairCombat: {
+                id: 'gm-hud-page-repair-combat',
+                label: translationDefault?.repair,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-repair-combat"]',
+                theme: themeTab
+            },
+            filterRepairMagic: {
+                id: 'gm-hud-page-repair-magic',
+                label: translationDefault?.repair,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-repair-magic"]',
+                theme: themeTab
+            },
+            filterSell: {
+                id: 'gm-hud-page-sell',
+                label: translationDefault?.sell,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-sell"]',
+                theme: themeTab
+            },
+            filterStatistics: {
+                id: 'gm-hud-page-statistics',
+                label: translationDefault?.statistics,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-statistics"]',
+                theme: themeTab
+            },
+            filterResources: {
+                id: 'resources',
+                label: buildTranslationFilter('resources'),
+                handler: 'handleFilter',
+                handlerProps: '["resources"]',
+                theme: themeTab
+            },
+            filterUsable: {
+                id: 'usable',
+                label: buildTranslationFilter('usable'),
+                handler: 'handleFilter',
+                handlerProps: '["usable"]',
+                theme: themeTab
+            },
+            filterUser: {
+                id: 'gm-hud-page-user',
+                label: translationLogin?.user,
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-user"]',
+                theme: themeTab
+            },
+            filterWithdraw: {
+                id: 'gm-hud-page-withdraw',
+                label: buildTranslationFilter('withdraw'),
+                handler: 'handleOpenPage',
+                handlerProps: '["gm-hud-page-withdraw"]',
+                theme: themeTab
+            },
+            mainAchievements: {
+                id: `${HTML.idHudMenu}_achievements`,
+                pageTarget: 'achievements',
+                icon: 'achievements',
+                translation: 'achievements',
+                label: translationInterface?.page_achievement.title,
+            },
+            mainAttributes: {
+                id: `${HTML.idHudMenu}_attributes`,
+                pageTarget: 'attributes',
+                icon: 'profile',
+                translation: 'attributes',
+                label: translationInterface?.page_attribute.title,
+            },
+            mainEquipments: {
+                id: `${HTML.idHudMenu}_equipments`,
+                pageTarget: 'equipments',
+                icon: 'equipments',
+                translation: 'equipments',
+                label: translationInterface?.page_equipments.title,
+            },
+            mainInventory: {
+                id: `${HTML.idHudMenu}_inventory`,
+                pageTarget: 'inventory',
+                icon: 'inventory',
+                translation: 'inventory',
+                label: translationInterface?.page_inventory.title,
+            },
+            mainMap: {
+                id: `${HTML.idHudMenu}_map`,
+                pageTarget: 'map',
+                icon: 'map',
+                translation: 'map',
+                label: translationInterface?.page_map.title,
+            },
+            mainMenu: {
+                id: `${HTML.idHudMenu}_menu`,
+                pageTarget: 'menu',
+                icon: 'menu',
+                translation: 'menu',
+                css: 'ds-hide--tablet',
+                label: translationInterface?.page_menu.title,
+            },
+            mainQuests: {
+                id: `${HTML.idHudMenu}_quests`,
+                pageTarget: 'quests',
+                icon: 'quests',
+                translation: 'quests',
+                label: translationInterface?.page_quest.title,
+            },
+            mainSettings: {
+                id: `${HTML.idHudMenu}_settings`,
+                pageTarget: 'settings',
+                icon: 'settings',
+                translation: 'settings',
+                label: translationInterface?.page_setting.title,
+            },
+            mainStore: {
+                id: `${HTML.idHudMenu}_store`,
+                pageTarget: 'store',
+                icon: 'store',
+                translation: 'store',
+                label: translationInterface?.page_store?.title,
+            },
+            withdraw: {
+                id: 'withdraw',
+                label: translationDefault?.withdraw,
+                handler: 'handleWithdraw',
+                handlerProps: '["withdraw"]',
+                theme: themeDefault
+            },
+        };
+
+        return buttons;
+    }
+
+    static get buttonsMainMenu() {
+        const buttons = [
+            Statics?.buttons?.mainAttributes,
+            Statics?.buttons?.mainEquipments,
+            Statics?.buttons?.mainInventory,
+            Statics?.buttons?.mainMap,
+            Statics?.buttons?.mainQuests,
+            Statics?.buttons?.mainAchievements,
+            Statics?.buttons?.mainStore,
+            Statics?.buttons?.mainSettings,
+        ];
+
+        return buttons;
+    }
+
+    static crafts = [
+        {
+            id: 0,
+            label: 'wood'
+        },
+        {
+            id: 1,
+            label: 'plant'
+        },
+        {
+            id: 2,
+            label: 'fabric'
+        },
+        {
+            id: 3,
+            label: 'drawWell'
+        },
+        {
+            id: 4,
+            label: 'witch'
+        },
+        {
+            id: 5,
+            label: 'stone'
+        }
+    ];
+
+    static classes = {
+        0: {
+            class: 'warrior',
+            attribute: 'strength',
+            customizations: {
+                clothes: 52,
+                eye: 2,
+                hair: 2,
+                skin: 3
+            },
+            equipments: {
+                boot: 61,
+                face: 49,
+                gloves: 28,
+                hair: 45,
+                helmet: 23,
+                shield: 32,
+                pants: 35,
+                weapon: 14
+            }
+        },
+        1: {
+            class: 'wizard',
+            attribute: 'intelligence',
+            customizations: {
+                clothes: 53,
+                eye: 4,
+                hair: 7,
+                skin: 0
+            },
+            equipments: {
+                boot: 61,
+                hair: 48,
+                helmet: 51,
+                pants: 35,
+                weapon: 81
+            }
+        },
+        2: {
+            class: 'hunter',
+            attribute: 'dexterity',
+            customizations: {
+                clothes: 52,
+                eye: 0,
+                hair: 6,
+                skin: 2
+            },
+            equipments: {
+                armor: 29,
+                boot: 61,
+                hair: 46,
+                skin: 52,
+                pants: 35,
+                weapon: 84
+            }
+        },
+        3: {
+            class: 'merchant',
+            attribute: 'vitality',
+            customizations: {
+                clothes: 53,
+                eye: 6,
+                hair: 5,
+                skin: 1
+            },
+            equipments: {
+                armor: 29,
+                boot: 61,
+                hair: 47,
+                skin: 53,
+                pants: 35,
+                weapon: 17
+            }
+        }
+    };
+
+    static collectibles = [
+        {
+            id: 108,
+            name: 'plant_bamboo'
+        },
+        {
+            id: 116,
+            name: 'plant_fiber'
+        },
+        {
+            id: 129,
+            name: 'limestone'
+        },
+    ];
+
+    static equipments = [];
+
+    static hotkeys = [
+        {
+            id: 'attributes',
+            key: 'a',
+            action: Hotkeys.buildActionOpenPage('attributes', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'settings',
+            key: 'c',
+            action: Hotkeys.buildActionOpenPage('settings', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'inventory',
+            key: 'i',
+            action: Hotkeys.buildActionOpenPage('inventory', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'equipments',
+            key: 'e',
+            action: Hotkeys.buildActionOpenPage('equipments', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'map',
+            key: 'm',
+            action: Hotkeys.buildActionOpenPage('map', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'quests',
+            key: 'q',
+            action: Hotkeys.buildActionOpenPage('quests', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'achievements',
+            key: 'd',
+            action: Hotkeys.buildActionOpenPage('achievements', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'store',
+            key: 's',
+            action: Hotkeys.buildActionOpenPage('store', 'right'),
+            isGameKey: true
+        },
+        {
+            id: 'useMana',
+            key: 't',
+            action: Hotkeys.buildAction({
+                callback: () => gameMenu.useItem(5)
+            }),
+            isGameKey: true
+        },
+        {
+            id: 'useLife',
+            key: 'u',
+            action: Hotkeys.buildAction({
+                callback: () => gameMenu.useItem(11)
+            }),
+            isGameKey: true
+        },
+        {
+            id: 'useRejuvenation',
+            key: 'y',
+            action: Hotkeys.buildAction({
+                callback: () => gameMenu.useItem(8)
+            }),
+            isGameKey: true
+        },
+        // {
+        //     id: 'attackPhysical',
+        //     key: '1',
+        //     action: Hotkeys.buildAction({
+        //         callback: () => gameBattleSkill.attackPhysical()
+        //     }),
+        //     isGameKey: true
+        // },
+        // {
+        //     id: 'attackByClass',
+        //     key: '3',
+        //     action: Hotkeys.buildAction({
+        //         callback: () => gameBattleSkill.attackByClass()
+        //     }),
+        //     isGameKey: true
+        // },
+        // {
+        //     id: 'attackRun',
+        //     key: '4',
+        //     action: Hotkeys.buildAction({
+        //         callback: () => gameBattleSkill.run()
+        //     }),
+        //     isGameKey: true
+        // },
+        {
+            id: 'esc',
+            key: 'Escape',
+            action: Hotkeys.buildAction({
+                callback: () => {
+                    HTML.elHud.closeHudPages();
+                    HTML.elHud.closeModal();
+                }
+            }),
+            isGameKey: false
+        },
+    ];
+
+    static idItems = {
+        gold: 4,
+        diamond: 76
+    };
+
+    static link = {
+        blog: gbUrlsSite.blog,
+        discord: gbUrls.discord,
+        facebook: gbUrls.facebook,
+        instagram: gbUrls.instagram,
+        youtube: gbUrls.youtube,
+    };
+
+    static get skills() {
+        const prefix = 'lo-animation-skill-';
+        const skillDefault = `${prefix}punch`;
+        const response = [
+            {
+                id: 'attackColdTouch',
+                css: skillDefault,
+                isMoving: false,
+            },
+            {
+                id: 'attackCoinThrow',
+                css: `${prefix}coin-throw`,
+                isMoving: true,
+            },
+            {
+                id: 'attackFireball',
+                css: `${prefix}fireball`,
+                isMoving: true,
+            },
+            {
+                id: 'attackFireTouch',
+                css: skillDefault,
+                isMoving: false,
+            },
+            {
+                id: 'attackLightningTouch',
+                css: skillDefault,
+                isMoving: false,
+            },
+            {
+                id: 'attackMelee',
+                css: skillDefault,
+                isMoving: false,
+            },
+            {
+                id: 'attackMeleeDouble',
+                css: skillDefault,
+                isMoving: true,
+            },
+            {
+                id: 'attackMultipleArrows',
+                css: `${prefix}arrow`,
+                isMoving: true,
+            },
+            {
+                id: 'attackPoisonTouch',
+                css: skillDefault,
+                isMoving: false,
+            },
+            {
+                id: 'attackThrowWeapon',
+                css: `${prefix}throw-weapon`,
+                isMoving: true,
+            },
+        ];
+
+        return response;
+    }
+
+    static async update() {
+        await ds.Modules.getItems();
+        await ds.Modules.getTiles();
+        await ds.Modules.getNPCs();
+        await ds.Modules.getMonsters();
+        await ds.Modules.getQuests();
+        await ds.Modules.getAchievements();
+    }
+
+    static async updateVariables(data) {
+        if (data.equipments) this.equipments = data.equipments;
+        if (data.stories) this.stories = data.stories;
+
+        if (data.itemsKind) {
+            ds.Modules.itemsKind = data.itemsKind;
+            ds.Modules.equipmentsId = data.itemsKind
+                .filter(item => item.translation.startsWith('equipment_'))
+                .map(item => item.id);
+        }
+    }
+}
+export class Storage {
+    static get storage() {
+        const response = Character.getStorageByCharcaterId(Player.id);
+
+        return response;
+    }
+
+    static getDataFiltered(target) {
+        const storage = this.storage;
+
+        if (!Array.isArray(storage)) {
+            return [];
+        }
+
+        const isBankStored = target === 1 || target === 2;
+        const belongsToCharacter = (item) => item.id_character === Player.id;
+        const isFromBank = (item) => isBankStored && item.id_character === null;
+
+        const response = storage.filter(item =>
+            item.stored_at === target && (belongsToCharacter(item) || isFromBank(item))
+        );
+
+        return response;
+    }
+
+    static getEquipments(storage, ids) {
+        const response = Object.fromEntries(
+            Object.entries(ids).map(([key, id]) => {
+                const item = Character.getEquipmentById(storage, id);
+                return [key, item ? item.id_lore : null];
+            })
+        );
+
+        return response;
+    }
+
+    static buildItem(target) {
+        if (!target) return;
+
+        let item;
+        let quantity;
+
+        if (target.id_lore) {
+            item = target.id_lore;
+            quantity = target.quantity;
+        } else {
+            if (target[1]) {
+                const index = target[1];
+
+                item = index?.il ? index : Number(target[0]);
+                quantity = index?.il ? 1 : index;
+            } else {
+                item = target.il;
+                quantity = target.quantity;
+            }
+        }
+
+        const response = {
+            item,
+            quantity
+        };
+
+        return response;
+    }
+
+    static getItemById(id) {
+        const data = Data.storage;
+        const response = Object.values(data).filter(item => item.id === id)[0];
+
+        return response;
+    }
+
+    static getItemDurabilityById(id) {
+        const response = this.getItemById(id)?.durability;
+
+        return response;
+    }
+
+    static getIdByTranslation(translation) {
+        const data = ds.Modules.itemsKind.find(el => el.translation === translation);
+        const response = data ? data.id : null;
+
+        return response;
+    }
+
+    static getItemKind(index) {
+        let response = {
+            isResources: false,
+            isMoney: false,
+            isUsable: false,
+            isCollectable: false,
+        };
+
+        const translation = this.getTranslationKindById(index);
+
+        if (translation === 'resources') response.isResources = true;
+        if (translation === 'money') response.isMoney = true;
+        if (translation === 'usable') response.isUsable = true;
+        if (translation === 'collectable') response.isCollectable = true;
+
+        return response;
+    }
+
+    static getProperties(props) {
+        const {
+            id,
+            target,
+            quantity = 1
+        } = props;
+
+        if (!target) return;
+
+        const itemLoot = ds.Helper.findById(ds.Modules.items, Number(target));
+        const isDurability = itemLoot.durability > 0;
+        const translationItemLoot = itemLoot?.translation;
+        const translationEquipment = ds.Translation?.gameEquipment?.[translationItemLoot];
+        const translationLoot = ds.Translation.gameLoot;
+        const translationLootItem = translationLoot?.[translationItemLoot];
+        const translationName = translationEquipment ? translationEquipment : translationLootItem;
+        const translationDescription = translationLoot?.[`${translationItemLoot}_description`];
+
+        const translationNameLabel = ds.Translation.getTranslationPage('attributes').name;
+        const translationQuantity = ds.Translation.interfaceDefault.amount;
+        const weight = itemLoot?.weight ? itemLoot?.weight : 1;
+        const kind = itemLoot?.kind;
+        const isSameKind = (target) => Storage.getIdByTranslation(target) === kind;
+        const isUsable = isSameKind('usable');
+        const isMoney = isSameKind('money');
+        const isResources = isSameKind('resources');
+        const isCollectable = isSameKind('collectable');
+        const isEquipment = this.isEquipment(kind);
+        const response = {
+            id,
+            isDurability,
+            isEquipment,
+            isMoney,
+            isUsable,
+            isResources,
+            isCollectable,
+            itemLoot,
+            translationName,
+            translationDescription,
+            translationNameLabel,
+            translationQuantity,
+            weight,
+            quantity,
+            idLore: target,
+        };
+
+        return response;
+    }
+
+    static getUsables(data) {
+        let response = [];
+
+        data.forEach((index) => {
+            const args = {
+                id: index.id,
+                target: index.id_lore,
+                quantity: index.quantity
+            };
+            const properties = this.getProperties(args);
+            const isUsable = properties.isUsable;
+
+            if (isUsable) response.push(properties);
+        });
+
+        return response;
+    }
+
+    static getTranslationById = (id) => {
+        const item = ds.Helper.findById(ds.Modules.items, Number(id));
+        const response = item ? item.translation : null;
+
+        return response;
+    };
+
+    static getTranslationKindById = (id) => {
+        const item = ds.Modules.itemsKind.find(el => el.id === id);
+        const response = item ? item.translation : null;
+
+        return response;
+    };
+
+    static isEquipment(id) {
+        const response = ds.Modules.equipmentsId.includes(id);
+
+        return response;
+    }
+}
+export class Translation {
+    static buildTitlePrice(payment) {
+        const detail = ds.Translation.getTranslationPage('detail');
+        const label = detail.price;
+        const translationLoot = this.translation.gameLoot;
+        const translationBronze = translationLoot.coin_bronze;
+        const translationDiamond = translationLoot.diamond;
+        const payWith = payment === Statics.idItems.gold ? translationBronze : translationDiamond;
+        const response = `${label}: (${payWith})`;
+
+        return response;
+    }
+
+    static buildTitlePriceDiamond() {
+        const response = Translation.buildTitlePrice(76);
+
+        return response;
+    }
+
+    static buildRewardText(value) {
+        const translationLoot = this.translation.gameLoot;
+        const diamond = translationLoot.diamond;
+        const response = `${value} (${diamond})`;
+
+        return response;
+    }
+
+    static buildTitlePriceGold() {
+        const response = Translation.buildTitlePrice(4);
+
+        return response;
+    }
+
+    static get customizationDescription() {
+        const response = this.translation?.interface?.page_select_customization?.description;
+
+        return response;
+    }
+
+    static get customizationTitle() {
+        const response = this.translation?.interface?.page_select_customization?.description;
+
+        return response;
+    }
+
+    static get translation() {
+        const response = ds.Translation;
+
+        return response;
+    }
+}
+export class Tutorial {
+    static getIdByActAndScene(act, scene) {
+        const ids = Statics.stories;
+
+        for (const [id, story] of Object.entries(ids)) {
+            const isMatch = story.act === act && story.scene === scene;
+
+            if (isMatch) {
+                return Number(id);
+            }
+        }
+
+        return null;
+    }
+
+    static hasStories(ids) {
+        const stories = Player.stories;
+
+        if (!stories) {
+            return false;
+        }
+
+        const playerStoryIds = Object.values(stories).map(story => story.id);
+        const response = ids.every(id => playerStoryIds.includes(id));
+
+        return response;
+    }
+
+    static isShowModal(act, scene) {
+        const sceneId = this.getIdByActAndScene(act, scene);
+        const stories = Player.stories;
+
+        if (!stories) return true;
+
+        const response = !(sceneId in stories);
+
+        return response;
+    }
+
+    static showTutorial(act, scene) {
+        HTML.elHud.openModalStory(act, scene);
+    }
+
+    static showScene(act, scene) {
+        const isShowStory = this.isShowModal(act, scene);
+
+        if (isShowStory) this.showTutorial(act, scene);
+    }
+
+    static showAct1Scene1() {
+        this.showScene(1, 1);
+    }
+
+    static showAct1Scene2() {
+        this.showScene(1, 2);
+    }
+
+    static showAct1Scene3(idMap) {
+        const isLastMap = idMap === Statics.idMapDivisionPadixa;
+        const hasRequiredStories = this.hasStories([1, 2]);
+        const isValid = isLastMap && hasRequiredStories;
+
+        if (isValid) this.showScene(1, 3);
+    }
+}
+export class Walk {
+    static lastStep = { x: 0, y: 0 };
+    static isWalking = false;
+    static cancelCurrentWalk = false;
+
+
+
+    static getOccupation(props) {
+        const { el, x, y } = props;
+        const isPlayer = this.isPlayer(el);
+
+        if (!isPlayer) return;
+
+        const occupation = HTML.elMapGame.getOccupation(x, y);
+
+        if (!occupation || !occupation.target) {
+            console.warn(`No valid target at (${x}, ${y})`);
+            return;
+        }
+
+        const target = occupation.target;
+        const kind = target.getAttribute('kind');
+
+        if (kind === Monsters.prefix) {
+            this.cancelCurrentWalk = true;
+            HTML.elGameBattle.build(target);
+        }
+        if (kind === Collectibles.prefix) {
+            const id = Layout.unBuildId(Collectibles.prefix, target.id);
+            Collectibles.pickUp(id);
+        }
+    }
+
+    static isPlayer(el) {
+        const response = el === HTML.elGamePlayer;
+
+        return response;
+    }
+
+    static updateEntityState(el, direction, action) {
+        el.setAttribute('direction', direction);
+        el.setAttribute('action', action);
+    }
+
+    static verifyDirection(element, nextStep) {
+        const currentX = Number(element.getAttribute(ds.Prefix.ATTR_DATA_POSITION_X));
+
+        if (nextStep.x > currentX) return 'right';
+        if (nextStep.x < currentX) return 'left';
+
+        const currentY = Number(element.getAttribute(ds.Prefix.ATTR_DATA_POSITION_Y));
+
+        if (nextStep.y > currentY) return 'down';
+        if (nextStep.y < currentY) return 'up';
+
+        return 'down';
+    }
+
+    static async walk(props) {
+        const { el, positionXFrom, positionXTo, positionYTo, positionYFrom } = props;
+        const isPlayer = this.isPlayer(el);
+        const isBattle = HTML.elGameBattle.isBattle;
+
+        if (!isPlayer && isBattle) return;
+
+        if (this.isWalking && isPlayer) {
+            this.cancelCurrentWalk = true;
+            return;
+        }
+
+        const xFrom = isPlayer ? Number(el.getAttribute(ds.Prefix.ATTR_DATA_POSITION_X)) : Number(positionXFrom);
+        const yFrom = isPlayer ? Number(el.getAttribute(ds.Prefix.ATTR_DATA_POSITION_Y)) : Number(positionYFrom);
+        const xTo = Number(positionXTo);
+        const yTo = Number(positionYTo);
+
+        const path = HTML.elMapGame.findPath({
+            start: [xFrom, yFrom],
+            end: [xTo, yTo]
+        });
+
+        const isInvalid = !path || path.length === 0;
+
+        if (isInvalid) return;
+
+        const isShift = path[0][0] === xFrom && path[0][1] === yFrom;
+
+        if (isShift) path.shift();
+
+        el.setAttribute('data-path', JSON.stringify(path));
+
+        if (isPlayer) {
+            this.cancelCurrentWalk = false;
+            this.isWalking = true;
+        }
+
+        if (path.length > 0) {
+            const direction = this.verifyDirection(el, { x: path[0][0], y: path[0][1] });
+            this.updateEntityState(el, direction, 'walk');
+        }
+
+        const walkArgs = {
+            el,
+            path,
+            positionXFrom: xFrom,
+            positionYFrom: yFrom
+        };
+
+        await this.walkLoop(walkArgs);
+    }
+    static walkClick(evet) {
+        const el = evet.target;
+        const dataset = el.dataset;
+        const positionXTo = Number(dataset.positionX);
+        const positionYTo = Number(dataset.positionY);
+        const args = {
+            el: HTML.elGamePlayer,
+            positionXTo,
+            positionYTo
+        };
+
+        Walk.walk(args);
+    }
+
+    static async walkLoop(props) {
+        const { el } = props;
+        const isPlayer = this.isPlayer(el);
+        let path = JSON.parse(el.getAttribute('data-path'));
+        let direction = '';
+
+        while (path.length > 0) {
+            const isInvalid = isPlayer && this.cancelCurrentWalk;
+
+            if (isInvalid) break;
+
+            const nextStep = { x: path[0][0], y: path[0][1] };
+
+            direction = this.verifyDirection(el, nextStep);
+            this.updateEntityState(el, direction, 'walk');
+
+            path.shift();
+            el.setAttribute('data-path', JSON.stringify(path));
+
+            await this.walkAnimation({ el, direction }, [nextStep.x, nextStep.y]);
+
+            const isLastStep = path.length === 0;
+            const args = {
+                el,
+                x: nextStep.x,
+                y: nextStep.y,
+                isLastStep
+            };
+
+            this.getOccupation(args);
+        }
+
+        if (isPlayer) this.walkEndPlayer(props);
+
+        this.updateEntityState(el, direction, 'stand');
+    }
+
+    static walkEndPlayer(props) {
+        this.isWalking = false;
+
+        const tilePositions = props.path.at(-1);
+
+        if (!tilePositions) return;
+
+        const tilePositionX = tilePositions[0];
+        const tilePositionY = tilePositions[1];
+        const elMap = HTML.elMapGame.elMap;
+        const args = {
+            map: elMap,
+            x: tilePositionX,
+            y: tilePositionY
+        };
+        const elTile = ds.MapGame.getTileByPosition(args);
+        const elTileId = elTile.getAttribute('data-id');
+        const doorIndex = HTML.elMapGame.map.doors.indexOf(elTileId);
+        const isDoor = doorIndex !== -1;
+
+        if (isDoor) MapGame.changeMap(doorIndex);
+    }
+
+    static walkAnimation(props, walkTo) {
+        const { el } = props;
+        const isPlayer = this.isPlayer(el);
+
+        if (isPlayer) this.walkMoveMap(props);
+
+        const animationDuration = isPlayer
+            ? Data.player.attributes.speed
+            : Number(el.getAttribute('data-speed')) || 300;
+
+        const tileSize = ds.Layout.tileSize;
+
+        el.setAttribute(ds.Layout.attributePositionX, walkTo[0]);
+        el.setAttribute(ds.Layout.attributePositionY, walkTo[1]);
+
+        return Animation.animatePosition({
+            target: el,
+            vertical: walkTo[1] * tileSize,
+            horizontal: walkTo[0] * tileSize,
+            speed: animationDuration
+        });
+    }
+
+    static walkMoveMap(props) {
+        const { direction } = props;
+        const currentValue = ds.Helper.getTranslateValue(HTML.elMapGame);
+        const tileSize = ds.Layout.tileSize;
+        let horizontal = currentValue.x;
+        let vertical = currentValue.y;
+
+        if (direction === 'left') horizontal += tileSize;
+        if (direction === 'right') horizontal -= tileSize;
+        if (direction === 'up') vertical += tileSize;
+        if (direction === 'down') vertical -= tileSize;
+
+        const args = {
+            target: HTML.elMapGame,
+            vertical,
+            horizontal,
+            speed: Data.player.attributes.speed
+        };
+
+        Animation.animatePosition(args);
+
+        Camera.center();
+    }
+}
+
+export class BaseComponent extends HTMLElement {
+    #controller = null;
+
+    connectedCallback() {
+        this.render();
+        this.rebindListeners();
+    }
+
+    rebindListeners() {
+        this.#controller?.abort();
+        this.#controller = new AbortController();
+        this.addEventListeners(this.#controller.signal);
+    }
+
+    render() {}
+
+    addEventListeners() {}
+}
+export class Battle extends HTMLElement {
+    args = {
+        context: this,
+    };
+    monster;
+    static monsterData;
+    static isBattle = false;
+    turnCurrent;
+    turnLast;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    get isTurnPlayer() {
+        const response = this.turnCurrent === ds.Prefix.PLAYER;
+
+        return response;
+    }
+
+    async build(target) {
+        if (!target) return;
+
+        HTML.elTransition.openByKind('battle');
+
+        const id = Monsters.unBuildId(target.getAttribute('id'));
+        const args = { id };
+        const dataFetch = await FetchData.buildBattle(args);
+
+        if (!dataFetch) return;
+
+        this.buildMonster(target, dataFetch);
+        Battle.isBattle = true;
+        this.modifyLayout();
+        this.turnCurrent = dataFetch.turn;
+        Audio.buildMusic();
+
+        const monsterLevel = target.getAttribute('data-level');
+        const playerLevel = Data.player?.attributes?.level;
+
+        Analytics.send({
+            event_name: 'battle_start',
+            monster_id: id,
+            monster_level: monsterLevel,
+            player_level: playerLevel,
+        });
+
+        setTimeout(() => {
+            HTML.elTransition.close();
+            HTML.elHud.openModalBattle(target);
+            Data.setData(dataFetch);
+        }, HTML.elTransition.timeout3);
+    }
+
+    async buildMonster(target, data) {
+        Battle.monsterData = data;
+        this.monster = target;
+    }
+
+    draw() {
+        const response = '';
+
+        return response;
+    }
+
+    async getTurn() {
+        const response = FetchData.getTurn();
+
+        return response;
+    }
+
+    modifyLayout() {
+        const css = 'gm-bars-overlay';
+        const isBattle = Battle.isBattle;
+        const elHudFooter = HTML.elHudFooter;
+        const elHudMenu = HTML.elHudMenu;
+
+        if (isBattle) {
+            ds.Helper.addClass(elHudFooter, css);
+            elHudMenu.disableButtons();
+        } else {
+            ds.Helper.removeClass(elHudFooter, css);
+            elHudMenu.enableButtons();
+        }
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    removeMonster() {
+        const id = this.monster.getAttribute('id');
+        const el = HTML.elMapGame.shadowRoot.getElementById(id);
+
+        el?.remove();
+    }
+
+    static showDeathPenalty() {
+        const translation = ds.Translation.gameBattle;
+        const abandoned = translation.abandoned;
+        const battleLose = translation.lose;
+        const text = `${abandoned} ${battleLose}`;
+        const rule = Layout.replaceInText(text);
+
+        const argsNotification = {
+            color: 'red',
+            content: rule,
+        };
+
+        Notification.add(argsNotification);
+    }
+
+    unbuild() {
+        Battle.isBattle = false;
+
+        this.modifyLayout();
+        this.removeMonster();
+
+        HTML.elHud.close(HTML.elHudModal);
+
+        Audio.buildMusic();
+    }
+}
+export class CharacterCustomization extends HTMLElement {
+    args = {
+        context: this,
+    };
+    idFieldName = 'name';
+    static idFieldPrice = 'field_price';
+    static eventNameChange = 'nameChange';
+    static eventCustomizationChange = 'customizationChange';
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+        this.addEventListeners();
+    }
+
+
+
+    addEventListeners() {
+        if (this.isFullContent) {
+            this.elFieldNameInput.addEventListener('input', () => {
+                this.dispatchNameChange();
+            });
+        }
+
+        this.addEventListenersSelects();
+    }
+
+    addEventListenersSelects() {
+        const componentSelect = ds.Components.componentSelect;
+        const selects = this.shadowRoot.querySelectorAll(componentSelect);
+
+        selects.forEach((select) => {
+            select.addEventListener('change', (event) => {
+                this.dispatchCustomizationChange(event);
+            });
+        });
+    }
+
+    buildDrawData() {
+        const translationEquipment = ds.Translation.gameEquipment;
+        const translationPlayer = ds.Translation.gamePlayer;
+
+        const raw = this.getAttribute('data');
+        const parsed = raw
+            ? JSON.parse(decodeURIComponent(raw))
+            : {};
+
+        const clothes = this.buildItems({
+            list: parsed.clothesDefault || []
+        });
+
+        const hair = this.buildItems({
+            list: parsed.hairDefault || []
+        });
+
+        const response = {
+            clothes: this.drawSelect({
+                id: 'clothes',
+                css: ds.Layout.cssFormField,
+                label: translationEquipment?.clothes,
+                options: this.buildOptions(clothes),
+                key: 'clothes'
+            }),
+            hair: this.drawSelect({
+                id: 'hair_equipment',
+                css: ds.Layout.cssFormField,
+                label: translationEquipment?.hair,
+                options: this.buildOptions(hair),
+                key: 'hair_equipment'
+            }),
+            eye: this.drawSelect({
+                id: 'eye',
+                css: ds.Layout.cssFormField,
+                label: translationPlayer?.color_eye,
+                options: this.buildOptions(
+                    this.buildTranslatedOptions({
+                        list: parsed.colors || []
+                    })
+                ),
+                key: 'eye'
+            }),
+            skin: this.drawSelect({
+                id: 'skin',
+                css: ds.Layout.cssFormField,
+                label: translationPlayer?.color_skin,
+                options: this.buildOptions(
+                    this.buildTranslatedOptions({
+                        list: parsed.skins || []
+                    })
+                ),
+                key: 'skin'
+            }),
+            hairColor: this.drawSelect({
+                id: 'hair',
+                css: ds.Layout.cssFormField,
+                label: translationPlayer?.color_hair,
+                options: this.buildOptions(
+                    this.buildTranslatedOptions({
+                        list: parsed.colors || []
+                    })
+                ),
+                key: 'hair'
+            })
+        };
+
+        return response;
+    }
+
+    buildItems(args) {
+        const response = args.list.map((id, index) => {
+            const itemData = ds.Helper.findById(
+                ds.Modules.items,
+                Number(id)
+            );
+
+            const translation = ds.Translation.gameCustomization?.[itemData.translation] || itemData.translation;
+            const args = {
+                label: `${translation} ${index + 1}`,
+                id_customization: id
+            };
+
+            return args;
+        });
+
+        return response;
+    }
+
+    buildOptions(list) {
+        const response = JSON.stringify({
+            label: list.map(item => item.label),
+            value: list.map(item => item.id_customization)
+        });
+
+        return response;
+    }
+
+    buildTranslatedOptions(args) {
+        const response = args.list.map(item => ({
+            ...item,
+            label: ds.Translation.gameCustomization?.[item.label] || item.label
+        }));
+
+        return response;
+    }
+
+    dispatchCustomizationChange(event) {
+        const key = event.target.getAttribute('data-key');
+        const value = event.detail.value;
+        const customEvent = new CustomEvent(CharacterCustomization.eventCustomizationChange, {
+            bubbles: true,
+            composed: true,
+            detail: { key, value }
+        });
+
+        this.dispatchEvent(customEvent);
+    }
+
+    dispatchNameChange() {
+        const event = new CustomEvent(CharacterCustomization.eventNameChange, {
+            bubbles: true,
+            composed: true
+        });
+
+        this.dispatchEvent(event);
+    }
+
+    draw() {
+        const data = this.buildDrawData();
+        const content = this.drawContent(data);
+
+        const response = `
+            <form class="ds-form form--readonly">
+                ${content}
+            </form>
+        `;
+
+        return response;
+    }
+
+    drawContent(data) {
+        let response = '';
+
+        if (this.isFullContent) response += this.drawContentFull(data);
+
+        response += this.drawContentColors(data);
+
+        return response;
+    }
+
+    drawContentColors(data) {
+        let response = '';
+        const { eye, skin, hairColor } = data;
+
+        if (this.isFullContent) {
+            response = `
+                <div class="ds-row">
+                    ${eye}
+                    ${skin}
+                    ${hairColor}
+                </div>
+            `;
+        } else {
+            const label = Translation.buildTitlePrice();
+            const fieldPrice = ds.Layout.drawField({
+                label,
+                value: 0,
+                id: CharacterCustomization.idFieldPrice
+            });
+
+            response = `
+                <div class="ds-row">
+                    <div class="ds-row">
+                        ${eye}
+                        ${skin}
+                    </div>
+                    <div class="ds-row">
+                        ${hairColor}
+                    </div>
+                    <div class="ds-row">
+                        ${fieldPrice}
+                    </div>
+                </div>
+            `;
+        }
+
+        return response;
+    }
+
+    drawContentFull(data) {
+        const { clothes, hair } = data;
+        const elName = this.drawNameField();
+        const response = `
+            ${elName}
+            <div class="ds-row">
+                ${clothes}
+                ${hair}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawNameField() {
+        const css = ds.Layout.cssFormField;
+        const translationPage = ds.Translation.getTranslationPage('attributes');
+        const componentFormField = ds.Components.componentFormField;
+        const wrapper = ds.Layout.theme.form;
+        const response = `
+            <div class="ds-row">
+                <${componentFormField}
+                    class="${css} ds-row"
+                    label="${translationPage?.name}"
+                    id="${this.idFieldName}"
+                    input-value=""
+                    css-wrapper="${wrapper}"
+                ></${componentFormField}>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawSelect(props) {
+        const { id, css, label, options, key } = props;
+        const componentSelect = ds.Components.componentSelect;
+        const wrapper = ds.Layout.theme.dropDownFull;
+        const response = `
+            <${componentSelect}
+                id="${id}"
+                class="${css}"
+                label="${label}"
+                options='${options}'
+                data-key="${key}"
+                css-wrapper="${wrapper}"
+            ></${componentSelect}>
+        `;
+
+        return response;
+    }
+
+    static getData(action) {
+        const statics = lo.Statics;
+        const allColors = statics.colors;
+        const allSkins = statics.skins;
+        const owned = Data.customizations;
+        const ownedSet = new Set(
+            Object.values(owned).map(item => `${item.kind}_${item.id_customization}`)
+        );
+        const buildItem = (item) => `${item.kind}_${item.id_customization}`;
+        const filterApply = (list) => list.filter(item => ownedSet.has(buildItem(item)));
+        const filterBuy = (list) => list.filter(item => !ownedSet.has(buildItem(item)));
+        const filter = action === 'apply' ? filterApply : filterBuy;
+        const filtered = {
+            clothesDefault: statics.clothesDefault,
+            hairDefault: statics.hairDefault,
+            colors: filter(allColors),
+            skins: filter(allSkins)
+        };
+        const response = encodeURIComponent(JSON.stringify(filtered));
+
+        return response;
+    }
+
+    get elFieldName() {
+        const response = this.shadowRoot.getElementById(this.idFieldName);
+
+        return response;
+    }
+
+    get elFieldNameInput() {
+        const response = this?.elFieldName?.shadowRoot.querySelector('input');
+
+        return response;
+    }
+
+    getFieldNameValue() {
+        const response = ds.FormField.getInputValueByTarget(this.elFieldName);
+
+        return response;
+    }
+
+    get isFullContent() {
+        const dataContent = this.getAttribute('data-content');
+        const response = dataContent === 'full';
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+}
+export class CharacterRotation extends HTMLElement {
+    args = {
+        context: this,
+    };
+    idChangeDirection = 'change_direction';
+    static customizations;
+    static customizationsCurrent;
+    static equipments;
+    static equipmentsCurrent;
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        CharacterRotation.equipments.helmet = null;
+        CharacterRotation.equipments.eyes = null;
+
+        this.render();
+        this.addEventListeners();
+        this.setInitialDirection();
+    }
+
+
+
+    addEventListeners() {
+        const data = [];
+        const elCharacterNew = this.buttons;
+
+        elCharacterNew.forEach((el) => {
+            const args = {
+                el,
+                handler: this.handleChangeDirection
+            };
+
+            data.push(args);
+        });
+
+        data.forEach((index) => {
+            index.context = this;
+
+            ds.Helper.addEventListener(index);
+        });
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    draw() {
+        const character = this.drawCharacter();
+        const response = `
+            ${character}
+        `;
+
+        return response;
+    }
+
+    drawCharacter() {
+        const customizations = CharacterRotation.customizations;
+        const equipments = CharacterRotation.equipments;
+        const customizationsClass = ds.Helper.buildJSONToHTML(customizations);
+        const equipmentsClass = ds.Helper.buildJSONToHTML(equipments);
+        const menu1 = this.drawMenuDirection(['up', 'down']);
+        const menu2 = this.drawMenuDirection(['left', 'right']);
+        const theme = ds.Layout.theme.card;
+        const response = `
+            ${menu1}
+            <div class="ds-card--big gm-card--player ${theme} gm-character-rotation">
+                <div class="ds-card__body">
+                    <${lo.Components.entity}
+                        entity="person"
+                        direction="down"
+                        action="walk"
+                        customizations=${customizationsClass}
+                        equipments=${equipmentsClass}
+                        tabindex="-1"
+                    ></${lo.Components.entity}>
+                </div>
+            </div>
+            ${menu2}
+        `;
+
+        return response;
+    }
+
+    drawMenuDirection(menu) {
+        const theme = ds.Layout.theme;
+        const themeButton = theme.menuDefault;
+        const themeSize = theme.menuSize;
+        const themeIcon = theme.menuDefaultIcon;
+        let response = '<div class="ds-button-wrapper ds-row">';
+
+        menu.forEach((index) => {
+            const isDisabled = index === 'down';
+            const componentButton = ds.Components.componentButton;
+
+            response += `
+                <${componentButton}
+                    theme="${themeButton}"
+                    size="${themeSize}"
+                    data-direction="${index}"
+                    data-id="${this.idChangeDirection}"
+                    icon="arrow_${index}"
+                    icon-size="regular"
+                    icon-theme="${themeIcon}"
+                    ${ds.Prefix.ATTR_IS_DISABLED}="${isDisabled}"
+                ></${componentButton}>
+            `;
+        });
+
+        response += '</div>';
+
+        return response;
+    }
+
+    get buttons() {
+        const response = this.shadowRoot.querySelectorAll(`[data-id="${this.idChangeDirection}"]`);
+
+        return response;
+    }
+
+    handleChangeDirection(event) {
+        const target = event.currentTarget;
+        const direction = target.getAttribute('data-direction');
+        const elPerson = this.shadowRoot.querySelector(lo.Components.entity);
+
+        this.removeDisabledDirectionButtons();
+        this.setDisabledDirectionButton(target);
+
+        elPerson.setAttribute('direction', direction);
+    }
+
+    removeDisabledDirectionButtons() {
+        const elButtons = this.buttons;
+
+        elButtons.forEach((elButton) => {
+            elButton.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+        });
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    setDisabledDirectionButton(elButton) {
+        elButton.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+    }
+
+    setInitialDirection() {
+        const elButton = this.shadowRoot.querySelector('[data-direction="down"]');
+
+        this.setDisabledDirectionButton(elButton);
+    }
+
+    updateCustomizations({ key, value }) {
+        const customizationKeys = { eye: true, skin: true, hair: true };
+        const equipmentKeys = { hair_equipment: 'hair', clothes: 'clothes' };
+
+        const isReset = value === '' || value === null || value === undefined;
+
+        if (customizationKeys[key]) {
+            CharacterRotation.customizations = {
+                ...CharacterRotation.customizations,
+                [key]: isReset
+                    ? CharacterRotation.customizationsCurrent?.[key]
+                    : Number(value)
+            };
+        }
+
+        if (equipmentKeys[key]) {
+            const equipmentKey = equipmentKeys[key];
+
+            CharacterRotation.equipments = {
+                ...CharacterRotation.equipments,
+                [equipmentKey]: isReset
+                    ? CharacterRotation.equipmentsCurrent[equipmentKey]
+                    : Number(value)
+            };
+        }
+
+        this.render();
+        this.addEventListeners();
+        this.setInitialDirection();
+    }
+}
+export class Game extends HTMLElement {
+    args = {
+        context: this,
+    };
+    isPlaying = false;
+    static cssContentPosition = 'ds-content-position';
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const componentBattle = Components.battle;
+        const componentMap = Components.map;
+        const response = `
+            <main
+                id="${HTML.idGameMain}"
+                class="${Game.cssContentPosition}"
+            >
+                <${componentBattle}
+                    id="${HTML.idGameBattle}"
+                    class="${Game.cssContentPosition}"
+                ></${componentBattle}>
+                <${componentMap}
+                    id="${HTML.idMapGame}"
+                    class="${Game.cssContentPosition} ${ds.Layout.cssAnimationPrepare}"
+                ></${componentMap}>
+            </main>
+        `;
+
+        return response;
+    }
+
+    static drawBackground(background) {
+        const css = `${Game.cssContentPosition} gm-map-background--${background}`;
+
+        HTML.elGameMain.setAttribute('class', css);
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    setIsPlaying(value) {
+        this.isPlaying = value;
+    }
+
+    setOfuscated(value) {
+        const css = 'gm--obfuscated';
+        const elGame = HTML.elGameMain;
+
+        if (value) return ds.Helper.addClass(elGame, css);
+
+        ds.Helper.removeClass(elGame, css);
+    }
+}
+export class Hud extends HTMLElement {
+    args = {
+        context: this,
+    };
+    pagePrefix = 'gm-hud-page-';
+    static pageDetail;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+        this.addEventListeners();
+    }
+
+
+
+    addEventListeners() {
+        this.addEventListener('close-hud-page', this.closeHudPage.bind(this));
+        this.addEventListener('close-modal', this.closeModal.bind(this));
+        this.addEventListener('open-hud-page', this.openPage.bind(this));
+        this.addEventListener('open-modal', this.openModal.bind(this));
+    }
+
+    static clearTooltip() {
+        ds.Tooltip.clear();
+    }
+
+    close(el) {
+        el.setAttribute(ds.Layout.attributeOpen, 'false');
+        this.setGameObfuscated();
+        Hud.clearTooltip();
+        HTML.elHudMenu.setActive();
+    }
+
+    closeModal() {
+        const isCLoseButton = HTML.elHudModal.getAttribute('is-close-button');
+        const isValid = isCLoseButton !== 'false';
+
+        if (isValid) this.close(HTML.elHudModal);
+    }
+
+    closeModalWithoutButton() {
+        this.close(HTML.elHudModal);
+    }
+
+    closeHudPage(props) {
+        const { pagePosition } = props.detail;
+        const el = Hud.getElHudPage(pagePosition);
+
+        this.close(el);
+        this.setPage(el, null);
+    }
+
+    closeHudPages() {
+        const pages = ['right', 'left'];
+
+        pages.forEach((page) => {
+            const el = Hud.getElHudPage(page);
+            this.close(el);
+        });
+    }
+
+    draw() {
+        const componentTransition = Components.cHudTransition;
+        const componentGame = Components.game;
+        const componentStatus = Components.cHudStatus;
+        const componentMenu = Components.cHudMenu;
+        const componentModal = ds.Components.componentModal;
+        const componentPage = ds.Components.componentPage;
+        const response = `
+            <${componentTransition}
+                id="${HTML.idTransition}"
+                ${ds.Layout.attributeOpen}="true"
+                kind="loading"
+            ></${componentTransition}>
+            <div class="gm-hud gm-hud__background">
+                <div class="gm-hud-size gm-hud-camera gm-hud-camera-shadow">
+                    <${componentModal}
+                        id="${HTML.idHudModal}"
+                        page-title=""
+                        page-description=""
+                        size=""
+                        ${ds.Layout.attributeOpen}="false"
+                        is-close-button="false"
+                        page=""
+                        class="ds-display-contents"
+                    ></${componentModal}>
+                    <div class="gm-hud__content">
+                        <${componentPage}
+                            id="${HTML.idHudPageLeft}"
+                            class="ds-page-height"
+                            position="left"
+                            ${ds.Layout.attributeOpen}="false"
+                        ></${componentPage}>
+                        <${componentPage}
+                            id="${HTML.idHudPageRight}"
+                            class="ds-page-height"
+                            position="right"
+                            ${ds.Layout.attributeOpen}="false"
+                        ></${componentPage}>
+                        <${componentGame}
+                            id="${HTML.idGame}"
+                            class="ds-page-height gm"
+                        ></${componentGame}>
+                    </div>
+                    <div
+                        class="gm-hud__footer"
+                        id="${HTML.idHudFooter}"
+                    >
+                        <section class="ds-content__navigation ds-content-theme--navigation">
+                            <${componentStatus}
+                                id="${HTML.idHudStatus}"
+                                class="ds-content__bars"
+                            ></${componentStatus}>
+                            <${componentMenu}
+                                id="${HTML.idHudMenu}"
+                                class="ds-content__menu ds-right"
+                            ></${componentMenu}>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+
+    static getElHudPage(target) {
+        const capitalize = ds.Helper.capitalizeString(target);
+        const response = HTML[`elHudPage${capitalize}`];
+
+        return response;
+    }
+
+    open(el) {
+        el?.setAttribute(ds.Layout.attributeOpen, 'true');
+
+        this.setGameObfuscated();
+    }
+
+    openPage(props) {
+        const {
+            context,
+            pageTarget,
+            pagePosition,
+            isNPC,
+            name
+        } = props.detail;
+        const elPage = Hud.getElHudPage(pagePosition);
+        const isOpened = elPage?.getAttribute(ds.Layout.attributeOpen) === 'true';
+        const isSamePage = elPage?.getAttribute('page') === pageTarget;
+        const isValid = !isOpened || !isSamePage;
+
+        if (isValid) {
+            this.setPage(elPage, pageTarget);
+            this.open(elPage);
+            this.openPageTexts(elPage, pageTarget);
+
+            if (isNPC) {
+                this.setPageNpc(name);
+                elPage.setAttribute('data-npc', name);
+            }
+
+            Hud.pageDetail = props.detail;
+
+            HTML.elHudMenu.setActive(context);
+        } else if (isOpened && isSamePage) {
+            this.closeHudPage({ detail: { pagePosition } });
+        }
+    }
+
+    static openPageDetail(props) {
+        const { id, context, backFilter } = props;
+        const pagePosition = context.parentNode?.parentNode?.parentNode?.getAttribute('data-position');
+        const elPage = Hud.getElHudPage(pagePosition);
+        const npc = elPage?.getAttribute('data-npc');
+        const from = npc ? `npc-${npc}` : context.getAttribute('page');
+        const pageTarget = 'detail';
+        const isNPC = npc ? true : false;
+        const args = {
+            detail: {
+                item: id,
+                page: elPage,
+                pageTarget,
+                pagePosition,
+                from,
+                isDetail: true,
+                isNPC,
+                name: npc,
+                backFilter
+            }
+        };
+
+        Statics.temp.itemData = id;
+
+        HudPageDetail.setDataFrom(props);
+
+        Hud.clearTooltip();
+
+        if (elPage) elPage.lastPage = args.detail;
+
+        HTML.elHud.openPage(args);
+        HTML.elHud.setPage(elPage, pageTarget);
+    }
+
+    openPageTexts(elPage, pageTarget) {
+        const isPrefix = pageTarget?.startsWith(this.pagePrefix);
+        const page = isPrefix ? pageTarget?.slice(this.pagePrefix.length) : pageTarget;
+        const translation = ds.Translation.getTranslationPage(page);
+        const title = translation?.title;
+
+        if (title) elPage.setTitle(title);
+
+        const text = translation?.description;
+
+        if (text) elPage.setText(text);
+    }
+
+    openPageChangeModal(props) {
+        HTML.elGame.setIsPlaying(false);
+        HTML.elHudModal.setAttribute('is-close-button', true);
+
+        this.closeHudPages();
+        this.closeModal();
+        this.openModal(props);
+    }
+
+    openModal(props) {
+        const {
+            target,
+            title,
+            description = '',
+            size = 'regular',
+            isCloseButton = true
+        } = props;
+        const el = HTML.elHudModal;
+
+        el.setAttribute('page-title', title);
+        el.setAttribute('page-description', description);
+        el.setAttribute('size', size);
+        el.setAttribute('is-close-button', isCloseButton);
+
+        this.setPage(el, target);
+        this.open(el);
+    }
+
+    openModalBattle() {
+        const args = {
+            target: 'battle',
+            title: ds.Translation.gameBattle?.battle,
+            size: 'extra-small',
+            isCloseButton: false,
+        };
+
+        this.openPageChangeModal(args);
+    }
+
+    openModalCustomize() {
+        const props = {
+            target: 'select-customization',
+            title: Translation.customizationTitle,
+            description: Translation.customizationDescription,
+            size: 'big',
+            isCloseButton: false
+        };
+
+        this.openPageChangeModal(props);
+    }
+
+    openModalSelectClass() {
+        const props = {
+            target: 'select-class',
+            title: ds.Translation.interfaceDefault?.select_class,
+            description: ds.Translation?.interface?.page_select_class?.description,
+            size: 'small',
+            isCloseButton: false,
+        };
+
+        this.openPageChangeModal(props);
+    }
+
+    openModalSelectCharacter(isCloseButton = true) {
+        const props = {
+            target: 'select-character',
+            title: ds.Translation.interface?.page_select_character?.title,
+            description: ds.Translation.interface?.page_select_character?.description,
+            size: 'small',
+            isCloseButton,
+        };
+
+        this.openPageChangeModal(props);
+    }
+
+    openModalStory(act, scene) {
+        const translation = ds.Translation.gameStory;
+        const title = translation[`act_${act}_scene_${scene}_title`];
+        const props = {
+            target: 'story',
+            title,
+            size: 'regular',
+            isCloseButton: false
+        };
+
+        HudPageStory.act = act;
+        HudPageStory.scene = scene;
+
+        this.openPageChangeModal(props);
+    }
+
+    openModalUserEdit() {
+        const translation = ds.Translation.loginDefault;
+        const content = HudPageUserEdit.content;
+        const title = translation[content];
+        const props = {
+            target: 'user-edit',
+            title,
+            size: 'small',
+            isCloseButton: true
+        };
+
+        this.openPageChangeModal(props);
+    }
+
+    openModalUserDeleteAccount() {
+        const translation = ds.Translation.interfaceDefault;
+        const title = translation.delete_account;
+        const props = {
+            target: 'user-delete-account',
+            title,
+            size: 'small',
+            isCloseButton: true
+        };
+
+        this.openPageChangeModal(props);
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    setPage(el, page) {
+        const normalizedPage = page?.startsWith('npc-')
+            ? 'npc'
+            : page;
+
+        const pageName = normalizedPage?.startsWith(this.pagePrefix)
+            ? normalizedPage
+            : `${this.pagePrefix}${normalizedPage}`;
+
+        el?.setAttribute('page', pageName);
+    }
+
+    setPageNpc(target) {
+        const el = HTML.elHudPageLeft;
+
+        el.setTitle(target);
+
+        const dialogs = ds.Translation.dialog[target];
+        const index = Math.floor(Math.random() * 4) + 1;
+        const text = dialogs[`dialog_${index}`];
+        const defaultText = dialogs.default;
+        const fullText = `${text}\n\n${defaultText}`;
+        const translation = Layout.replaceInText(fullText, true);
+
+        el.setText(translation);
+    }
+
+    setGameObfuscated() {
+        const isPageRight = HTML?.elHudPageRight.getAttribute(ds.Layout.attributeOpen) === 'true';
+        const isPageLeft = HTML?.elHudPageLeft.getAttribute(ds.Layout.attributeOpen) === 'true';
+        const isModal = HTML.elHudModal?.getAttribute(ds.Layout.attributeOpen) === 'true';
+        let isOfuscated = false;
+
+        if (isPageRight) isOfuscated = true;
+        if (isPageLeft) isOfuscated = true;
+        if (isModal) isOfuscated = true;
+
+        HTML.elGame.setOfuscated(isOfuscated);
+    }
+}
+export class HudActionPoints extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static attributeActionPoints = 'data-action-points';
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        const isInvalid = oldValue === newValue;
+
+        if (isInvalid) return;
+
+        this.render();
+    }
+
+    static get observedAttributes() {
+        const response = [HudActionPoints.attributeActionPoints, 'data-tooltip'];
+
+        return response;
+    }
+
+
+
+    draw() {
+        const actionPoints = this.getAttribute(HudActionPoints.attributeActionPoints) ?? 0;
+        const response = `
+            <span class="gm-content__action-points">
+                <span class="gm-content__action-value">
+                    ${actionPoints}
+                </span>
+            </span>
+        `;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+        ds.Tooltip?.elTooltipWrapper?.build(this.args);
+    }
+}
+export class HudContentMoney extends HTMLElement {
+    #args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+
+    render() {
+        const component = this.#draw();
+
+        ds.Components.render(this.#args, component);
+    }
+
+    redraw() {
+        this.render();
+    }
+
+
+
+    #draw() {
+        const ids = Statics.idItems;
+        const idGold = ids.gold;
+        const idDiamond = ids.diamond;
+        const golds = Player.inventoryGold;
+        const diamonds = Player.inventoryDiamonds;
+        const argsIconGold = { item: idGold, isDurability: false };
+        const iconGold = lo.HTML.drawLoot(argsIconGold);
+        const argsIconDiamond = { item: idDiamond, isDurability: false };
+        const iconDiamond = lo.HTML.drawLoot(argsIconDiamond);
+        const drawItem = (icon, value) => `
+            ${icon}
+            <span class="gm-label">${value}</span>
+        `;
+        const translation = ds.Translation.interfaceDefault.in_your_inventory;
+        const response = `
+            <div class="ds-row ds-center gm-content-money">
+                ${translation}:
+                ${drawItem(iconGold, golds)}
+                ${drawItem(iconDiamond, diamonds)}
+            </div>
+        `;
+
+        return response;
+    }
+}
+export class HudMenu extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    get buttonFirst() {
+        const response = this.buttons[0];
+
+        return response;
+    }
+
+    get buttons() {
+        const componentButton = ds.Components.componentButton;
+        const response = this.shadowRoot.querySelectorAll(componentButton);
+
+        return response;
+    }
+
+    buildTooltip(page) {
+        const getTranslationTitle = (target) => ds.Translation.getTranslationPage(target)?.title;
+        const title = getTranslationTitle(page);
+        const hotkey = Hotkeys.getKey(page);
+        const response = title ? ds.Translation.buildTextAndHotkey(title, hotkey) : '';
+
+        return response;
+    }
+
+    enableButtons() {
+        this.setActiveButtons(false);
+    }
+
+    disableButtons() {
+        this.setActiveButtons(true);
+    }
+
+    draw() {
+        let response = '';
+
+        Statics.buttonsMainMenu.forEach((index) => {
+            const buttonArgs = {
+                id: index.id || '',
+                icon: index.icon,
+                target: index.pageTarget,
+                css: index.css + ' ds-hide--mobile',
+                tooltip: this.buildTooltip(index.translation)
+            };
+
+            response += this.drawButton(buttonArgs);
+        });
+
+        const buttonMenu = Statics.buttons.mainMenu;
+        const buttonMenuArgs = {
+            id: buttonMenu.id,
+            icon: buttonMenu.icon,
+            target: buttonMenu.pageTarget,
+            css: buttonMenu.css
+        };
+
+        response += this.drawButton(buttonMenuArgs);
+
+        return response;
+    }
+
+    drawButton(props) {
+        const {
+            id,
+            icon,
+            target,
+            css,
+            tooltip
+        } = props;
+        const componentButton = ds.Components.componentButton;
+        let response = `
+            <${componentButton}
+                id="${id}"
+                icon="${icon}"
+                icon-size="big"
+                theme="outline--white"
+                size="extra-big"
+                is-proportional="true"
+                is-disabled="false"
+                page-target="${target}"
+                page-position="right"
+                click="open-hud-page"
+                css-custom="${css}"
+                css-wrapper="gm-style"
+                data-kind="button"
+        `;
+
+        if (tooltip) response += `data-tooltip="${tooltip}"`;
+
+        response += `></${componentButton}>`;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    setActive(target = undefined) {
+        if (target) {
+            ds.Layout.setActiveButton(target);
+        } else {
+            const elButton = this.buttonFirst;
+
+            ds.Layout.setActiveButton(elButton, false);
+        }
+    }
+
+    setActiveButtons(action) {
+        this.buttons.forEach((index) => {
+            index.setAttribute(ds.Prefix.ATTR_IS_DISABLED, action);
+        });
+    }
+
+    updateData() {
+        this.render();
+    }
+}
+export class HudPageAbout extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+    }
+
+
+
+    draw() {
+        const translation = ds.Translation.getTranslationPage('attributes');
+        const drawAttributes = this.drawAttributes(translation);
+        const drawAbout = this.drawAbout(translation);
+        const content = `
+            ${drawAbout}
+            ${drawAttributes}
+        `;
+        const response = HudPageAttributes.drawPage(content);
+
+        return response;
+    }
+
+    drawAbout(translation) {
+        const data = Player.attributes;
+        const className = Statics.classes[data?.class].class;
+        const translationClass = ds.Translation.buildPlayerClass(className);
+        const experience = HudPageAttributes.formatExperience(data.experience);
+        const experienceNext = HudPageAttributes.formatExperience(data.experienceNext);
+        const fields = [
+            {
+                label: translation?.name,
+                value: data.name,
+                isReadOnly: true
+
+            },
+            {
+                label: translation?.level,
+                value: data.level,
+                isReadOnly: true
+            },
+            {
+                label: translation?.class,
+                value: translationClass,
+                isReadOnly: true
+            },
+            {
+                label: translation?.life,
+                value: data.hitPoints,
+                isReadOnly: true
+            },
+            {
+                label: translation?.life_maximum,
+                value: data.hitPointsMaximum,
+                isReadOnly: true
+            },
+            {
+                label: translation?.mana,
+                value: data.manaPoints,
+                isReadOnly: true
+            },
+            {
+                label: translation?.mana_maximum,
+                value: data.manaPointsMaximum,
+                isReadOnly: true
+            },
+            {
+                label: translation?.experience,
+                value: experience,
+                isReadOnly: true
+            },
+            {
+                label: translation?.experience_next,
+                value: experienceNext,
+                isReadOnly: true
+            },
+            {
+                label: translation?.initiative,
+                value: data.initiative,
+                isReadOnly: true
+            },
+        ];
+        const fieldName = ds.Layout.drawField(fields[0]);
+        const fieldLevel = ds.Layout.drawField(fields[1]);
+        const fieldClass = ds.Layout.drawField(fields[2]);
+        const fieldLife = ds.Layout.drawField(fields[3]);
+        const fieldLifeMaximum = ds.Layout.drawField(fields[4]);
+        const fieldMana = ds.Layout.drawField(fields[5]);
+        const fieldManaMaximum = ds.Layout.drawField(fields[6]);
+        const fieldExperience = ds.Layout.drawField(fields[7]);
+        const fieldExperienceNext = ds.Layout.drawField(fields[8]);
+        const fieldInitiative = ds.Layout.drawField(fields[9]);
+        const response = `
+            <div class="ds-row">
+                ${fieldName}
+                ${fieldClass}
+            </div>
+            <div class="ds-row">
+                ${fieldLife}
+                ${fieldLifeMaximum}
+            </div>
+            <div class="ds-row">
+                ${fieldMana}
+                ${fieldManaMaximum}
+            </div>
+            <div class="ds-row">
+                ${fieldLevel}
+                ${fieldInitiative}
+            </div>
+            <div class="ds-row">
+                ${fieldExperience}
+                ${fieldExperienceNext}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawAttributes(translation) {
+        const data = Player.attributes;
+        const subtitle = Layout.drawSubtitle(translation?.title);
+        const fields = [
+            {
+                label: translation?.vitality,
+                value: data.vitality,
+                isReadOnly: true
+            },
+            {
+                label: translation?.strength,
+                value: data.strength,
+                isReadOnly: true
+            },
+            {
+                label: translation?.intelligence,
+                value: data.intelligence,
+                isReadOnly: true
+            },
+            {
+                label: translation?.dexterity,
+                value: data.dexterity,
+                isReadOnly: true
+            },
+        ];
+        const fieldVitality = ds.Layout.drawField(fields[0]);
+        const fieldStrength = ds.Layout.drawField(fields[1]);
+        const fieldIntelligence = ds.Layout.drawField(fields[2]);
+        const fieldDexterity = ds.Layout.drawField(fields[3]);
+        const response = `
+            ${subtitle}
+            <div class="ds-row">
+                ${fieldVitality}
+                ${fieldStrength}
+            </div>
+            <div class="ds-row">
+                ${fieldIntelligence}
+                ${fieldDexterity}
+            </div>
+        `;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+}
+export class HudPageAchievements extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const page = this.getAttribute('page');
+        const list = this.drawList();
+        const response = ds.Page.drawContent(page, list);
+
+        return response;
+    }
+
+    drawList() {
+        const translation = ds.Translation.interfaceDefault;
+        const list = this.drawListItems();
+        const cssTable = ds.Layout.theme.table;
+        const response = `
+            <table class="${cssTable}">
+                <thead>
+                    <tr>
+                        ${ds.HTML.drawTH(translation?.title)}
+                        ${ds.HTML.drawTH(translation?.description)}
+                        ${ds.HTML.drawTH(translation?.reward)}
+                        ${ds.HTML.drawTH(translation?.progress)}
+                        ${ds.HTML.drawTH(translation?.status)}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${list}
+                </tbody>
+            </table>
+        `;
+
+        return response;
+    }
+
+    drawListItems() {
+        const translation = ds.Translation.gameAchievements;
+        const achievements = Object.entries(this.dataLore);
+        let response = '';
+
+        achievements.forEach((achievement) => {
+            const index = achievement[0];
+            const value = achievement[1];
+
+            const status = this.getDataPlayerByIndex(index);
+            if (status) {
+                const isDone = status.d === 1 || status.d === true || status.isDone === true;
+                const icon = ds.HTML.drawDivCentered(ds.HTML.drawIconStatus(isDone));
+                const prefix = `a_${index}`;
+                const title = translation?.[`${prefix}_title`];
+                const description = translation?.[`${prefix}_text`];
+                const descriptionRule = this.drawListItemsReplaceRule(description, index);
+                const reward = this.drawReward(index);
+                const drawS = (text) => ds.HTML.drawS(isDone, text);
+
+                const progressArgs = {
+                    index,
+                    data: value,
+                    status
+                };
+                const progress = this.drawProgress(progressArgs);
+
+                response += `
+                    <tr>
+                        ${ds.HTML.drawTD(drawS(title))}
+                        ${ds.HTML.drawTD(drawS(descriptionRule))}
+                        ${ds.HTML.drawTD(drawS(reward))}
+                        ${ds.HTML.drawTD(progress, true)}
+                        ${ds.HTML.drawTD(icon, true)}
+                    </tr>
+                `;
+            }
+        });
+
+        return response;
+    }
+
+    drawListItemsReplaceRule(text, index) {
+        const needs = this.getNeedsByIndex(index);
+
+        if (!needs) return text;
+
+        const response = Layout.replaceInText(text);
+
+        return response;
+    }
+
+    drawProgress(props) {
+        const { index, status } = props;
+        const data = this.dataLore[index];
+        const kind = data?.kind;
+        const needs = data?.needs ?? [];
+
+        const isTask = kind === 1;
+        const ruleCost = Data.rules?.achievements?.[index]?.cost;
+        const valueMax = isTask
+            ? needs.length
+            : (ruleCost ?? needs[0]?.quantity ?? 1);
+        const isDone = status.d === 1 || status.d === true || status.isDone === true;
+        const value = isDone
+            ? valueMax
+            : Math.min(Number(status.n) || 0, valueMax);
+        const percentage = Math.round(ds.Helper.calculatePercentage(value, valueMax) * 100) / 100;
+        const statusText = ds.Translation.interfaceDefault?.status;
+        const tooltip = `${statusText}: <span>${percentage}</span>%`;
+        const componentProgress = ds.Components.componentProgress;
+        const response = `
+            <${componentProgress}
+                value="${value}"
+                value-max="${valueMax}"
+                theme="green"
+                direction="horizontal"
+                data-tooltip="${tooltip}"
+                css-wrapper="gm-style"
+            ></${componentProgress}>
+        `;
+
+        return response;
+    }
+
+    drawReward(index) {
+        let response = '';
+        const ruleRewards = Data.rules?.achievements?.[index]?.rewards;
+        const rewards = ruleRewards ?? this.dataLore[index]?.rewards;
+
+        if (!rewards) return response;
+
+        rewards.forEach(reward => {
+            const id = reward.id_item;
+            const quantity = reward.quantity;
+
+            response += Layout.drawTextItemQuantity(id, quantity);
+        });
+
+        return response;
+    }
+
+    get dataPlayer() {
+        const response = Data.player.achievements;
+
+        return response;
+    }
+
+    getDataPlayerByIndex(index) {
+        const data = this.dataPlayer;
+        const response = data[index];
+
+        return response;
+    }
+
+    get dataLore() {
+        const response = ds.Modules.achievements;
+
+        return response;
+    }
+
+    getNeedsByIndex(index) {
+        const data = ds.Modules.achievements;
+        const response = data[index]?.needs;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        Analytics.send({
+            event_name: 'achievement_view',
+        });
+    }
+
+    updateData() {
+        this.render();
+    }
+}
+export class HudPageAdvertising extends HTMLElement {
+    args = {
+        context: this,
+    };
+    kind = '';
+    static idLink = 'link';
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+        Promise.resolve().then(() => this.setPageTexts());
+    }
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+        const componentSelect = ds.Components.componentSelect;
+        const elSelect = this.shadowRoot?.querySelector(componentSelect);
+
+        if (elSelect) elSelect.addEventListener('change', (event) => this.handleSelectKind(event));
+
+        ds.Layout.addEventListeners(this, componentButton);
+        this.addFieldEventListeners();
+    }
+
+    addFieldEventListeners() {
+        this.elLink?.addEventListener('input', () => this.updateButtonState());
+    }
+
+    draw() {
+        const subtitle = Layout.drawSubtitle(this.translation.subtitle);
+        const description = this.drawText(this.translation.description);
+        const fieldKind = this.drawKind();
+        const fieldLink = this.drawField(HudPageAdvertising.idLink);
+        const button = this.drawButton();
+        const backButton = this.drawBackButton();
+        const content = `
+            ${subtitle}
+            ${description}
+            <form class="ds-form">
+                <div class="ds-row">
+                    ${fieldKind}
+                </div>
+                <div class="ds-row">
+                    ${fieldLink}
+                </div>
+            </form>
+            <div class="ds-row ds-right ds-button-wrapper">
+                ${backButton}
+                ${button}
+            </div>
+        `;
+        const response = HudPageAttributes.drawPage(content);
+
+        return response;
+    }
+
+    drawButton() {
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme.menuProceed;
+        const response = `
+            <${componentButton}
+                label="${this.translation.submit}"
+                size="small"
+                theme="${theme}"
+                data-handler="handleSubmit"
+                data-handler-props='[]'
+                data-kind="button"
+                is-disabled="true"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    drawBackButton() {
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme;
+        const themeButton = theme.menuDefault;
+        const themeSize = theme.menuSize;
+        const response = `
+            <${componentButton}
+                label="${this.translation.back}"
+                size="${themeSize}"
+                theme="${themeButton}"
+                page-target="store"
+                page-position="right"
+                click="open-hud-page"
+                data-kind="button"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    drawField(id) {
+        const args = {
+            id,
+            css: 'ds-column ds-form__field',
+            label: this.translation[id],
+            value: '',
+            isReadOnly: false,
+            type: 'text'
+        };
+        const response = ds.Layout.drawField(args);
+
+        return response;
+    }
+
+    drawKind() {
+        const componentSelect = ds.Components.componentSelect;
+        const rewards = Data.rules?.reward?.advertising ?? {};
+        const theme = ds.Layout.theme;
+        const select = theme.selectDefault;
+        const options = {
+            label: [
+                `${Layout.replaceInText(this.translation.kindYoutube)} - ${Translation.buildRewardText(rewards.youtube ?? 0)}`,
+                `${Layout.replaceInText(this.translation.kindSite)} - ${Translation.buildRewardText(rewards.site ?? 0)}`,
+                `${Layout.replaceInText(this.translation.kindSocial)} - ${Translation.buildRewardText(rewards.social ?? 0)}`,
+            ],
+            value: [1, 2, 3],
+        };
+        const response = `
+            <${componentSelect}
+                label="${this.translation.type}"
+                options='${JSON.stringify(options)}'
+                theme="${select}"
+            ></${componentSelect}>
+        `;
+
+        return response;
+    }
+
+    drawText(text) {
+        const paragrath = Layout.replaceInText(text);
+        const response = `
+            <div class="ds-row ds-page__text ds-modal-text">
+                <p>${paragrath}</p>
+            </div>
+        `;
+
+        return response;
+    }
+
+    get elButton() {
+        const response = this.shadowRoot.querySelector('[data-handler="handleSubmit"]');
+
+        return response;
+    }
+
+    get elLink() {
+        const response = this.getElById(HudPageAdvertising.idLink);
+
+        return response;
+    }
+
+    getElById(id) {
+        const response = this.shadowRoot.getElementById(id);
+
+        return response;
+    }
+
+    get isEnabled() {
+        if (this.isLimitReached) return false;
+
+        const link = this.getInputValueByTarget(this.elLink);
+        const response = !!this.kind && !!link;
+
+        return response;
+    }
+
+    get page() {
+        const response = this.getRootNode()?.host;
+
+        return response;
+    }
+
+    get count() {
+        const response = Number(Data.rules?.reward?.advertising?.count ?? 0);
+
+        return response;
+    }
+
+    get day() {
+        const response = Data.rules?.reward?.advertising?.day ?? '';
+
+        return response;
+    }
+
+    get isLimitReached() {
+        const limit = this.limit;
+        const count = this.count;
+        const day = this.day;
+        const now = ds.Helper.getNow();
+        const isWithinWindow = !!day && (now - day) < 86400;
+        const response = isWithinWindow && count >= limit;
+
+        return response;
+    }
+
+    get limit() {
+        const response = Number(Data.rules?.reward?.advertising?.quantity ?? 0);
+
+        return response;
+    }
+
+    getInputValueByTarget(target) {
+        const response = ds.FormField.getInputValueByTarget(target);
+
+        return response;
+    }
+
+    handleSelectKind(event) {
+        this.kind = event?.detail?.value || '';
+
+        this.updateButtonState();
+    }
+
+    async handleSubmit() {
+        if (!this.isEnabled) return;
+
+        const link = this.getInputValueByTarget(this.elLink);
+
+        const response = await FetchData.submitAdvertising({
+            kind: this.kind,
+            link,
+        });
+
+        if (response?.isError) {
+            ds.Notification.add({
+                content: this.translation.limit,
+            });
+
+            return;
+        }
+
+        ds.Notification.add({
+            content: this.translation.submitted,
+        });
+
+        this.kind = '';
+
+        this.render();
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+        this.updateButtonState();
+    }
+
+    setPageTexts() {
+        const page = this.page;
+
+        if (page?.setTitle) page.setTitle(this.translation.title);
+        if (page?.setText) page.setText('');
+    }
+
+    toggleButtonDisabled(isEnabled) {
+        const button = this.elButton;
+
+        if (!button) return;
+
+        if (isEnabled) {
+            button.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+        } else {
+            button.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+        }
+    }
+
+    updateButtonState() {
+        this.toggleButtonDisabled(this.isEnabled);
+    }
+
+    get translation() {
+        const translationDefault = ds.Translation.interfaceDefault;
+        const page = ds.Translation.getTranslationPage('advertising');
+        const fallback = {
+            title: page.title,
+            description: page.description,
+            subtitle: page.title_advertising,
+            type: page.type,
+            kindYoutube: page.youtube,
+            kindSite: page.website_article,
+            kindSocial: page.social_post,
+            link: translationDefault.link,
+            submit: translationDefault.send,
+            back: translationDefault.back,
+            submitted: page.sent,
+            limit: page.limit,
+        };
+        const response = { ...fallback, ...page };
+
+        return response;
+    }
+}
+
+export class HudPageApplyCustomization extends PageCustomizations {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+
+        PageCustomizations.resetMap();
+
+        this.render();
+        this.addEventListeners();
+        this.toggleActionButton();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+        this.addEventListenersCustomization();
+    }
+
+    draw() {
+        const buttonDefault = Layout.changeThemeButton('apply');
+        const button = Layout.drawButtonComponent(buttonDefault);
+        const response = PageCustomizations.drawNPC(button, this.id);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.APPLY_CUSTOMIZATION;
+
+        return response;
+    }
+
+    get cost() {
+        const response = PageCustomizations.cost.apply;
+
+        return response;
+    }
+
+    get elActionButton() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, this.id);
+
+        return response;
+    }
+
+    get id() {
+        const response = Statics.buttons.apply.id;
+
+        return response;
+    }
+
+    get inventoryDiamonds() {
+        const response = Player.inventoryDiamonds;
+
+        return response;
+    }
+
+    async handleApply() {
+        const dataFetch = await this.handleAction(FetchData.applyCustomization.bind(FetchData));
+
+        if (!dataFetch) return;
+
+        Analytics.send({
+            event_name: 'customization_apply',
+            npc: HudPageNPC.id,
+            items: PageCustomizations.selectsValue.map(s => `${s.id}:${s.value}`).join(','),
+        });
+
+        this.resetCustomizations();
+    }
+
+    render() {
+        HudPageDetail.npcAction = this.action;
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageAttributes extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const page = this.getAttribute('page');
+        const content = '';
+        const response = ds.Page.drawContent(page, content);
+
+        return response;
+    }
+
+
+    static drawPage(content) {
+        const page = HudPageAttributes.page;
+        const html = `
+            <form class="ds-form ds-form--readonly">
+                ${content}
+            </form>
+        `;
+        const response = ds.Page.drawContent(page, html);
+
+        return response;
+    }
+
+    drawMenu() {
+        const buttons = [
+            Statics.buttons.filterAbout,
+            Statics.buttons.filterCombat,
+            Statics.buttons.filterStatistics,
+            Statics.buttons.filterUser,
+        ];
+        const page = HudPageAttributes.page;
+
+        page.setMenu({ buttons });
+
+        this.buttons = buttons;
+
+        const elButtons = page.elMenuButtons;
+
+        elButtons[0].click();
+    }
+
+    static formatExperience(experience) {
+        const response = experience.toLocaleString('pt-BR');
+
+        return response;
+    }
+
+    static get page() {
+        const response = HTML.elHudPageRight;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.drawMenu();
+    }
+}
+export class HudPageBattle extends HTMLElement {
+    args = {
+        context: this,
+    };
+    cssHideMenu = 'gm-battle__hide';
+    id = 'gm_battle';
+    idSubMenu = `${this.id}_submenu`;
+    idSkill = `${this.id}_skill`;
+    idSkillEffect = `${this.id}_skill_effect`;
+    idSkillValue = `${this.id}_skill_value`;
+    idPlayer = `${this.id}_player`;
+    idMonster = `${this.id}_monster`;
+    idUseItem = 'actionUseItem';
+    skillData;
+    elProgress = {};
+    prefixSkillMove = 'lo-animation-skill-move--';
+    prefixSkillEffect = 'gm-battle__skill-effect--';
+    casters = ['player', 'opponent'];
+    caster;
+    #isMenuEnabled;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    addEventListeners() {
+        const data = [];
+        const elSubMenu = this.shadowRoot.getElementById(this.idSubMenu);
+        const elSubMenuButtons = elSubMenu.querySelectorAll('button');
+
+        elSubMenuButtons.forEach((el) => {
+            const args = {
+                el,
+                handler: HudPageBattle.handleUse
+            };
+            data.push(args);
+        });
+
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    animateSkill(props) {
+        const skillsToRemove = this.getSkillToRemove();
+
+        ds.Helper.removeClass(this.elBattleSkillEffect, skillsToRemove);
+
+        return new Promise((resolve) => {
+            const isSuccess = props.isSuccess ?? false;
+            const css = this.cssLastSkill;
+            const cssFail = this.cssLastSkillFail;
+            const cssSkillEffect = this.getSkillEffectCss(this.caster);
+
+            ds.Helper.addClass(this.elBattleSkillEffect, cssSkillEffect);
+
+            setTimeout(() => {
+                ds.Helper.addClass(this.elBattleSkillValue, css);
+                if (!isSuccess) ds.Helper.addClass(this.elBattleSkillValue, cssFail);
+            }, 150);
+
+            setTimeout(() => {
+                ds.Helper.removeClass(this.elBattleSkill, css);
+                ds.Helper.removeClass(this.elBattleSkillValue, css);
+                ds.Helper.removeClass(this.elBattleSkillEffect, cssSkillEffect);
+                if (!isSuccess) ds.Helper.removeClass(this.elBattleSkillValue, cssFail);
+
+                resolve();
+            }, HTML.elTransition?.timeout);
+        });
+    }
+
+    buildEmojiFail() {
+        const isPlayer = this.isPlayer(this.caster);
+        const entity = isPlayer ? this.elBattlePlayer : this.elBattleMonster;
+
+        Emoji.activateChance(entity, ds.Prefix.SCARED, 50);
+    }
+
+    buildWinnerScreen(data) {
+        const winner = data.winner;
+        const isPlayer = this.isPlayer(winner);
+        const kind = isPlayer ? ds.Prefix.WIN : ds.Prefix.LOSE;
+        const monster = HTML.elGameBattle.monster;
+        const monsterId = Monsters.unBuildId(monster?.getAttribute('id'));
+        const monsterLevel = monster?.getAttribute('data-level');
+        const playerLevel = Data.player?.attributes?.level;
+        const lootItems = data.loot ? Object.entries(data.loot).map(([id, qty]) => `${id}:${qty}`).join(',') : '';
+
+        Analytics.send({
+            event_name: 'battle_end',
+            result: kind,
+            monster_id: monsterId,
+            monster_level: monsterLevel,
+            player_level: playerLevel,
+            loot: lootItems,
+        });
+
+        HTML.elTransition.loot = data.loot;
+        HTML.elTransition.openByKind(kind);
+
+        HTML.elGameBattle.unbuild();
+    }
+
+    async buildTurn() {
+        await this.updateProgresses();
+
+        const isTurnPlayer = this.isTurnPlayer;
+
+        if (isTurnPlayer) {
+            this.isMenuEnabled = true;
+        } else {
+            this.isMenuEnabled = false;
+
+            await this.getSkillOpponent();
+        }
+    }
+
+    buildTurnData(data) {
+        HTML.elGameBattle.turnLast = this.turnCurrent;
+        this.skillData = data;
+        HTML.elGameBattle.turnCurrent = data.turn;
+    }
+
+    draw() {
+        const menu = this.drawMenu();
+        const submenu = this.drawSubMenu();
+        const player = this.drawPlayer();
+        const monster = this.drawMonster();
+        const skill = this.drawSkill();
+        const skillEffect = this.drawSkillEffect();
+        const skillValue = this.drawSkillValue();
+        const background = this.drawBackground();
+        const progreesMonster = this.drawProgress('monster');
+        const footer = `
+            <div class="ds-row ds-center gm-battle__footer">
+                <div class="ds-row ds-center gm-battle__submenu ${this.cssHideMenu}" id="${this.idSubMenu}">
+                    <div class="ds-row ds-center gm-battle__padding ds-scrollbar">
+                        ${submenu}
+                    </div>
+                </div>
+                <div class="ds-row ds-center ds-content__menu">
+                    ${menu}
+                </div>
+            </div>
+        `;
+        const response = `
+            <div class="ds-modal__content">
+                <div class="ds-row ds-center gm-battle__background">
+                    <div class="gm-battle__background gm-battle__theme">
+                        ${background}
+                    </div>
+                    ${progreesMonster}
+                    ${monster}
+                    ${skill}
+                    ${skillEffect}
+                    ${skillValue}
+                    ${player}
+                </div>
+            </div>
+            ${footer}
+        `;
+
+        return response;
+    }
+
+    drawBackground() {
+        let response = '';
+
+        Statics.backgroundBattle.forEach((index) => {
+            const tile = ds.Helper.findById(ds.Modules.tiles, index);
+            const css = tile.css;
+
+            response += `
+                <div class="ds-tile lo-${css}"></div>
+            `;
+        });
+
+        return response;
+    }
+
+    drawEntityDistance(value) {
+        const response = `${ds.Layout.tileSize * value}px`;
+
+        return response;
+    }
+
+    drawMenu() {
+        let response = '';
+        const buttons = this.drawMenuData();
+
+        buttons.forEach((index) => {
+            const id = index.id;
+            const isUseItem = id === this.idUseItem;
+            const action = isUseItem ? 'setSubMenu' : 'handleSkill';
+            const argsHandler = { action: id };
+            const handlerProps = `[${ds.Helper.buildJSONToHTML(argsHandler)}]`;
+
+            const componentButton = ds.Components.componentButton;
+            response += `
+                <${componentButton}
+                    id="${id}"
+                    icon="${index.icon}"
+                    icon-size="big"
+                    theme="${index.theme}"
+                    size="extra-big"
+                    data-tooltip=""
+                    data-kind="button"
+                    data-handler="${action}"
+                    data-handler-props='${handlerProps}'
+                    is-proportional="true"
+                ></${componentButton}>
+            `;
+        });
+
+        return response;
+    }
+
+    drawMenuData() {
+        const response = [];
+
+        this.skills.forEach((index) => {
+            const id = index.id;
+            const data = ds.Layout.getIconDataById(id);
+            const args = {
+                id,
+                icon: data.icon,
+                tooltip: data.tooltip,
+                theme: data.theme,
+            };
+
+            response.push(args);
+        });
+
+        return response;
+    }
+
+    drawMonster() {
+        const monster = this.monster;
+        const kind = monster.getAttribute('data-kind');
+        const level = monster.getAttribute('data-level');
+        const response = `
+            <${lo.Components.entity}
+                id="${this.idMonster}"
+                class="gm-alive gm-monster"
+                data-level="${level}"
+                data-id="monster"
+                data-kind="${kind}"
+                kind="monster"
+                entity="monster"
+                direction="down"
+                action="stand"
+                style="top: ${this.drawEntityDistance(2)}"
+                tabindex="-1"
+            ></${lo.Components.entity}>
+        `;
+
+        return response;
+    }
+
+    drawPlayer() {
+        const data = Player.equipmentsForHTML;
+        const equipments = ds.Helper.buildJSONToHTML(data);
+        const response = `
+            <${lo.Components.entity}
+                id="${this.idPlayer}"
+                class="gm-alive gm-person"
+                data-id="player"
+                entity="person"
+                direction="up"
+                action="stand"
+                style="bottom: ${this.drawEntityDistance(1)}"
+                equipments=${equipments}
+                tabindex="-1"
+            ></${lo.Components.entity}>
+        `;
+
+        return response;
+    }
+
+    drawProgress(target) {
+        let response = '<div class="gm-battle__progress">';
+        const bars = [
+            {
+                id: 'life',
+                theme: 'red',
+            },
+            {
+                id: 'mana',
+                theme: 'blue',
+            },
+        ];
+
+        bars.forEach((index) => {
+            const id = index.id;
+            const theme = index.theme;
+            const componentProgress = ds.Components.componentProgress;
+
+            response += `
+                 <${componentProgress}
+                    id="progress_${id}_${target}"
+                    value="0"
+                    value-max="0"
+                    theme="${theme}"
+                    direction="horizontal"
+                    border="battle"
+                    css-wrapper="gm-style-battle"
+                ></${componentProgress}>
+            `;
+        });
+
+        response += '</div>';
+
+        return response;
+    }
+
+    drawSkill() {
+        const response = `
+            <div
+                id="${this.idSkill}"
+                class="gm-battle__skill"
+                style="top: ${this.drawEntityDistance(3.0)}"
+            >
+                <h4 class="title"></h4>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawSkillEffect() {
+        const response = `
+            <div
+                id="${this.idSkillEffect}"
+                class="gm-battle__skill-effect"
+            >
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawSkillValue() {
+        const response = `
+            <div
+                id="${this.idSkillValue}"
+                class="gm-battle__skill-value"
+                style="top: ${this.drawEntityDistance(2.5)}"
+            >
+                <h2 class="title"></h2>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawSubMenu() {
+        const buttons = this.drawSubMenuData();
+        const theme = ds.Layout.theme.menuDefault;
+        let response = '';
+
+        buttons.forEach((index) => {
+            const cssArgs = {
+                theme: theme,
+                isProportional: true,
+                size: 'big',
+                cssPrefix: 'button',
+                cssCustom: 'ds-padding-reset'
+            };
+            const css = ds.Layout.buildCss(cssArgs);
+
+            response += `
+                <button
+                  type="button"
+                  data-id="${index.id}"
+                  data-id-lore="${index.idLore}"
+                  ${css}
+                >
+                    <span class="gm-loot--small">
+                        ${index.icon}
+                    </span>
+                </button>
+            `;
+        });
+
+        return response;
+    }
+
+    drawSubMenuData() {
+        const response = [];
+
+        const excludedIdLore = [
+            161
+        ];
+
+        Player.inventoryConsumables.forEach((index) => {
+            const idLore = index.idLore ?? index.target;
+
+            if (excludedIdLore.includes(idLore)) return;
+
+            const argsIcon = {
+                item: index.itemLoot.id,
+                isDurability: index.isDurability
+            };
+            const icon = lo.HTML.drawLoot(argsIcon);
+            const consumableArgs = {
+                id: index.id,
+                idLore,
+                icon
+            };
+
+            response.push(consumableArgs);
+        });
+
+        return response;
+    }
+
+    async fetchSkill(props) {
+        const { action } = props;
+        const data = await FetchData.getSkill(props);
+
+        this.buildTurnData(data);
+
+        const capitalizeTarget = ds.Helper.capitalizeString(action);
+        const methodName = `use${capitalizeTarget}`;
+        const args = {
+            caster: ds.Prefix.PLAYER,
+            data
+        };
+
+        this[methodName]?.(args);
+    }
+
+    get buttons() {
+        const componentButton = ds.Components.componentButton;
+        const response = this.shadowRoot.querySelectorAll(componentButton);
+
+        return response;
+    }
+
+    get currentTurn() {
+        const response = HTML.elGameBattle.turnCurrent;
+
+        return response;
+    }
+
+    get isMenuEnabled() {
+        const response = this.#isMenuEnabled;
+
+        return response;
+    }
+
+    get isTurnPlayer() {
+        const response = HTML.elGameBattle.isTurnPlayer;
+
+        return response;
+    }
+
+    get isConsumablesInInventory() {
+        const loot = this.loot;
+        let response = false;
+
+        loot.forEach((index) => {
+            const item = Storage.buildItem(index).item;
+            const properties = {
+                target: item
+            };
+            const propertiesItem = Storage.getProperties(properties);
+            const getTranslationById = Storage.getTranslationById(propertiesItem.itemLoot.kind);
+            const isConsumable = getTranslationById === 'usable';
+
+            if (isConsumable) response = true;
+        });
+
+        return response;
+    }
+
+    get monster() {
+        const response = HTML.elGameBattle.monster;
+
+        return response;
+    }
+
+    get skills() {
+        const data = Data.player.skills;
+        const response = Object.values(data);
+
+        return response;
+    }
+
+    get subMenu() {
+        const response = this.shadowRoot.querySelector('.gm-battle__submenu');
+
+        return response;
+    }
+
+    getSkillEffectCss(caster) {
+        const id = this.skillData.skill.id;
+        const effects = Statics.skills;
+        let skillCss = effects.filter((index) => {
+            return index.id === id;
+        });
+        const isSkill = skillCss.length > 0;
+        let response = [];
+
+        if (isSkill) {
+            const skill = skillCss[0];
+
+            if (skill) response.push(skill.css);
+
+            if (skill.isMoving) {
+                response.push(
+                    `${this.prefixSkillMove + caster}`,
+                );
+            }
+        }
+
+        response.push(`${this.prefixSkillEffect + caster}`);
+
+        return response;
+    }
+
+    getSkillToRemove() {
+        const effects = Statics.skills;
+        let response = [];
+
+        this.casters.forEach((index) => {
+            response.push(`${this.prefixSkillMove + index}`);
+            response.push(`${this.prefixSkillEffect + index}`);
+        });
+
+        effects.forEach((index) => {
+            response.push(index.css);
+        });
+
+        return response;
+    }
+
+    getCurrentButton(target) {
+        const response = this.shadowRoot.getElementById(target);
+
+        return response;
+    }
+
+    async getSkillOpponent() {
+        const data = await FetchData.getSkillOpponent();
+
+        this.buildTurnData(data);
+
+        const args = {
+            caster: ds.Prefix.OPPONENT,
+            data
+        };
+
+        this.useSkill(args);
+    }
+
+    async handleSkill(props) {
+        const { action, id, idLore } = props;
+        const isDisabled = this.isButtonDisabled(action);
+
+        if (isDisabled) return;
+
+        this.isMenuEnabled = false;
+
+        this.setSubMenu('hide');
+
+        const args = { action };
+
+        if (idLore) args.il = idLore;
+        if (id) args.id = id;
+
+        await this.fetchSkill(args);
+    }
+
+    static handleUse(event) {
+        const target = event.currentTarget;
+        const id = Number(target.dataset.id);
+        const idLore = Number(target.dataset.idLore);
+        const action = this.idUseItem;
+        const args = {
+            action,
+            id,
+            idLore
+        };
+
+        this.handleSkill(args);
+    }
+
+    isButtonDisabled(target) {
+        const el = this.getCurrentButton(target);
+        const response = el.getAttribute(ds.Prefix.ATTR_IS_DISABLED) === 'true';
+
+        return response;
+    }
+
+    isCasterPlayer(caster) {
+        const response = caster === ds.Prefix.PLAYER;
+
+        return response;
+    }
+
+    isPlayer(target) {
+        const response = target === ds.Prefix.PLAYER;
+
+        return response;
+    }
+
+    isSkillRun(data) {
+        const response = data.skill?.id === ds.Prefix.ACTION_RUN;
+
+        return response;
+    }
+
+    isConsumableRuleInvalid(button) {
+        const isUseItem = button.id === this.idUseItem;
+        const response = isUseItem && Player.inventoryConsumables <= 0;
+
+        return response;
+    }
+
+    isItemRule(key) {
+        const response = key === ds.Prefix.ITEMS;
+
+        return response;
+    }
+
+    async move(props) {
+        const { target, direction } = props;
+        const isUp = direction === 'up';
+        const directionOpposite = isUp ? 'down' : 'up';
+        const args = {
+            target,
+            vertical: isUp ? -ds.Layout.tileSize : ds.Layout.tileSize,
+            horizontal: 0,
+            speed: 300
+        };
+
+        target.setAttribute('action', 'walk');
+        target.setAttribute('direction', direction);
+
+        await Animation.animatePosition(args);
+
+        args.vertical = 0;
+        target.setAttribute('direction', directionOpposite);
+
+        AudioEffects.play(target);
+
+        await Animation.animatePosition(args);
+
+        target.setAttribute('action', 'stand');
+        target.setAttribute('direction', direction);
+    }
+
+    async moveCaster(target) {
+        const isPlayer = this.isPlayer(target);
+        const args = {
+            target: isPlayer ? this.elBattlePlayer : this.elBattleMonster,
+            direction: isPlayer ? 'up' : 'down',
+        };
+
+        await this.move(args);
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+
+        this.isMenuEnabled = false;
+
+        this.updateHTML();
+
+        this.buildTurn();
+
+        this.updateMenuTooltips();
+    }
+
+    setAttributes(props) {
+        const { data } = props;
+
+        Data.setData(data);
+    }
+
+    async setMenuToggle() {
+        const buttons = this.buttons;
+        const menuDisabled = !await this.isMenuEnabled;
+        const length = buttons.length;
+
+        for (let i = 0; i < length; i++) {
+            const button = buttons[i];
+            let isDisabled = menuDisabled;
+
+            if (!isDisabled) isDisabled = await this.setMenuToggleRules(button, false);
+
+            button.setAttribute(ds.Prefix.ATTR_IS_DISABLED, isDisabled);
+        }
+    }
+
+    async setMenuToggleRules(button, isDisabled) {
+        const ruleList = await Data.rules.skills;
+        const rules = ruleList[button.id]?.cost ?? [];
+        let response = isDisabled;
+
+        Object.entries(rules).forEach(([key, value]) => {
+            if (this.isItemRule(key)) {
+                if (!this.validateItems(value)) response = true;
+                return;
+            }
+
+            if (!this.validateAttribute(key, value)) response = true;
+        });
+
+        if (this.isConsumableRuleInvalid(button)) response = true;
+
+        return response;
+    }
+
+    async setSkillValue(props, usage) {
+        const response = new Promise((resolve) => {
+            const { caster, data } = props;
+            const isCasterPlayer = this.isCasterPlayer(caster);
+            const css = isCasterPlayer ? 'lo-animation-damage--right' : 'lo-animation-damage--left';
+            const cssFail = 'gm-battle__skill-value--fail';
+            const isSuccess = usage.isSuccess === true;
+            const translationSkill = ds.Translation.gameSkill;
+            const translationTitle = translationSkill[`${data.skill.translation}_title`];
+
+            this.elBattleSkillText.innerHTML = translationTitle;
+
+            const isSkillRun = this.isSkillRun(data);
+            let damage = usage.damage ?? 0;
+            const isInvalid = !isSuccess || usage.damage === 0;
+
+            if (isInvalid) {
+                damage = translationSkill.fail;
+                this.buildEmojiFail();
+            } else if (isSkillRun) {
+                damage = translationSkill.success;
+            }
+
+            this.elBattleSkillValueText.innerHTML = damage;
+
+            ds.Helper.addClass(this.elBattleSkill, css);
+
+            this.cssLastSkill = css;
+            this.cssLastSkillFail = cssFail;
+
+            resolve();
+        });
+
+        return response;
+    }
+
+    set isMenuEnabled(value) {
+        if (this.#isMenuEnabled === value) return;
+
+        this.#isMenuEnabled = value;
+        this.setMenuToggle(value);
+    }
+
+    setSubMenu(action) {
+        const target = this.subMenu;
+        const css = this.cssHideMenu;
+        const actionShow = 'show';
+        const actionHide = 'hide';
+        const isDisabled = this.isButtonDisabled(this.idUseItem);
+
+        if (isDisabled) return;
+
+        const isTurnPlayer = HTML.elGameBattle.isTurnPlayer;
+
+        if (!isTurnPlayer) return;
+
+        const isOpen = !target.classList.contains(css);
+
+        if (isOpen && action !== actionShow) action = actionHide;
+
+        switch (action) {
+            case actionHide:
+                return ds.Helper.addClass(target, css);
+            case 'toggle':
+                return ds.Helper.toggleClass(target, css);
+            default:
+            case actionShow:
+                return ds.Helper.removeClass(target, css);
+        }
+    }
+
+    updateData() {
+        this.updateProgresses();
+        this.updateMenuTooltips();
+    }
+
+    updateHTML() {
+        this.elBattlePlayer = this.shadowRoot.getElementById(`${this.idPlayer}`);
+        this.elBattleMonster = this.shadowRoot.getElementById(`${this.idMonster}`);
+        this.elBattleSkill = this.shadowRoot.getElementById(`${this.idSkill}`);
+        this.elBattleSkillEffect = this.shadowRoot.getElementById(`${this.idSkillEffect}`);
+        this.elBattleSkillText = this.elBattleSkill.querySelector('.title');
+        this.elBattleSkillValue = this.shadowRoot.getElementById(`${this.idSkillValue}`);
+        this.elBattleSkillValueText = this.elBattleSkillValue.querySelector('.title');
+
+        this.elProgress.life = this.shadowRoot.getElementById('progress_life_monster');
+        this.elProgress.mana = this.shadowRoot.getElementById('progress_mana_monster');
+    }
+
+    updateMenuTooltips() {
+        const ruleList = Data.rules.skills;
+        const ruleTranslation = ds.Translation.gameSkill;
+        const buttons = this.buttons;
+
+        buttons.forEach((button) => {
+            const id = button.id;
+            const data = ds.Layout.getIconDataById(id);
+
+            if (!data) return;
+
+            const args = {
+                text: data.tooltip,
+                isRule: true,
+                ruleList,
+                ruleTranslation
+            };
+            const tooltip = ds.Helper.replaceInText(args);
+
+            button.setAttribute('data-tooltip', tooltip);
+        });
+    }
+
+    updateProgress(props) {
+        const { target, value, valueMax } = props;
+        const translation = ds.Translation.getTranslationPage('attributes');
+        const text = translation.life;
+        const tooltipArgs = {
+            text,
+            value,
+            valueMax
+        };
+        const tooltip = ds.Layout.buildTextCapacity(tooltipArgs);
+        const elProgress = this.elProgress[target];
+
+        elProgress.setAttribute('value', value);
+        elProgress.setAttribute('value-max', valueMax);
+        elProgress.setAttribute('data-tooltip', tooltip);
+    }
+
+    async updateProgresses() {
+        const data = await Data.opponent.attributes;
+
+        if (!data) return;
+
+        const progresses = [
+            {
+                target: 'life',
+                value: data.hitPoints,
+                valueMax: data.hitPointsMaximum,
+            },
+            {
+                target: 'mana',
+                value: data.manaPoints,
+                valueMax: data.manaPointsMaximum,
+            },
+        ];
+
+        progresses.forEach((index) => {
+            this.updateProgress(index);
+        });
+    }
+
+    useActionRun(props) {
+        const { data } = props;
+        const skill = data.skillUsage[0];
+        const isSuccess = skill.isSuccess ?? false;
+
+        if (isSuccess) this.unbuildBattle();
+
+        this.useSkill(props);
+    }
+
+    useActionUseItem(props) {
+        this.useSkill(props);
+    }
+
+    useAttackCoinThrow(props) {
+        this.useSkill(props);
+    }
+
+    useAttackFireball(props) {
+        this.useSkill(props);
+    }
+
+    useAttackMelee(props) {
+        this.useSkill(props);
+    }
+
+    useAttackMeleeDouble(props) {
+        this.useSkill(props);
+    }
+
+    useAttackThrowWeapon(props) {
+        this.useSkill(props);
+    }
+
+    useAttackMultipleArrows(props) {
+        this.useSkill(props);
+    }
+
+    async useSkill(props) {
+        const { caster, data } = props;
+        const movePromise = this.moveCaster(caster);
+        const isSkillRun = this.isSkillRun(data);
+        const isPlayer = this.isPlayer(caster);
+        let isSuccess = false;
+        let isPassTurn = true;
+
+        this.caster = caster;
+
+        const isWinner = data.winner !== null;
+
+        if (isWinner) {
+            isPassTurn = false;
+
+            setTimeout(() => {
+                this.buildWinnerScreen(data);
+            }, HTML.elTransition?.timeout);
+        }
+
+        const usages = data.skillUsage;
+        const length = usages?.length;
+
+        for (let i = 0; i < length; i++) {
+            const usage = usages[i];
+
+            await this.setSkillValue(props, usage);
+            await this.animateSkill(usage);
+
+            isSuccess = usage.isSuccess;
+
+            if (isSkillRun && isSuccess) isPassTurn = false;
+        }
+
+        await movePromise;
+
+        this.setAttributes(props);
+
+        const isOpponentRun = !isPlayer && isSkillRun && isSuccess;
+        if (isOpponentRun) return this.unbuildBattle();
+
+        if (isPassTurn) await this.buildTurn();
+    }
+
+    unbuildBattle() {
+        setTimeout(() => {
+            HTML.elGameBattle.unbuild();
+        }, HTML.elTransition?.timeout);
+    }
+
+    validateAttribute(attribute, requiredValue) {
+        const currentValue = Data.player[ds.Prefix.ATTRIBUTES][attribute] ?? 0;
+        const response = currentValue >= requiredValue;
+
+        return response;
+    }
+
+    validateItems(requiredItems) {
+        if (!Array.isArray(requiredItems)) return false;
+
+        const inventory = Player.inventory;
+        const response = requiredItems.every((ruleItem) => {
+            const currentQuantity = Character.getItemQuantityByIdLore(inventory, ruleItem.id);
+            const isValid = currentQuantity >= ruleItem.quantity;
+
+            return isValid;
+        });
+
+        return response;
+    }
+}
+export class HudPageBuy extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const items = HudPageNPC.sells;
+        const list = HudPageNPC.drawItemsList(items);
+        const response = HudPageNPC.drawWrapper(list);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.BUY;
+
+        return response;
+    }
+
+    handleOpenDetails(id) {
+        const args = {
+            id,
+            context: this,
+            npcAction: this.action,
+        };
+
+        HudPageDetail.itemId = undefined;
+
+        HudPageNPC.handleOpenDetails(args);
+    }
+
+    render() {
+        HudPageDetail.npcAction = this.action;
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageBuyCustomization extends PageCustomizations {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+
+        PageCustomizations.resetMap();
+
+        this.render();
+        this.addEventListeners();
+        this.toggleActionButton();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+
+        this.addEventListenersCustomization();
+    }
+
+    draw() {
+        const buttonDefault = Layout.changeThemeButton('buy');
+        const button = Layout.drawButtonComponent(buttonDefault);
+        const response = PageCustomizations.drawNPC(button, this.id);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.BUY_CUSTOMIZATION;
+
+        return response;
+    }
+
+    get cost() {
+        const response = PageCustomizations.cost.buy;
+
+        return response;
+    }
+
+    get id() {
+        const response = Statics.buttons.buy.id;
+
+        return response;
+    }
+
+    get elActionButton() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, this.id);
+
+        return response;
+    }
+
+    get inventoryDiamonds() {
+        const response = Player.inventoryDiamonds;
+
+        return response;
+    }
+
+    async handleBuy() {
+        const dataFetch = await this.handleAction(FetchData.buyCustomization.bind(FetchData));
+
+        if (!dataFetch) return;
+
+        Analytics.send({
+            event_name: 'customization_buy',
+            npc: HudPageNPC.id,
+            items: PageCustomizations.selectsValue.map(s => `${s.id}:${s.value}`).join(','),
+        });
+
+        this.resetCustomizations();
+    }
+
+    render() {
+        HudPageDetail.npcAction = this.action;
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageCombat extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static ids = {
+        buffs: 'buffs',
+    };
+    static timer;
+
+
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+        this.startTimer();
+    }
+
+    disconnectedCallback() {
+        HudPageCombat.stopTimer();
+    }
+
+
+
+
+
+    draw() {
+        const translation = ds.Translation.getTranslationPage('attributes');
+        const drawAttacks = this.drawAttacks(translation);
+        const drawDefenses = this.drawDefenses(translation);
+        const drawBuffs = this.drawBuffs();
+        const content = `
+            ${drawAttacks}
+            ${drawDefenses}
+            ${drawBuffs}
+        `;
+        const response = HudPageAttributes.drawPage(content);
+
+        return response;
+    }
+
+    drawAttacks(translation) {
+        const data = Player.attacks;
+        const subtitle = Layout.drawSubtitle(translation?.attacks);
+        const args = {
+            translation,
+            data,
+            subtitle
+        };
+        const response = this.drawContent(args);
+
+        return response;
+    }
+
+    drawBuff(buff, remaining) {
+        const css = ds.Layout.cssFormField;
+        const translation = ds.Translation.gameBuffs;
+        const label = translation?.[buff];
+        const time = Layout.buildEffectTime(remaining);
+        const componentFormField = ds.Components.componentFormField;
+        const response = `
+            <div class="ds-row">
+                <${componentFormField}
+                    class="${css}"
+                    label="${label}"
+                    input-value="${time}"
+                ></${componentFormField}>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawBuffs() {
+        const translation = ds.Translation.interfaceDefault.buffs;
+        const subtitle = Layout.drawSubtitle(translation);
+        const content = this.drawBuffsContent();
+        const response = `
+            ${subtitle}
+            <div
+                class="ds-row"
+                data-id="${HudPageCombat.ids.buffs}"
+            >
+                ${content}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawBuffsContent() {
+        const buffs = Player.buffs ?? {};
+        const now = Math.floor(Date.now() / 1000);
+        let response = '';
+
+        for (const [buff, data] of Object.entries(buffs)) {
+            const remaining = (data?.end ?? 0) - now;
+
+            if (remaining > 0) {
+                response += this.drawBuff(buff, remaining);
+            }
+        }
+
+        if (!response) {
+            const text = ds.Translation.gameGeneric?.no_data_yet;
+
+            response = `
+                 <div class="ds-row">
+                    <p class="ds-center">${text}</p>
+                </div>
+            `;
+        }
+
+        return response;
+    }
+
+    drawContent(props) {
+        const { translation, data, subtitle } = props;
+        const fields = [
+            {
+                label: translation?.melee,
+                value: data.melee,
+                isReadOnly: true
+            },
+            {
+                label: translation?.fire,
+                value: data.fire,
+                isReadOnly: true
+            },
+            {
+                label: translation?.cold,
+                value: data.cold,
+                isReadOnly: true
+            },
+            {
+                label: translation?.lightning,
+                value: data.lightning,
+                isReadOnly: true
+            },
+            {
+                label: translation?.poison,
+                value: data.poison,
+                isReadOnly: true
+            },
+        ];
+        const fieldMelee = ds.Layout.drawField(fields[0]);
+        const fieldFire = ds.Layout.drawField(fields[1]);
+        const fieldCold = ds.Layout.drawField(fields[2]);
+        const fieldLightning = ds.Layout.drawField(fields[3]);
+        const fieldPoison = ds.Layout.drawField(fields[4]);
+        const response = `
+            ${subtitle}
+            <div class="ds-row">
+                ${fieldMelee}
+                ${fieldFire}
+                ${fieldCold}
+            </div>
+            <div class="ds-row">
+                ${fieldLightning}
+                ${fieldPoison}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawDefenses(translation) {
+        const data = Player.defenses;
+        const subtitle = Layout.drawSubtitle(translation?.defenses);
+        const args = {
+            translation,
+            data,
+            subtitle
+        };
+        const response = this.drawContent(args);
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    startTimer() {
+        HudPageCombat.stopTimer();
+
+        HudPageCombat.timer = setInterval(() => {
+            this.updateBuffs();
+        }, 1000);
+    }
+
+    static stopTimer() {
+        if (HudPageCombat.timer) {
+            clearInterval(HudPageCombat.timer);
+        }
+
+        HudPageCombat.timer = null;
+    }
+
+    updateBuffs() {
+        const id = HudPageCombat.ids.buffs;
+        const el = this.shadowRoot.querySelector(`[data-id="${id}"]`);
+
+        if (!el) return;
+
+        el.innerHTML = this.drawBuffsContent();
+    }
+}
+
+export class HudPageCraft extends HTMLElement {
+
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    async draw() {
+        const content = await this.drawContent();
+        const response = HudPageNPC.drawWrapper(content);
+
+        return response;
+    }
+
+    async drawContent() {
+        let response = '';
+        const isContentDefault =
+            !HudPageCraft.isShowTime &&
+            !HudPageCraft.isCraftingNPC &&
+            !HudPageCraft.isShowReward;
+
+        if (isContentDefault) {
+            const items = HudPageNPC.crafts;
+
+            response = HudPageNPC.drawItemsList(items);
+        }
+
+        const isContentShowTime = HudPageCraft.isShowTime;
+
+        if (isContentShowTime) response = PageDetailCraft.buildTime(this.shadowRoot);
+
+        if (HudPageCraft.isShowReward) response = await PageDetailCraft.drawReward(HudPageNPC.name);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.CRAFT;
+
+        return response;
+    }
+
+    static get isContentReward() {
+        const response = HudPageCraft.isShowReward && !PageDetailCraft.isReward;
+
+        return response;
+    }
+
+    static get isCraftDone() {
+        const response = PageDetailCraft.isCraftDone;
+
+        return response;
+    }
+
+    static get isCraftingNPC() {
+        const response = PageDetailCraft.isCraftingNPC;
+
+        return response;
+    }
+
+    static get isShowTime() {
+        const response =
+            PageDetail.isCraft &&
+            HudPageCraft.isCraftingNPC &&
+            !HudPageCraft.isCraftDone;
+
+        return response;
+    }
+
+    static get isShowReward() {
+        const response =
+            PageDetail.isCraft &&
+            HudPageCraft.isCraftingNPC &&
+            HudPageCraft.isCraftDone;
+
+        return response;
+    }
+
+    handleOpenDetails(id) {
+        const args = {
+            id,
+            context: this,
+            npcAction: this.action,
+        };
+
+        HudPageNPC.handleOpenDetails(args);
+    }
+
+    async render() {
+        HudPageDetail.npcAction = this.action;
+
+        const component = await this.draw();
+
+        ds.Components.render(this.args, component);
+
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageDeposit extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const items = Player.inventory;
+        const length = items.length;
+        const content = length > 0 ? Layout.drawCardItemList(items) : Layout.drawEmptyContent();
+        const response = HudPageNPC.drawWrapper(content);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.DEPOSIT;
+
+        return response;
+    }
+
+    handleOpenDetails(id) {
+        const args = {
+            id,
+            context: this,
+            npcAction: this.action,
+        };
+
+        HudPageDetail.itemId = id.id;
+
+        HudPageNPC.handleOpenDetails(args);
+    }
+
+    async render() {
+        const isValid = NPCs.validateBankLevel();
+
+        if (!isValid) return;
+
+        HudPageDetail.npcAction = this.action;
+
+        await FetchData.openBank();
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageDetail extends HTMLElement {
+    args = {
+        context: this,
+    };
+    itemProperties;
+    static isFromNPC;
+    static npcAction;
+    static pageDetail;
+    static lastPage;
+    static ids = {
+        field: {
+            quantity: 'field_quantity',
+            price: 'field_price',
+            time: 'field_time',
+        }
+    };
+    static method;
+    static methods = {
+        equipItem: 'equipItem',
+        unequipItem: 'unequipItem',
+    };
+    static currentButton;
+    static itemId;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        HudPageDetail.pageDetail = this;
+        HudPageDetail.lastPage = this.parentNode.parentNode.parentNode;
+        this.render();
+    }
+
+
+
+
+    buildFieldValue(key, value) {
+        let response = value;
+
+        const isPercentage = key === 'recovery_percentage';
+        if (isPercentage) response = `${value}%`;
+
+        const isEffectTime = key === 'effect_time';
+        if (isEffectTime) response = Layout.buildEffectTime(value);
+
+        return response;
+    }
+
+    buildHandlerArgs() {
+        const response = {
+            id: HudPageDetail.itemId ?? this.itemProperties?.id,
+            il: this.itemLoreId,
+            npc: this.lastPageDataName,
+            quantity: this.getQuantityValue()
+        };
+
+        return response;
+    }
+
+    buildItemProperties(itemData) {
+        const normalizedItemData = typeof itemData === 'object' && itemData !== null
+            ? itemData
+            : { id: itemData, item: itemData, quantity: 1 };
+
+        const buildItem = Storage.buildItem(normalizedItemData);
+        const itemId = normalizedItemData?.id ?? normalizedItemData?.item ?? normalizedItemData?.target ?? buildItem?.item;
+        let idLore = normalizedItemData?.id_lore ?? normalizedItemData?.idLore ?? normalizedItemData?.target ?? normalizedItemData?.item ?? buildItem?.item;
+        const isValid = !idLore && itemId;
+
+        if (isValid) {
+            const itemFromModules = ds.Helper.findById(ds.Modules.items, Number(itemId));
+
+            if (itemFromModules?.id) idLore = itemFromModules.id;
+
+            if (!idLore) {
+                const storageEntry = Storage.getDataFiltered(0).find((entry) => entry.id === itemId);
+
+                idLore = storageEntry?.id_lore;
+            }
+        }
+
+        if (!idLore) {
+            throw new Error(`HudPageDetail: idLore não encontrado no itemData: ${JSON.stringify(normalizedItemData)}`);
+        }
+
+        const args = {
+            id: itemId,
+            target: idLore,
+            quantity: normalizedItemData?.quantity ?? buildItem?.quantity ?? 1
+        };
+
+        normalizedItemData.isTooltip = false;
+        this.itemProperties = Storage.getProperties(args);
+    }
+
+    buildResponseMessage(target, isCheckInventory) {
+        const translation = ds.Translation.interface.response;
+        const currentMessage = translation[target];
+        const checkInventory = translation.check_inventory;
+
+        let response = `${currentMessage}`;
+
+        if (isCheckInventory) response += ` ${checkInventory}`;
+
+        return response;
+    }
+
+    calculateQuantity() {
+        const id = this.itemPropertiesLoot.id;
+        const isDurability = this.itemProperties.isDurability;
+        let response = 0;
+
+        const isBuy = PageDetail.isBuy;
+
+        if (isBuy) {
+            const price = this.priceBuy;
+            const payWith = this.itemPropertiesLoot.pay_with;
+
+            response = PageDetail.calculateQuantityBuy(price, payWith);
+        }
+
+        const isCraft = PageDetail.isCraft;
+
+        if (isCraft) {
+            const recipe = this.itemPropertiesLoot.craftRecipe;
+
+            response = PageDetailCraft.calculateQuantity(recipe);
+        }
+
+        const isWithdraw = PageDetail.isWithdraw;
+
+        if (isWithdraw) response = PageDetail.calculateQuantityWithdraw(id, isDurability);
+
+        const isSell = PageDetail.isSell;
+        const isDeposit = PageDetail.isDeposit;
+        const isQuantity = isDeposit || isSell;
+
+        if (isQuantity) response = PageDetail.calculateQuantity(id, isDurability);
+
+        return response;
+    }
+
+    calculatePriceFromQuantity(quantity) {
+        const isBuy = PageDetail.isBuy;
+        const itemPropertiesLoot = this.itemPropertiesLoot;
+        const price = itemPropertiesLoot.price;
+        let unitPrice = isBuy ? itemPropertiesLoot.priceBuy : price;
+
+        const isSell = PageDetail.isSell;
+        const maximumDurability = itemPropertiesLoot.durability ?? 0;
+
+        if (isSell && maximumDurability > 0) {
+            const currentDurability = Storage.getItemDurabilityById(this.itemProperties.id) ?? 0;
+            const scaledPrice = Math.ceil(price * currentDurability / maximumDurability);
+
+            unitPrice = Math.max(1, scaledPrice);
+        }
+
+        let total = unitPrice * quantity;
+
+        const merchantTradeBonus = Data.rules.npcs.merchantTradeBonus ?? 0;
+        const isMerchant = Statics.classes[Player.attributes?.class]?.class === 'merchant';
+
+        if (isMerchant && merchantTradeBonus > 0) {
+            const factor = isBuy ? (1 - merchantTradeBonus) : (1 + merchantTradeBonus);
+            total = Math.ceil(total * factor);
+        }
+
+        return total;
+    }
+
+    async draw() {
+        this.buildItemProperties(this.itemData);
+
+        this.setTexts();
+
+        const page = this.getAttribute('page');
+        const content = await this.drawContent();
+        const contentWrapper = ds.Page.drawContent(page, content);
+
+        const footer = PageDetailMenu.drawMenu(this.itemProperties, this.lastPageData);
+        const footerWrapper = ds.Page.drawFooter(footer);
+
+        const response = `
+            ${contentWrapper}
+            ${footerWrapper}
+        `;
+
+        return response;
+    }
+
+    async drawContent() {
+        const isShowTime = HudPageCraft.isShowTime;
+        const isReward = HudPageCraft.isShowReward;
+
+        if (isShowTime || isReward) this.setText('');
+
+        if (isShowTime) return PageDetailCraft.buildTime(this.shadowRoot);
+
+        if (HudPageCraft.isContentReward) {
+            return await PageDetailCraft.drawReward(HudPageNPC.name);
+        }
+
+        return this.drawContentDefault();
+    }
+
+    drawContentDefault() {
+        const fields = this.drawFields();
+        const icon = this.drawIcon();
+        const craftRecipe = PageDetail.isCraft ? PageDetailCraft.drawRecipe(this.craftRecipe, this.getQuantityValue()) : '';
+        const descriptionText = this.itemProperties.translationDescription;
+        const description = descriptionText ? `
+            <div class="ds-row">
+                <p class="gm-description">${descriptionText}</p>
+            </div>
+        ` : '';
+        const response = `
+            <div class="ds-row gm-detail">
+                <div class="ds-row">
+                    <div class="ds-column gm-detail__image">
+                        ${icon}
+                    </div>
+                    <div class="ds-column">
+                        <form class="ds-form ds-form--readonly">
+                            ${description}
+                            <div class="ds-row">
+                                ${fields}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                ${craftRecipe}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawField(props) {
+        const {
+            label,
+            value,
+            dataId,
+            isReadOnly = true,
+            type = 'text'
+        } = props;
+        const componentFormField = ds.Components.componentFormField;
+        const escape = ds.Helper.escapeHTML;
+        const css = ds.Layout.theme.form;
+        const response = `
+            <div class="ds-row">
+                <${componentFormField}
+                    class="ds-row ds-column ds-form__field"
+                    label="${escape(label)}"
+                    input-value="${escape(value)}"
+                    is-read-only="${isReadOnly}"
+                    data-id="${escape(dataId)}"
+                    type="${escape(type)}"
+                    css-wrapper="${css}"
+                >
+                </${componentFormField}>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawIcon() {
+        const data = {
+            ...this.itemData,
+            ...this.itemProperties,
+            id: this.itemProperties?.id ?? this.itemData?.id,
+            item: this.itemProperties?.idLore ?? this.itemProperties?.target ?? this.itemData?.id_lore ?? this.itemData?.item,
+            itemLoot: this.itemProperties?.itemLoot ?? this.itemData?.itemLoot,
+            quantity: this.itemProperties?.quantity ?? this.itemData?.quantity,
+            isDurability: this.itemProperties?.isDurability ?? this.itemData?.isDurability,
+            kind: this.itemProperties?.itemLoot?.kind ?? this.itemData?.kind,
+        };
+
+        const durabilityStorage = Storage.getItemDurabilityById(data.id);
+
+        data.durabilityStorage = durabilityStorage;
+
+        const response = lo.HTML.drawLoot(data);
+
+        return response;
+    }
+
+    static drawMoney() {
+        const component = Components.cHudContentMoney;
+        const html = `
+            <${component}
+                class="ds-display-flex ds-center"
+            >
+            </${component}>
+        `;
+        const response = ds.Page.drawFooter(html);
+
+        return response;
+    }
+
+    drawFields() {
+        const {
+            translationName,
+            translationNameLabel,
+            translationQuantity,
+            quantity,
+            itemLoot
+        } = this.itemProperties;
+        let response = '';
+
+        response += this.drawFieldName(translationNameLabel, translationName);
+
+        for (const [key, value] of Object.entries(itemLoot)) {
+            const isValid = key !== 'priceBuy' && key !== 'pay_with';
+            if (isValid) {
+                const fields = this.drawFieldValid(key, value);
+                response += fields;
+            }
+        }
+
+        response += this.drawFieldPrice(itemLoot);
+        response += this.drawFieldTime();
+        response += this.drawFieldQuantity(translationQuantity, quantity);
+
+        return response;
+    }
+
+    drawFieldName(label, value) {
+        const response = this.drawField({ label, value });
+
+        return response;
+    }
+
+    drawFieldQuantity(label, value) {
+        let response = '';
+        const pageFrom = this.lastPageData.from;
+        const isEquipments = pageFrom.includes('equipments');
+        const isRule = !isEquipments;
+
+        if (isRule) {
+            response = this.drawField({
+                label,
+                value,
+                dataId: HudPageDetail.ids.field.quantity,
+                isReadOnly: false,
+                type: 'number'
+            });
+        }
+
+        return response;
+    }
+
+    drawFieldPrice(itemLoot) {
+        const label = Translation.buildTitlePrice(itemLoot.pay_with);
+        const isRule = PageDetail.isBuy || PageDetail.isSell;
+        let response = '';
+
+        if (isRule) {
+            const quantity = 1;
+            const price = this.calculatePriceFromQuantity(quantity);
+
+            response = this.drawField({
+                label,
+                value: price,
+                dataId: HudPageDetail.ids.field.price
+            });
+        }
+
+        return response;
+    }
+
+    drawFieldTime() {
+        let response = '';
+        const isCraft = PageDetail.isCraft;
+
+        if (isCraft) {
+            const label = PageDetailCraft.translation?.is_crafting_text;
+            const value = PageDetailCraft.buildTimeText(this.craftTime * this.getQuantityValue());
+
+            response = this.drawField({
+                label,
+                value,
+                dataId: HudPageDetail.ids.field.time
+            });
+        }
+
+        return response;
+    }
+
+    drawFieldValid(key, value) {
+        let response = '';
+        const invalids = [
+            'id',
+            'id_craft',
+            'css_item',
+            'css_person',
+            'css_tile',
+            'translation',
+            'durability',
+            'kind',
+            'craftTime',
+            'craftRecipe',
+            'craftResult',
+            'price'
+        ];
+        const isValid =
+            !invalids.includes(key) &&
+            value !== '' &&
+            value !== 0 &&
+            value !== null &&
+            value !== undefined;
+
+        if (isValid) {
+            const translation = this.transitionPage;
+            const fieldValue = this.buildFieldValue(key, value);
+            response += this.drawField({
+                label: translation[key],
+                value: fieldValue
+            });
+        }
+
+        return response;
+    }
+
+    async fetchData(props) {
+        const { method, responseText, isCheckInventory } = props;
+
+        const args = this.buildHandlerArgs();
+        const response = await FetchData[`${method}`](args);
+
+        if (response) this.handleClickFinish(response, responseText, isCheckInventory);
+
+        return response;
+    }
+
+    get buttonBack() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, 'back');
+
+        return response;
+    }
+
+    get buttonBuy() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, 'buy');
+
+        return response;
+    }
+
+    get buttonCraft() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, 'craft');
+
+        return response;
+    }
+
+    get buttonSell() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, 'sell');
+
+        return response;
+    }
+
+    get craftRecipe() {
+        const response = this.itemProperties.itemLoot.craftRecipe;
+
+        return response;
+    }
+
+    get craftTime() {
+        const response = this.itemPropertiesLoot.craftTime;
+
+        return response;
+    }
+
+    get isEquipment() {
+        const response = this.itemProperties.isEquipment;
+
+        return response;
+    }
+
+    get itemData() {
+        const response = Statics.temp.itemData;
+
+        return response;
+    }
+
+    get page() {
+        const response = this.lastPageData.page;
+
+        return response;
+    }
+
+    get lastPageData() {
+        const el = HudPageDetail.lastPage;
+        const dataPosition = el.getAttribute('data-position');
+        const page = Hud.getElHudPage(dataPosition);
+        const response = page.lastPage;
+
+        return response;
+    }
+
+    get transitionPage() {
+        const response = ds.Translation.getTranslationPage('detail');
+
+        return response;
+    }
+
+    get lastPageDataName() {
+        const response = this.lastPageData.name;
+
+        return response;
+    }
+
+    get itemLoreId() {
+        const response = this.itemProperties.idLore;
+
+        return response;
+    }
+
+    get itemPropertiesLoot() {
+        const response = this.itemProperties.itemLoot;
+
+        return response;
+    }
+
+    get priceBuy() {
+        const response = this.itemPropertiesLoot.priceBuy;
+
+        return response;
+    }
+
+    getQuantityValue() {
+        const id = HudPageDetail.ids.field.quantity;
+        const elQuantity = ds.Helper.getElementByDataId(this.shadowRoot, id);
+
+        if (!elQuantity) return 1;
+
+        const response = Number(elQuantity.getAttribute(ds.Prefix.ATTR_INPUT_VALUE));
+
+        return response > 0 ? response : 1;
+    }
+
+    handleBack() {
+        const data = this.lastPageData;
+        const {
+            pagePosition,
+            page,
+            from,
+            isNPC,
+            name,
+            backFilter
+        } = data;
+
+        if (isNPC && backFilter) HudPageNPC.nextTab = backFilter;
+
+        const args = {
+            detail: {
+                page,
+                pageTarget: from,
+                pagePosition,
+                from,
+                isNPC,
+                name
+            }
+        };
+
+        HTML.elHud.openPage(args);
+    }
+
+    async handleBuy(dataId) {
+        const args = {
+            target: dataId,
+            method: 'buyItem',
+            responseText: 'bought',
+            isCheckInventory: true
+        };
+
+        Analytics.send({
+            event_name: 'npc_buy',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+            npc: this.lastPageDataName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async handleClick(props) {
+        const { target, method } = props;
+        const elButton = ds.Helper.getElementByDataId(this.shadowRoot, target);
+        const isButtonDisabled = ds.Layout.isButtonDisabled(elButton);
+
+        if (isButtonDisabled) return;
+
+        HudPageDetail.method = method;
+        HudPageDetail.currentButton = elButton;
+        HudPageDetail.setCurrentButtonDisabled(true);
+
+        return await this.fetchData(props);
+    }
+
+    static setCurrentButtonDisabled(action) {
+        const elButton = HudPageDetail.currentButton;
+        ds.Layout.setButtonDisabled(elButton, action);
+    }
+
+    async handleCraft(dataId) {
+        const args = {
+            target: dataId,
+            method: 'startCraft',
+            responseText: 'crafted',
+            isCheckInventory: false
+        };
+
+        Analytics.send({
+            event_name: 'craft_start',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+            npc: this.lastPageDataName,
+        });
+
+        const data = await this.handleClick(args);
+
+        if (data.isError) return;
+
+        this.buttonBack.click();
+    }
+
+    async handleDelete(dataId) {
+        const title = ds.Translation.interfaceDefault.delete;
+        const text = ds.Translation.interfaceDefault.delete_confirm;
+        const isConfirm = await ds.ConfirmationHandler.open({
+            title,
+            text,
+        });
+
+        if (!isConfirm) return;
+
+        Analytics.send({
+            event_name: 'item_delete',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+        });
+
+        const args = {
+            target: dataId,
+            method: 'deleteItem',
+            responseText: 'deleted',
+            isCheckInventory: true
+        };
+
+        await this.handleClick(args);
+    }
+
+    async handleDeposit(dataId) {
+        const args = {
+            target: dataId,
+            method: 'depositItem',
+            responseText: 'deposited',
+            isCheckInventory: false
+        };
+
+        Analytics.send({
+            event_name: 'npc_deposit',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+            npc: this.lastPageDataName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async handleWithdraw(dataId) {
+        const args = {
+            target: dataId,
+            method: 'withdrawItem',
+            responseText: 'withdrawn',
+            isCheckInventory: true
+        };
+
+        Analytics.send({
+            event_name: 'npc_withdraw',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+            npc: this.lastPageDataName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async handleEquip(dataId) {
+        const args = {
+            target: dataId,
+            method: HudPageDetail.methods.equipItem,
+            responseText: 'equipped',
+            isCheckInventory: false
+        };
+
+        Analytics.send({
+            event_name: 'item_equip',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    handleClickFinish(response, translation, isCheckInventory) {
+        const content = this.buildResponseMessage(translation, isCheckInventory);
+        const args = {
+            content,
+        };
+
+        const isError = response.isError;
+        if (!isError) Notification.add(args);
+
+        HudPageDetail.setCurrentButtonDisabled(false);
+
+        this.setButtonDisabled();
+        this.handleClickFinishGoBack();
+    }
+
+    handleClickFinishGoBack() {
+        const isFromNpc = HudPageDetail.isFromNPC;
+        const method = HudPageDetail.method;
+        const isUnequipItem = method === HudPageDetail.methods.unequipItem;
+        let isClickBack = false;
+        let quantity = 0;
+
+        if (!isFromNpc) {
+            const inventory = Player.inventory;
+            quantity = inventory[this.itemId];
+        }
+
+        if (!quantity || isUnequipItem) isClickBack = true;
+        if (isClickBack) this.buttonBack.click();
+    }
+
+    async handleSell(dataId) {
+        const args = {
+            target: dataId,
+            method: 'sellItem',
+            responseText: 'sold_item',
+            isCheckInventory: true
+        };
+
+        Analytics.send({
+            event_name: 'npc_sell',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+            npc: this.lastPageDataName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async handleUnequip(dataId) {
+        const args = {
+            target: dataId,
+            method: HudPageDetail.methods.unequipItem,
+            responseText: 'unequipped',
+            isCheckInventory: true
+        };
+
+        Analytics.send({
+            event_name: 'item_unequip',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async handleUse(target) {
+        const args = {
+            target,
+            method: 'useItem',
+            responseText: 'used',
+            isCheckInventory: false
+        };
+
+        Analytics.send({
+            event_name: 'item_use',
+            item_id: this.itemProperties?.id,
+            item_name: this.itemProperties?.translationName,
+        });
+
+        await this.handleClick(args);
+    }
+
+    observeQuantityChanges(elQuantity) {
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'attributes' &&
+                    mutation.attributeName === ds.Prefix.ATTR_INPUT_VALUE) {
+                    this.updatePriceField();
+                    this.updateTimeField();
+                    this.updateCraftRecipe();
+                }
+            }
+        });
+
+        observer.observe(elQuantity, {
+            attributes: true
+        });
+    }
+
+    async render() {
+        const component = await this.draw();
+
+        ds.Components.render(this.args, component);
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+
+        this.setQuantityField();
+
+        this.setButtosDisabled();
+    }
+
+    setButtonDisabled() {
+        const button = HudPageDetail.currentButton;
+        const dataId = button.getAttribute('data-id');
+        const capitalizeDataId = ds.Helper.capitalizeString(dataId);
+        const method = `setButtonDisabled${capitalizeDataId}`;
+        const isValid = typeof this[method] === 'function';
+
+        if (isValid) this[method]();
+    }
+
+    static setDataFrom(props) {
+        const { isFromNPC, npcAction } = props;
+
+        HudPageDetail.isFromNPC = isFromNPC;
+        HudPageDetail.npcAction = npcAction;
+    }
+
+    setQuantityField() {
+        const id = HudPageDetail.ids.field.quantity;
+        const elQuantity = ds.Helper.getElementByDataId(this.shadowRoot, id);
+
+        if (!elQuantity) return;
+
+        const quantity = this.calculateQuantity();
+        const resolvedQuantity = this.itemProperties?.quantity ?? this.itemData?.quantity ?? 1;
+
+        const valueMin = HudPageDetail.isFromNPC ? quantity.min : 1;
+        elQuantity.setAttribute(ds.Prefix.ATTR_INPUT_VALUE, valueMin);
+
+        const valueMax = HudPageDetail.isFromNPC ? quantity.max : resolvedQuantity;
+        elQuantity.setAttribute(ds.Prefix.ATTR_INPUT_MAX, valueMax);
+
+        elQuantity.setAttribute(ds.Prefix.ATTR_INPUT_MIN, 1);
+
+        elQuantity.shadowRoot.querySelector('input').focus();
+
+        this.updatePriceField();
+        this.updateTimeField();
+
+        this.observeQuantityChanges(elQuantity);
+    }
+
+    setButtosDisabled() {
+        this.setButtonDisabledBuy();
+        this.setButtonDisabledCraft();
+        this.setButtonDisabledDeposit();
+        this.setButtonDisabledSell();
+        this.setButtonDisabledWithdraw();
+    }
+
+    setButtonDisabledBuy() {
+        const price = this.calculatePriceFromQuantity(1);
+        const currency = Player.getInventoryByCurrency(this.itemPropertiesLoot.pay_with);
+        const isDisabled = price > currency;
+
+        ds.Layout.setButtonDisabled(this.buttonBuy, isDisabled);
+    }
+
+    setButtonDisabledByNotHaving(data) {
+        const itemId = this.itemId;
+        const isItem = data[itemId];
+
+        ds.Layout.setButtonDisabled(HudPageDetail.currentButton, !isItem);
+    }
+
+    setButtonDisabledCraft() {
+        let isDisabled = false;
+        const recipe = this.craftRecipe;
+
+        if (!recipe) {
+            isDisabled = true;
+        } else {
+            const quantitySelected = this.getQuantityValue();
+            const { max } = PageDetailCraft.calculateQuantity(recipe);
+            const isRule = max === 0 || quantitySelected > max;
+            if (isRule) isDisabled = true;
+        }
+
+        const isCraftingNPC = PageDetailCraft.isCraftingNPC;
+
+        if (isCraftingNPC) isDisabled = true;
+
+        ds.Layout.setButtonDisabled(HudPageDetail.currentButton, isDisabled);
+    }
+
+    setButtonDisabledDeposit() {
+        this.setButtonDisabledByNotHaving(Player.inventory);
+    }
+
+    setButtonDisabledSell() {
+        this.setButtonDisabledByNotHaving(Player.inventory);
+    }
+
+    setButtonDisabledWithdraw() {
+        this.setButtonDisabledByNotHaving(Player.bankStorage);
+    }
+
+    setText(text) {
+        this.page?.setText(text);
+    }
+
+    setTexts() {
+        const transition = ds.Translation.interfaceDefault;
+        this.page?.setTitle(transition.detail);
+        this.setText(transition.detail_description);
+    }
+
+    updatePriceField() {
+        const quantity = this.getQuantityValue();
+        const price = this.calculatePriceFromQuantity(quantity);
+
+        const id = HudPageDetail.ids.field.price;
+        const elPrice = ds.Helper.getElementByDataId(this.shadowRoot, id);
+
+        if (!elPrice) return;
+
+        elPrice.setAttribute(ds.Prefix.ATTR_INPUT_VALUE, price);
+    }
+
+    updateTimeField() {
+        const isCraft = PageDetail.isCraft;
+
+        if (!isCraft) return;
+
+        const quantity = this.getQuantityValue();
+        const value = PageDetailCraft.buildTimeText(this.craftTime * quantity);
+
+        const id = HudPageDetail.ids.field.time;
+        const elTime = ds.Helper.getElementByDataId(this.shadowRoot, id);
+
+        if (!elTime) return;
+
+        elTime.setAttribute(ds.Prefix.ATTR_INPUT_VALUE, value);
+    }
+
+    updateCraftRecipe() {
+        const isCraft = PageDetail.isCraft;
+
+        if (!isCraft) return;
+
+        const quantity = this.getQuantityValue();
+        const recipe = this.craftRecipe;
+
+        if (!recipe) return;
+
+        const elPageDetail = this.shadowRoot.querySelector('.gm-detail');
+
+        if (!elPageDetail) return;
+
+        const existingSubtitle = elPageDetail.querySelector('.ds-title');
+
+        if (existingSubtitle) {
+            const subtitleRow = existingSubtitle.closest('.ds-row');
+            const cardRow = subtitleRow.nextElementSibling;
+
+            if (cardRow) cardRow.remove();
+            subtitleRow.remove();
+        }
+
+        const recipeHtml = PageDetailCraft.drawRecipe(recipe, quantity);
+
+        elPageDetail.insertAdjacentHTML('beforeend', recipeHtml);
+    }
+}
+export class HudPageEquipments extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static pageDetail;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+        HudPageEquipments.pageDetail = this;
+    }
+
+
+
+    draw() {
+        const page = this.getAttribute('page');
+        let html = '<div class="gm-equipment">';
+
+        Statics.equipments.forEach((index) => {
+            if (index !== 'clothes') html += this.drawItem(index);
+        });
+        html += '</div>';
+
+        const contentWrapper = ds.Page.drawContent(page, html);
+
+        return contentWrapper;
+    }
+
+    drawItem(index) {
+        const equipments = Player.equipmentsInStorage;
+        const equipmentsData = Player.equipments;
+        const id = equipmentsData?.[index];
+        const item = Character.getEquipmentIdLoreById(equipments, id);
+        const quantity = 1;
+        const kind = index;
+        const argsItem = {
+            target: item,
+            quantity
+        };
+        const itemProperties = Storage.getProperties(argsItem);
+        const isDurability = itemProperties?.isDurability;
+        const itemData = {
+            id,
+            isDurability,
+            quantity,
+            item: itemProperties?.idLore,
+            kind: itemProperties?.itemLoot?.kind
+        };
+        const dataHandlerProps = `[${ds.Helper.buildJSONToHTML(itemData)}]`;
+        const isEquipment = item && item?.length !== 0 ? true : false;
+        const durabilityStorage = Storage.getItemDurabilityById(id);
+        const args = {
+            item,
+            isDurability,
+            isEquipment,
+            kind,
+            isTooltip: !isEquipment,
+            id,
+            durabilityStorage
+        };
+        const icon = lo.HTML.drawLoot(args);
+        const translation = ds.Translation.gameEquipment[index];
+        const tooltip = isEquipment ? '' : `data-tooltip="${translation}"`;
+        const theme = ds.Layout.theme.card;
+        let response = `
+            <button
+                class="ds-card--small ${theme} gm-equipment__${index}"
+                type="button"
+                ${tooltip}
+        `;
+
+        if (itemProperties) {
+            response += `
+                data-handler="handleOpenDetails"
+                data-handler-props='${dataHandlerProps}'
+            `;
+        }
+
+        response += `
+            >
+                <div class="ds-card__header">
+                </div>
+                <div class="ds-card__body">
+                    ${icon}
+                </div>
+                <div class="ds-card__footer">
+                </div>
+            </button>
+        `;
+
+        return response;
+    }
+
+    handleOpenDetails(target) {
+        const args = {
+            id: target,
+            context: this,
+            isFromNPC: false,
+            backFilter: this.getAttribute('page')
+        };
+
+        HudPageDetail.itemId = target.id;
+
+        Hud.openPageDetail(args);
+    }
+
+    redraw() {
+        this.render();
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+        ds.Layout.addEventListeners(this, 'button');
+
+        const elements = this.shadowRoot.querySelectorAll('[data-tooltip]');
+
+        elements.forEach(el => {
+            ds.Tooltip?.elTooltipWrapper?.build({ context: el });
+        });
+    }
+
+    updateData() {
+        this.render();
+    }
+}
+export class HudPageInventory extends HTMLElement {
+    args = {
+        context: this,
+    };
+    activeContentDetault = 'all';
+    activeContent = this.activeContentDetault;
+    itemKinds = [];
+    static pageDetail;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        HudPageInventory.pageDetail = this;
+        this.redraw();
+    }
+
+
+
+    buildItemKinds(props) {
+        const { item, quantityItem } = props;
+        const argsItem = {
+            target: item,
+            quantity: quantityItem
+        };
+        const itemProperties = Storage.getProperties(argsItem);
+        const kind = itemProperties.itemLoot.kind;
+        const isKind = this.itemKinds.includes(kind);
+
+        if (!isKind) this.itemKinds.push(kind);
+    }
+
+    draw() {
+        const footer = this.drawFooter();
+        const page = this.getAttribute('page');
+
+        const items = Player.inventory;
+        const length = items.length;
+        const content = length > 0 ? this.drawList(items) : Layout.drawEmptyContent();
+
+        const contentWrapper = ds.Page.drawContent(page, content);
+        const footerWrapper = ds.Page.drawFooter(footer, false);
+        const response = `
+            ${contentWrapper}
+            ${footerWrapper}
+        `;
+
+        this.drawMenu();
+
+        return response;
+    }
+
+    drawMenu() {
+        let buttons = [];
+        const itemKinds = this.itemKinds;
+        const isKinds = itemKinds.length > 0;
+        if (!isKinds) return;
+
+        buttons.push(Statics.buttons.filterAll);
+
+        let isEquipment = false;
+        let isUsable = false;
+        let isResources = false;
+        let isMoney = false;
+        let isCollectable = false;
+
+        itemKinds.forEach((index) => {
+            const isIndexEquipment = Storage.isEquipment(index);
+            if (isIndexEquipment) isEquipment = true;
+
+            const kind = Storage.getItemKind(index);
+
+            if (kind.isResources) isResources = true;
+            if (kind.isMoney) isMoney = true;
+            if (kind.isUsable) isUsable = true;
+            if (kind.isCollectable) isCollectable = true;
+        });
+
+        const buttonsStatics = Statics.buttons;
+
+        if (isEquipment) buttons.push(buttonsStatics.filterEquipment);
+        if (isResources) buttons.push(buttonsStatics.filterResources);
+        if (isMoney) buttons.push(buttonsStatics.filterMoney);
+        if (isUsable) buttons.push(buttonsStatics.filterUsable);
+        if (isCollectable) buttons.push(buttonsStatics.filterCollectable);
+
+        HTML.elHudPageRight.setMenu({ buttons });
+    }
+
+    drawList(items) {
+        const filtered = items.filter(index => this.isSameActiveContent(index));
+
+        this.prepareKinds(filtered);
+
+        const response = Layout.drawCardItemList(filtered, true);
+
+        return response;
+    }
+
+    drawFooter() {
+        const translation = ds.Translation.interfaceDefault;
+        const translationCapacity = translation?.capacity;
+        const progress = this.drawProgress(translationCapacity);
+        const response = `
+            <span class="gm-label">${translationCapacity}:</span>
+            ${progress}
+        `;
+
+        return response;
+    }
+
+    drawProgress(translationCapacity) {
+        const data = Data.player.attributes;
+        const value = data.weight;
+        const valueMax = data.capacity;
+        const args = {
+            value,
+            valueMax,
+        };
+        const theme = ds.Layout.buildProgressColor(args);
+        const tooltipArgs = {
+            text: translationCapacity,
+            value,
+            valueMax,
+            isPercentage: false
+        };
+        const tooltipArgs2 = {
+            value,
+            valueMax,
+            isPercentage: true
+        };
+        const tooltip1 = ds.Layout.buildTextCapacity(tooltipArgs);
+        const tooltip2 = ds.Layout.buildTextCapacity(tooltipArgs2);
+        const tooltip = `${tooltip1} - ${tooltip2}`;
+        const componentProgress = ds.Components.componentProgress;
+        const response = `
+            <${componentProgress}
+                value="${value}"
+                value-max="${valueMax}"
+                theme="${theme}"
+                direction="horizontal"
+                data-tooltip="${tooltip}"
+                class="ds-display-flex ds-full-width"
+                css-wrapper="gm-style"
+                class="ds-display-flex ds-progress"
+            ></${componentProgress}>
+        `;
+
+        return response;
+    }
+
+    isSameActiveContent(target) {
+        const activeContent = this.activeContent;
+        const isFilterAll = activeContent === this.activeContentDetault;
+        let response = false;
+
+        if (isFilterAll) {
+            response = true;
+        } else {
+            const itemId = target.id_lore;
+            const itemData = ds.Helper.findById(ds.Modules.items, Number(itemId));
+            const itemKind = itemData.kind;
+            const isEquipment = Storage.isEquipment(itemKind);
+
+            if (activeContent === itemKind) response = true;
+            if (isEquipment && activeContent === 'equipment') response = true;
+        }
+
+        return response;
+    }
+
+    handleFilter(target) {
+        const kind = Storage.getIdByTranslation(target);
+        this.activeContent = kind ? kind : target;
+        this.render();
+    }
+
+    handleOpenDetails(target) {
+        const args = {
+            id: target,
+            context: this,
+            isFromNPC: false,
+            backFilter: this.getAttribute('page')
+        };
+
+        HudPageDetail.itemId = target.id;
+
+        Hud.openPageDetail(args);
+    }
+
+    prepareKinds(items) {
+        items.forEach((entry) => {
+            const itemLoot = Storage.buildItem(entry);
+            const item = itemLoot.item;
+            const quantityItem = itemLoot.quantity;
+            const args = {
+                item,
+                quantityItem
+            };
+
+            this.buildItemKinds(args);
+        });
+    }
+
+    updateData() {
+        this.redraw();
+    }
+
+    redraw() {
+        this.itemKinds = [];
+        this.activeContent = this.activeContentDetault;
+        this.render();
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageMap extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const page = this.getAttribute('page');
+        const list = this.drawList();
+        const content = `
+            <div class="ds-row ds-center">
+                <h2 class="ds-title">
+                    ${this.data.name}
+                </h2>
+            </div>
+            <div class="ds-page__${this.args}">
+                <div class="gm-mini-map">
+                    ${list}
+                </div>
+            </div>
+        `;
+        const contentWrapper = ds.Page.drawContent(page, content);
+        const response = `
+            ${contentWrapper}
+        `;
+
+        return response;
+    }
+
+    drawList() {
+        const cssTilePrefix = 'gm-mini-map__tile--';
+        const playerMap = Data.miniMap;
+        const length = Data.map.data.mapsTotal;
+        let response = '';
+
+        for (let i = 0; i < length; i++) {
+            const target = i + 1;
+            const tileData = playerMap?.[target];
+            const isVisited = tileData !== undefined;
+            const cssTile = isVisited ? `${cssTilePrefix}green` : `${cssTilePrefix}disabled`;
+
+            response += `
+                <div
+                    class="gm-mini-map__tile ${cssTile}"
+                    id="mini_map_tile_${target}"
+                >
+            `;
+
+            const isCurrent = this.data.idMiniMap === target;
+
+            if (isCurrent) response += this.drawPointer();
+
+            response += this.drawDoors(tileData, target);
+            response += '</div>';
+        }
+
+        return response;
+    }
+
+    drawDoors(tileData, target) {
+        const visitedDoors = Object
+            .values(tileData?.doors || {})
+            .flat();
+
+        const isDoor1 = visitedDoors.includes(1);
+        const isDoor2 = visitedDoors.includes(2);
+        const isDoor3 = visitedDoors.includes(3);
+        const isDoor4 = visitedDoors.includes(4);
+
+        let response = '';
+
+        const drawDoor = (target, position) => `
+            <div
+                id="mini_map_tile_door_${position}_${target}"
+                class="gm-mini-map__door-${position}"
+            ></div>
+        `;
+
+        if (isDoor1) response += drawDoor(target, 'top');
+        if (isDoor2) response += drawDoor(target, 'left');
+        if (isDoor3) response += drawDoor(target, 'right');
+        if (isDoor4) response += drawDoor(target, 'bottom');
+
+        return response;
+    }
+
+    drawPointer() {
+        const props = {
+            theme: 'black',
+            size: 'extra-big',
+            icon: 'map'
+        };
+        const icon = ds.HTML.drawIcon(props);
+        const response = `
+            <div class="gm-mini-map__pointer ds-animation--up-down">
+                ${icon}
+            </div>
+        `;
+
+        return response;
+    }
+
+    get data() {
+        const response = Data.map.data;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    updateData() {
+        this.render();
+    }
+}
+export class HudPageMenu extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        let response = `
+            <div class="ds-button-wrapper ds-menu-vertical">
+        `;
+
+        Statics.buttonsMainMenu.forEach((index) => {
+            const buttonArgs = {
+                id: index.id || '',
+                target: index.pageTarget,
+                css: index.css + ' ds-button--full',
+                label: index.label
+            };
+            response += this.drawButton(buttonArgs);
+        });
+
+        response += '</div>';
+
+        return response;
+    }
+
+    drawButton(props) {
+        const {
+            id,
+            target,
+            css,
+            label
+        } = props;
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme;
+        const themeButton = theme.menuDefault;
+        const themeSize = theme.menuSize;
+        const response = `
+            <${componentButton}
+                id="${id}"
+                theme="${themeButton}"
+                size="${themeSize}"
+                is-proportional="true"
+                is-full="true"
+                page-target="${target}"
+                page-position="right"
+                click="open-hud-page"
+                css-custom="${css}"
+                data-kind="button"
+                label="${label}"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+}
+export class HudPageNPC extends HTMLElement {
+    args = {
+        context: this,
+    };
+    pageId = 'npc';
+    buttons = [];
+    itemKinds = [];
+    static id;
+    static name;
+    static nextTab;
+    static pageDetail;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        HudPageNPC.pageDetail = this;
+        this.render();
+
+        const nextTab = HudPageNPC.nextTab;
+        const index = nextTab
+            ? this.buttons.findIndex((button) => button?.id === nextTab)
+            : -1;
+
+        this.clickButtonByIndex(index >= 0 ? index : 0);
+
+        HudPageNPC.nextTab = null;
+    }
+
+
+
+    buildActions(data) {
+        const actions = Statics.actions;
+        const buttons = Statics.buttons;
+        const response = [];
+
+        data.forEach(index => {
+            const action = ds.Helper.findById(actions, index);
+
+            if (action) {
+                const label = action?.label;
+                const capitalized = ds.Helper.capitalizeString(label);
+                const button = buttons[`filter${capitalized}`];
+
+                response.push(button);
+            }
+        });
+
+        this.buttons = response;
+    }
+
+    clickButtonByIndex(index) {
+        const length = this.buttons.length;
+        const isNotValid = length === 0 || index >= length;
+
+        if (isNotValid) return;
+
+        const elButton = this.page.elMenuButtons;
+
+        elButton?.[index]?.click();
+    }
+
+    draw() {
+        const page = this.getAttribute('page');
+        const content = '';
+        const contentWrapper = ds.Page.drawContent(page, content);
+        const response = `
+            ${contentWrapper}
+        `;
+
+        return response;
+    }
+
+    drawMenu() {
+        const buttons = this.buttons;
+
+        this.page.setMenu({ buttons });
+    }
+
+    static drawItemsList(items) {
+        let response = '';
+
+        items.forEach((index) => {
+            const price = ds.Layout.symbol.infinity;
+            const itemFormatted = [`${index}`, price];
+            const itemLoot = Storage.buildItem(itemFormatted);
+            const item = itemLoot.item;
+            const args = {
+                item,
+                index: itemFormatted,
+            };
+            response += Layout.buildCardItem(args);
+        });
+
+        return response;
+    }
+
+    static drawWrapper(list, page = 'npc') {
+        const content = Layout.drawCardWrapper(list);
+        const contentWrapper = ds.Page.drawContent(page, content);
+        const footerWrapper = HudPageDetail.drawMoney();
+        const response = `
+            ${contentWrapper}
+            ${footerWrapper}
+        `;
+
+        return response;
+    }
+
+    getData() {
+        const id = HudPageNPC.id;
+        const data = NPCs.getData(id);
+
+        HudPageNPC.name = data.name;
+
+        const actions = data.actions;
+
+        if (actions) this.buildActions(actions);
+
+        const sells = data.sells;
+
+        if (sells) HudPageNPC.sells = sells;
+
+        const quests = data.quests;
+
+        if (quests) HudPageNPC.quests = quests;
+
+        const crafts = data.crafts;
+
+        if (crafts) HudPageNPC.crafts = crafts;
+    }
+
+    get page() {
+        const response = HTML.elHudPageLeft;
+
+        return response;
+    }
+
+    static handleOpenDetails(props) {
+        const { context, id, npcAction } = props;
+        const args = {
+            id,
+            context,
+            isFromNPC: true,
+            npcAction,
+            backFilter: context.getAttribute('page')
+        };
+
+        Hud.openPageDetail(args);
+    }
+
+    handleCraftRewardBack() {
+        PageDetailCraft.isReward = false;
+
+        this.renderCraft();
+    }
+
+    redraw() {
+        this.render();
+
+        const page = this.page.elContent?.getAttribute('page');
+        const elButton = this.page.getActiveButton(page);
+
+        Layout.setActiveButton(elButton);
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.getData();
+        this.drawMenu();
+        this.talk();
+    }
+
+    renderCraft() {
+        this.render();
+
+        this.page.elMenuButtons.forEach((el) => {
+            const isFound = el.dataset.id === Statics.buttons.filterCraft.id;
+
+            if (isFound) el.click();
+        });
+    }
+
+    async talk() {
+        const name = HudPageNPC.name;
+        const response = await FetchData.getNPC(name);
+        const isRestored = response?.status_restored;
+
+        Analytics.send({
+            event_name: 'npc_talk',
+            npc_name: name,
+        });
+
+        if (!isRestored) return;
+
+        const dialogs = ds.Translation.dialog[name];
+        const text = dialogs?.status_restored;
+
+        if (text) {
+            const args = { content: text };
+
+            Notification.add(args);
+        }
+    }
+}
+export class HudPageQuest extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static currentButton;
+    static pageDetail;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        HudPageQuest.pageDetail = this;
+        this.render();
+    }
+
+
+
+    buildResponseMessage(target) {
+        const translation = ds.Translation.interface.response;
+        const response = translation[target];
+
+        return response;
+    }
+
+    draw() {
+        const list = this.drawList();
+        const content = `
+            ${list}
+        `;
+        const response = HudPageNPC.drawWrapper(content);
+
+        return response;
+    }
+
+    drawList() {
+        const translation = ds.Translation.interfaceDefault;
+        const header = `
+            ${ds.HTML.drawTH(translation?.quest)}
+            ${ds.HTML.drawTH(translation?.description)}
+            ${ds.HTML.drawTH(translation?.action)}
+        `;
+        const content = this.drawListItems();
+        const response = Layout.drawTable(header, content);
+
+        return response;
+    }
+
+    drawListItems() {
+        const quests = Quest.buildQuestListByNPC(HudPageNPC.id);
+        let response = '';
+
+        quests.forEach(quest => {
+            const isDone = quest.isDone;
+            const title = HudPageQuest.drawListItemContent(isDone, quest.title);
+            const description = HudPageQuest.drawListItemContent(isDone, quest.description);
+            const action = ds.HTML.drawTD(quest.action, true);
+            const content = `
+                ${title}
+                ${description}
+                ${action}
+            `;
+
+            response += Layout.drawTableTr(content);
+        });
+
+        return response;
+    }
+
+    static drawListItemContent(isDone, text) {
+        const escaped = ds.Helper.escapeHTML(text);
+        const response = ds.HTML.drawTD(ds.HTML.drawS(isDone, escaped));
+
+        return response;
+    }
+
+    async fetchData(props) {
+        const { method, responseText } = props;
+
+        this.handleClickFinish(responseText);
+
+        const response = await FetchData[`${method}`](props);
+
+        return response;
+    }
+
+    async handleAccept(id) {
+        const args = {
+            id,
+            target: Layout.buildId(Statics.buttons.accept.id, id),
+            method: 'acceptQuest',
+            responseText: 'quest_accepted',
+            npc: HudPageNPC.id
+        };
+
+        Analytics.send({
+            event_name: 'quest_accept',
+            quest_id: id,
+            npc_id: HudPageNPC.id,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async handleClick(props) {
+        const { target } = props;
+        const elButton = ds.Helper.getElementByDataId(this.shadowRoot, target);
+        const isButtonDisabled = ds.Layout.isButtonDisabled(elButton);
+
+        if (isButtonDisabled) return;
+
+        HudPageQuest.currentButton = elButton;
+        HudPageQuest.setCurrentButtonDisabled(true);
+        await this.fetchData(props);
+        HudPageQuest.pageDetail.render();
+    }
+
+    handleClickFinish(translation) {
+        const content = this.buildResponseMessage(translation);
+        const args = {
+            content,
+        };
+
+        Notification.add(args);
+
+        HudPageQuest.setCurrentButtonDisabled(false);
+    }
+
+    async handleFinish(id) {
+        const args = {
+            id,
+            target: Layout.buildId(Statics.buttons.finish.id, id),
+            method: 'finishQuest',
+            responseText: 'quest_completed',
+            npc: HudPageNPC.id
+        };
+
+        Analytics.send({
+            event_name: 'quest_finish',
+            quest_id: id,
+            npc_id: HudPageNPC.id,
+        });
+
+        await this.handleClick(args);
+    }
+
+    async render() {
+        HudPageDetail.npcAction = Quest.action;
+
+        const component = await this.draw();
+
+        ds.Components.render(this.args, component);
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    static setCurrentButtonDisabled(action) {
+        const elButton = HudPageQuest.currentButton;
+
+        ds.Layout.setButtonDisabled(elButton, action);
+    }
+}
+export class HudPageQuests extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+    draw() {
+        const page = this.getAttribute('page');
+        const list = this.drawList();
+        const listEmpty = Layout.drawEmpty();
+        const isContent = ds.Helper.isObjectContent(Player.quests);
+        const content = isContent ? list : listEmpty;
+        const response = ds.Page.drawContent(page, content);
+
+        return response;
+    }
+
+    drawList() {
+        const translation = ds.Translation.interfaceDefault;
+        const header = `
+            ${ds.HTML.drawTH(translation?.quest)}
+            ${ds.HTML.drawTH(translation?.description)}
+            ${ds.HTML.drawTH(translation?.requester)}
+            ${ds.HTML.drawTH(translation?.status)}
+        `;
+        const content = this.drawListItems();
+        const response = Layout.drawTable(header, content);
+
+        return response;
+    }
+
+    drawListItems() {
+        const quests = Quest.buildFullQuestList(false);
+        let response = '';
+
+        quests.forEach(quest => {
+            const isDone = quest.isDone;
+            const title = HudPageQuest.drawListItemContent(isDone, quest.title);
+            const description = HudPageQuest.drawListItemContent(isDone, quest.description);
+            const requester = HudPageQuest.drawListItemContent(isDone, quest.requester);
+            const action = ds.HTML.drawTD(quest.action, true);
+
+            const content = `
+                ${title}
+                ${description}
+                ${requester}
+                ${action}
+            `;
+            response += Layout.drawTableTr(content);
+        });
+
+        return response;
+    }
+
+    render() {
+        HudPageDetail.npcAction = 'quests';
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    updateData() {
+        this.render();
+    }
+}
+export class HudPageRepair extends HudPageNPC {
+    args = {
+        context: this,
+    };
+    ids = [];
+    itemKinds = [];
+    static fieldPrice = 'field_repair_price';
+
+
+
+
+    constructor() {
+        super();
+    }
+
+
+
+
+    addEventListeners() {
+        ds.Layout.addEventListeners(this, 'button');
+        ds.Layout.addEventListeners(this, ds.Components.componentButton);
+    }
+
+    buildItems() {
+        const items = Player.equipmentsInStorage;
+        const response = [];
+
+        items.forEach((index) => {
+            const itemLore = this.getItemLore(index);
+            const isKind = this.itemKinds.includes(itemLore?.kind);
+            const isDamaged = this.isDamaged(index, itemLore);
+
+            if (isKind && isDamaged) response.push(index);
+        });
+
+        return response;
+    }
+
+    calculatePrice(index) {
+        const item = Storage.getItemById(index.id);
+        const itemLore = this.getItemLore(index);
+        const maximumDurability = itemLore?.durability;
+        const currentDurability = item?.durability;
+        const missingDurability = maximumDurability - currentDurability;
+        const isInvalid = missingDurability <= 0 || maximumDurability <= 0;
+
+        if (isInvalid) return 0;
+
+        const priceBuy = itemLore?.priceBuy;
+        const response = Math.ceil(priceBuy * missingDurability / maximumDurability);
+
+        return response;
+    }
+
+    calculateTotalPrice(ids = this.ids) {
+        const items = this.buildItems();
+        let response = 0;
+
+        items.forEach((index) => {
+            const isSelected = ids.includes(index.id);
+            if (isSelected) response += this.calculatePrice(index);
+        });
+
+        return response;
+    }
+
+    draw() {
+        const description = ds.Translation.getTranslationPage('repair')?.description;
+        const items = this.buildItems();
+        const list = items.length > 0 ? this.drawItemsList(items) : Layout.drawEmptyContent();
+        const price = this.calculateTotalPrice();
+        const field = this.drawField({
+            label: Translation.buildTitlePriceGold(),
+            value: price,
+            dataId: HudPageRepair.fieldPrice
+        });
+        const footer = this.drawFooter();
+        const html = `
+            <div class="ds-row ds-margin-bottom--big">
+                ${description}
+            </div>
+            ${list}
+            ${field}
+            ${footer}
+        `;
+        const response = HudPageNPC.drawWrapper(html);
+
+        return response;
+    }
+
+    drawField(props) {
+        const { label, value, dataId } = props;
+        const componentFormField = ds.Components.componentFormField;
+        const escape = ds.Helper.escapeHTML;
+        const wrapper = ds.Layout.theme.form;
+        const response = `
+            <${componentFormField}
+                class="ds-row ds-margin-top-bottom--extra-big"
+                label="${escape(label)}"
+                input-value="${escape(value)}"
+                is-read-only="true"
+                data-id="${escape(dataId)}"
+                type="text"
+                css-wrapper="${wrapper}"
+            >
+            </${componentFormField}>
+        `;
+
+        return response;
+    }
+
+    drawFooter() {
+        const button = Statics.buttons.repair;
+        const buttonAll = Statics.buttons.repairAll;
+        const action = Layout.drawButtonComponent({
+            id: button.id,
+            label: button.label,
+            handler: button.handler,
+            handlerProps: button.handlerProps,
+            theme: button.theme
+        });
+        const actionAll = Layout.drawButtonComponent({
+            id: buttonAll.id,
+            label: buttonAll.label,
+            handler: buttonAll.handler,
+            handlerProps: buttonAll.handlerProps,
+            theme: buttonAll.theme
+        });
+        const content = `
+            ${action}
+            ${actionAll}
+        `;
+        const response = ds.Page.drawFooter(content);
+
+        return response;
+    }
+
+    drawItemCard(index) {
+        const id = index.id;
+        const item = Storage.getItemById(id);
+        const itemLore = this.getItemLore(index);
+        const isDurability = itemLore?.durability > 0;
+        const durabilityStorage = item?.durability;
+        const icon = lo.HTML.drawLoot({
+            item: index.id_lore,
+            isDurability,
+            durabilityStorage,
+            id
+        });
+        const price = this.calculatePrice(index);
+        const isSelected = this.ids.includes(id);
+        const theme = ds.Layout.theme.card;
+        const cssActive = isSelected ? `${theme}--active` : '';
+        const response = `
+            <button
+                class="gm-card__item ds-card--small ${theme} ${cssActive}"
+                type="button"
+                data-id="${id}"
+                data-handler="handleSelect"
+                data-handler-props='["${id}"]'
+                data-kind='button'
+            >
+                <div class="ds-card__header">
+                </div>
+                <div class="ds-card__body">
+                    ${icon}
+                </div>
+                <div class="ds-card__footer ds-right">
+                    <div class="ds-truncate">${price}</div>
+                </div>
+            </button>
+        `;
+
+        return response;
+    }
+
+    drawItemsList(items) {
+        let response = '';
+
+        items.forEach((index) => {
+            response += this.drawItemCard(index);
+        });
+
+        return response;
+    }
+
+    async fetchRepair() {
+        const method = this.isMagic ? 'repairMagic' : 'repairCombat';
+        const args = {
+            ids: this.ids,
+            npc: HudPageNPC.id,
+        };
+        const response = await FetchData[method](args);
+
+        if (response?.isError) return;
+
+        Analytics.send({
+            event_name: 'npc_repair',
+            items: this.ids,
+            npc_id: HudPageNPC.id,
+        });
+
+        const translation = ds.Translation.interface.response.repaired;
+        const argsNotification = { content: translation };
+
+        Notification.add(argsNotification);
+
+        this.ids = [];
+
+        this.render();
+    }
+
+    get action() {
+        const response = this.getAttribute('action');
+
+        return response;
+    }
+
+    get isMagic() {
+        const response = this.action === 'repairMagic';
+
+        return response;
+    }
+
+    get translation() {
+        const response = ds.Translation.interfaceDefault;
+
+        return response;
+    }
+
+    getItemLore(index) {
+        const response = ds.Helper.findById(ds.Modules.items, Number(index.id_lore));
+
+        return response;
+    }
+
+    async handleRepair() {
+        const isInvalid = this.ids.length === 0;
+        if (isInvalid) return;
+
+        await this.fetchRepair();
+    }
+
+    async handleRepairAll() {
+        const items = this.buildItems();
+        const isInvalid = items.length === 0;
+        if (isInvalid) return;
+
+        this.ids = items.map((index) => index.id);
+
+        await this.fetchRepair();
+    }
+
+    handleSelect(id) {
+        const idNumber = Number(id);
+        const isSelected = this.ids.includes(idNumber);
+
+        if (isSelected) {
+            const index = this.ids.indexOf(idNumber);
+            this.ids.splice(index, 1);
+        } else {
+            this.ids.push(idNumber);
+        }
+
+        this.render();
+    }
+
+    isDamaged(index, itemLore) {
+        const item = Storage.getItemById(index.id);
+        const maximumDurability = itemLore?.durability;
+        const currentDurability = item?.durability;
+        const isDurability = maximumDurability > 0;
+        const isDamaged = currentDurability < maximumDurability;
+        const response = isDurability && isDamaged;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+        this.setButtonDisabled();
+    }
+
+    setButtonDisabled() {
+        const items = this.buildItems();
+        const allIds = items.map((index) => index.id);
+        const button = Statics.buttons.repair;
+        const buttonAll = Statics.buttons.repairAll;
+        const elButton = ds.Helper.getElementByDataId(this.shadowRoot, button.id);
+        const elButtonAll = ds.Helper.getElementByDataId(this.shadowRoot, buttonAll.id);
+        const price = this.calculateTotalPrice();
+        const priceAll = this.calculateTotalPrice(allIds);
+        const gold = Player.inventoryGold;
+        const isDisabled = this.ids.length === 0 || price > gold;
+        const isDisabledAll = allIds.length === 0 || priceAll > gold;
+
+        ds.Layout.setButtonDisabled(elButton, isDisabled);
+        ds.Layout.setButtonDisabled(elButtonAll, isDisabledAll);
+    }
+}
+
+export class HudPageRepairCombat extends HudPageRepair {
+    itemKinds = [
+        5,
+        6,
+        7,
+        8,
+        9,
+        14,
+        16,
+        17,
+        18,
+        19,
+        21,
+    ];
+
+
+
+
+    get action() {
+        const response = 'repairCombat';
+
+        return response;
+    }
+}
+
+export class HudPageRepairMagic extends HudPageRepair {
+    itemKinds = [
+        10,
+        11,
+        12,
+    ];
+
+
+
+
+    get action() {
+        const response = 'repairMagic';
+
+        return response;
+    }
+}
+
+export class HudPageSelectCharacter extends BaseComponent {
+    args = {
+        context: this,
+    };
+    idPlayer = 'player';
+    idCharacterNew = 'character_new';
+    idCharacterPlay = 'character_play';
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+
+
+
+    addEventListeners(signal) {
+        const data = [];
+        const elCharacterNew = ds.Helper.getElementsByDataId(this.shadowRoot, this.idCharacterNew);
+
+        elCharacterNew.forEach((el) => {
+            const args = {
+                el,
+                handler: this.addNewCharacter
+            };
+
+            data.push(args);
+        });
+
+        const elCharacterPlay = ds.Helper.getElementsByDataId(this.shadowRoot, this.idCharacterPlay);
+
+        elCharacterPlay.forEach((el) => {
+            const args = {
+                el,
+                handler: Management.play
+            };
+
+            data.push(args);
+        });
+
+        data.forEach((index) => {
+            ds.Helper.addEventListener({ ...index, context: this, signal });
+        });
+
+        const elCharacterDelete = this.shadowRoot.querySelectorAll('[click="delete-character"]');
+
+        elCharacterDelete.forEach((el) => {
+            el.addEventListener('click', (event) => event.stopPropagation(), { signal });
+        });
+
+        this.addEventListener('delete-character', this.handleDelete.bind(this), { signal });
+    }
+
+    addNewCharacter() {
+        HTML.elHud.openModalSelectClass();
+    }
+
+    draw() {
+        const list = this.drawList();
+        const response = `${list}`;
+
+        return response;
+    }
+
+    drawList() {
+        const lengthCharacters = Character.characters.length;
+        const lengthSlots = (Data.login?.slots ?? 0) - lengthCharacters;
+
+        let html = this.drawListCharacters();
+
+        if (lengthSlots > 0) html += this.drawListEmptySlots(lengthSlots);
+
+        const response = ds.Modal.drawContent(html);
+
+        return response;
+    }
+
+    drawListCharacters() {
+        let response = '';
+
+        Character.characters.forEach((character) => {
+            const value = character[1];
+            const id = value.id;
+            const translationDelete = ds.Translation.interfaceDefault.delete;
+            const customizations = ds.Helper.buildJSONToHTML(value.customizations);
+            const storage = Character.getStorageByCharcaterId(id);
+            const equipments = Character.buildEquipments(value.equipments, storage);
+            const equipmentsJson = ds.Helper.buildJSONToHTML(equipments);
+            const args = {
+                position: 'right',
+                click: 'delete-character',
+                size: 'extra-small',
+                sizeIcon: 'extra-small',
+                tooltip: translationDelete,
+                dataId: id,
+                isRounded: false
+            };
+            const buttonDelete = ds.Button.drawButtonClose(args);
+
+            const attributes = value.attributes;
+
+            const translationPage = ds.Translation.getTranslationPage('attributes');
+            const translationLevel = `${translationPage.level}: `;
+            const name = attributes.name;
+            const level = `${translationLevel} ${ds.Layout.buildSpan(attributes.level)}`;
+
+            const characterClass = Statics.classes[attributes.class].class;
+            const translationClass = ds.Translation.buildPlayerClass(characterClass);
+
+            const experience = HudPageAttributes.formatExperience(attributes.experience);
+            const translationExperience = `${translationPage.experience}: ${ds.Layout.buildSpan(experience)}`;
+            const componentEntity = lo.Components.entity;
+            const cssCard = ds.Layout.theme.card;
+
+            response += `
+                <button
+                    type="button"
+                    data-id="${this.idCharacterPlay}"
+                    id="${id}"
+                    class="ds-row ds-card--horizontal gm-card--horizontal ${cssCard}"
+                >
+                    <div class="ds-column ds-image">
+                        <${componentEntity}
+                            class="gm-alive gm-person ds-display-contents"
+                            entity="person"
+                            direction="down"
+                            action="walk"
+                            customizations=${customizations}
+                            equipments=${equipmentsJson}
+                            tabindex="-1"
+                        ></${componentEntity}>
+                    </div>
+                    <div class="ds-column ds-text">
+                        <div class="gm-button__delete-character">
+                            ${buttonDelete}
+                        </div>
+                        <span>${ds.Helper.escapeHTML(name)}</span>
+                        <small>${translationClass}</small>
+                        <small>${level}</small>
+                        <small>${translationExperience}</small>
+                    </div>
+                </button>
+             `;
+        });
+
+        return response;
+    }
+
+    drawListEmptySlots(extraSlots) {
+        const translation = ds.Translation.interfaceDefault?.create_new_character;
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme;
+        const buttonTheme = theme.menuSuccess;
+        const size = 'regular';
+        const button = `
+            <${componentButton}
+                theme="${buttonTheme}"
+                size="${size}"
+                label="${translation} (${extraSlots})"
+                data-id="${this.idCharacterNew}"
+                data-character-id="${this.idPlayer}"
+                is-full="true"
+            ></${componentButton}>
+        `;
+        const response = `
+            <div
+                class="ds-row ds-card ds-card--grey ds-card--horizontal"
+                id="${this.idPlayer}"
+            >
+                <div class="ds-row">
+                    ${button}
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+
+    async deleteCharacter(id) {
+        const args = { id };
+        const data = await FetchData.deleteCharacter(args);
+
+        Analytics.send({
+            event_name: 'character_delete',
+            character_id: id,
+        });
+
+        if (data.characters) this.redraw();
+    }
+
+    async handleDelete(event) {
+        const title = ds.Translation.interfaceDefault.delete;
+        const text = ds.Translation.interfaceDefault.delete_confirm;
+        const args = {
+            title,
+            text,
+        };
+        const isConfirm = await ds.ConfirmationHandler.open(args);
+
+        if (!isConfirm) return;
+
+        const id = event.detail.context.dataset.id;
+
+        this.deleteCharacter(id);
+    }
+
+    redraw() {
+        this.render();
+        this.rebindListeners();
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+}
+export class HudPageSelectClass extends HTMLElement {
+    args = {
+        context: this,
+    };
+    idPlayer = 'player';
+    static selectedClass;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+        this.addEventListeners();
+    }
+
+
+
+    addEventListeners() {
+        const data = [];
+        const el = this.shadowRoot.querySelectorAll('button');
+
+        el.forEach((el) => {
+            const args = {
+                el,
+                handler: this.handleCustomize
+            };
+            data.push(args);
+        });
+
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    draw() {
+        const list = this.drawList();
+        const response = `
+            ${list}
+        `;
+
+        return response;
+    }
+
+    drawList() {
+        const characterlist = this.drawListCharacters();
+        const content = ds.Modal.drawContent(characterlist);
+        const drawFooter = this.drawFooter();
+        const footer = ds.Modal.drawFooter(drawFooter);
+        const response = `
+            ${content}
+            ${footer}
+        `;
+
+        return response;
+    }
+
+    drawListCharacters() {
+        let response = '';
+        const characters = Object.entries(Statics.classes);
+
+        characters.forEach((character) => {
+            const index = character[0];
+            const value = character[1];
+            const characterClass = value.class;
+            const translationClass = ds.Translation.buildPlayerClass(characterClass);
+            const translationAttribute = this.drawListCharactersAttribute(characterClass);
+            const translationClassText = ds.Translation.buildPlayerClassDescription(characterClass);
+            const translationAttributePrimary = ds.Translation.gamePlayer.primary_attribute;
+            const customizations = ds.Helper.buildJSONToHTML(value.customizations);
+            const equipments = ds.Helper.buildJSONToHTML(value.equipments);
+            const cssCard = ds.Layout.theme.card;
+
+            response += `
+                <button
+                    type="button"
+                    class="ds-row ds-card--horizontal gm-card--horizontal ${cssCard}"
+                    id="${this.idPlayer}_${index}"
+                    data-class="${index}"
+                >
+                    <div class="ds-column ds-image">
+                        <${lo.Components.entity}
+                            class="gm-alive gm-person ds-display-contents"
+                            entity="person"
+                            direction="down"
+                            action="walk"
+                            customizations=${customizations}
+                            equipments=${equipments}
+                            tabindex="-1"
+                        ></${lo.Components.entity}>
+                    </div>
+                    <div class="ds-column ds-text">
+                        <span>${translationClass}</span>
+                        <small>
+                            ${translationClassText}
+                        </small>
+                        <small>
+                            ${translationAttributePrimary}:
+                            <span>${translationAttribute}</span>
+                        </small>
+                    </div>
+                </button>
+             `;
+        });
+
+        return response;
+    }
+
+    drawListCharactersAttribute(target) {
+        const attribute = Object.values(Statics.classes).find(index => index.class === target).attribute;
+        const translationPage = ds.Translation.getTranslationPage('attributes');
+        const response = translationPage[attribute];
+
+        return response;
+    }
+
+    drawFooter() {
+        const translationBack = ds.Translation.interfaceDefault?.back;
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme;
+        const buttonTheme = theme.menuDefault;
+        const size = theme.menuSize;
+        const response = `
+            <${componentButton}
+                theme="${buttonTheme}"
+                size="${size}"
+                data-handler="handleBack"
+                label="${translationBack}"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    handleBack() {
+        HTML.elHud.openModalSelectCharacter(false);
+    }
+
+    handleCustomize(event) {
+        const target = event.currentTarget;
+        const selectedClass = Number(target.getAttribute('data-class'));
+        const data = Statics.classes[selectedClass];
+
+        HudPageSelectClass.selectedClass = selectedClass;
+
+        CharacterRotation.customizations = { ...data.customizations };
+        CharacterRotation.equipments = { ...data.equipments };
+
+        CharacterRotation.equipments.armor = null;
+        CharacterRotation.equipments.boot = null;
+        CharacterRotation.equipments.face = null;
+        CharacterRotation.equipments.gloves = null;
+        CharacterRotation.equipments.pants = null;
+        CharacterRotation.equipments.shield = null;
+        CharacterRotation.equipments.weapon = null;
+
+        HTML.elHud.openModalCustomize();
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+}
+export class HudPageSelectCustomization extends PageCustomizations {
+    idPlayer = 'player';
+    idCharacterPlay = 'character_play';
+    static idCharacterCustomization = 'character_customization';
+    static idCharacterCurrent;
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+        this.addEventListeners();
+        this.setFocus();
+        this.togglePlayButton();
+
+        setTimeout(() => {
+            this.selectFirstCustomizationOptions();
+        }, 0);
+    }
+
+
+
+    addEventListeners() {
+        const data = [];
+        const elCharacterPlay = ds.Helper.getElementByDataId(this.shadowRoot, this.idCharacterPlay);
+        const argsPlay = { el: elCharacterPlay, handler: this.handlePlay };
+
+        data.push(argsPlay);
+
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+
+        const elCustomization = ds.Helper.getElementByDataId(this.shadowRoot, HudPageSelectCustomization.idCharacterCustomization);
+
+        elCustomization.addEventListener(CharacterCustomization.eventNameChange, () => {
+            this.togglePlayButton();
+        });
+
+        elCustomization.addEventListener(CharacterCustomization.eventCustomizationChange, () => {
+            this.togglePlayButton();
+        });
+
+        this.addEventListenersCustomization();
+    }
+
+    draw() {
+        const content = this.drawContent();
+        const footer = this.drawMenu();
+        const response = `
+            ${ds.Modal.drawContent(content)}
+            ${ds.Modal.drawFooter(footer)}
+        `;
+
+        return response;
+    }
+
+    drawContent() {
+        const customizations = CharacterCustomization.getData('apply');
+        const componentRotation = Components.characterRotation;
+        const componentCustomization = Components.characterCustomization;
+        const response = `
+            <div class="ds-row gm-character-customizarion">
+                <div class="ds-column gm-column--1 ds-card-wrapper ds-center">
+                    <${componentRotation}
+                        class="gm-character"
+                    ></${componentRotation}>
+                </div>
+                <div class="ds-column gm-column--2">
+                    <${componentCustomization}
+                        data="${customizations}"
+                        data-content="full"
+                        data-id="${HudPageSelectCustomization.idCharacterCustomization}"
+                    ></${componentCustomization}>
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawMenu() {
+        const translation = ds.Translation.interfaceDefault;
+        const translationBack = translation?.back;
+        const translationPlay = translation?.play;
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme;
+        const buttonThemeSuccess = theme.menuSuccess;
+        const buttonThemeBack = theme.menuDefault;
+        const size = theme.menuSize;
+        const response = `
+            <${componentButton}
+                theme="${buttonThemeBack}"
+                size="${size}"
+                data-handler="handleBack"
+                label="${translationBack}"
+            ></${componentButton}>
+            <${componentButton}
+                theme="${buttonThemeSuccess}"
+                size="${size}"
+                label="${translationPlay}"
+                data-id="${this.idCharacterPlay}"
+                ${ds.Prefix.ATTR_IS_DISABLED}="true"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    get elButtonPlay() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, this.idCharacterPlay);
+
+        return response;
+    }
+
+    get elCharacterCustomization() {
+        const response = ds.Helper.getElementByDataId(this.shadowRoot, HudPageSelectCustomization.idCharacterCustomization);
+
+        return response;
+    }
+
+    get name() {
+        const response = this.elCharacterCustomization.getFieldNameValue();
+
+        return response;
+    }
+
+    handleBack() {
+        HTML.elHud.openModalSelectClass();
+    }
+
+    async handlePlay() {
+        const isValid = this.isFieldNameValid();
+
+        if (!isValid) return;
+
+        const args = {
+            name: this.name,
+            customizations: PageCustomizations.selectsValue,
+            classId: HudPageSelectClass.selectedClass
+        };
+        const response = await FetchData.createNewCharacter(args);
+
+        if (response.isError) return;
+
+        Analytics.send({
+            event_name: 'character_create',
+            character_class: HudPageSelectClass.selectedClass,
+            character_name: this.name,
+        });
+
+        const id = response.custom.id;
+
+        Management.play(id);
+    }
+
+    isCustomizationsValid() {
+        const selects = this.elCharacterCustomization.shadowRoot.querySelectorAll(ds.Components.componentSelect);
+
+        const response = [...selects].every((select) => select.value !== '');
+
+        return response;
+    }
+
+    isFieldNameValid() {
+        const value = this.name;
+        const response = value.length > 3;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    selectFirstCustomizationOptions() {
+        const selects = this.elCharacterCustomization.shadowRoot.querySelectorAll(
+            ds.Components.componentSelect
+        );
+
+        selects.forEach((select) => {
+            const options = JSON.parse(select.getAttribute('options'));
+            const firstValue = options?.value?.[0];
+
+            if (firstValue === undefined) return;
+
+            select.setValue(firstValue);
+        });
+    }
+
+    setFocus() {
+        this.elCharacterCustomization.elFieldNameInput.focus();
+    }
+
+    togglePlayButton() {
+        const isEnabled = this.isFieldNameValid() && this.isCustomizationsValid();
+
+        Layout.toggleButtonDisabled(isEnabled, this.elButtonPlay);
+    }
+}
+export class HudPageSell extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const data = Player.inventory;
+        const length = data.length;
+        const content = length > 0 ? Layout.drawCardItemList(data, false) : Layout.drawEmptyContent();
+        const response = HudPageNPC.drawWrapper(content);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.SELL;
+
+        return response;
+    }
+
+    handleOpenDetails(item) {
+        const args = {
+            id: item,
+            context: this,
+            npcAction: this.action,
+        };
+
+        HudPageDetail.itemId = item.id;
+
+        HudPageNPC.handleOpenDetails(args);
+    }
+
+    render() {
+        HudPageDetail.npcAction = this.action;
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudPageSettings extends HTMLElement {
+    args = {
+        context: this,
+    };
+    updates = {
+        settings: {
+            all: true,
+        }
+    };
+    translationPage;
+    items = [];
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+
+        this.translationPage = ds.Translation.getTranslationPage('settings');
+        this.items = [
+            {
+                id: 'music',
+                translation: this.translationPage.music
+            },
+            {
+                id: 'effects',
+                translation: this.translationPage.sound_effect
+            }
+        ];
+
+        this.render();
+    }
+
+
+
+    draw() {
+        const page = this.getAttribute('page');
+        const sound = this.drawSound();
+        const translation = ds.Translation.interface?.default;
+        const tabs = this.drawTabs();
+        const cssTable = ds.Layout.theme.table;
+        const content = `
+            <div class="ds-row">
+                <table class="${cssTable}">
+                    <thead>
+                        <tr>
+                            ${ds.HTML.drawTH(translation?.detail)}
+                            ${ds.HTML.drawTH(translation?.status)}
+                            ${ds.HTML.drawTH(translation?.menu)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sound}
+                    </tbody>
+                </table>
+            </div>
+            ${tabs}
+        `;
+        const contentWrapper = ds.Page.drawContent(page, content);
+        const response = `
+            ${contentWrapper}
+        `;
+
+        return response;
+    }
+
+    drawButton(props) {
+        const {
+            icon,
+            theme = ds.Components.componentButton,
+            tooltip,
+            handler,
+            handlerProps,
+            isDisabled = false
+        } = props;
+        const componentButton = ds.Components.componentButton;
+        const response = `
+            <${componentButton}
+                icon="${icon}"
+                icon-size="extra-small"
+                theme="${theme}"
+                size="regular"
+                data-tooltip="${tooltip}"
+                is-proportional="true"
+                data-handler="${handler}"
+                data-handler-props='${JSON.stringify(handlerProps)}'
+                ${isDisabled ? ds.Prefix.ATTR_IS_DISABLED + '="true"' : ''}
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    drawProgress(target) {
+        const data = this.getData(target);
+        const value = data.value;
+        const valueMax = 1;
+        const tooltipaArgs = {
+            text: ds.Translation.interfaceDefault?.status,
+            value,
+            valueMax,
+            isPercentage: true
+        };
+        const tooltip = ds.Layout.buildTextCapacity(tooltipaArgs);
+        const componentProgress = ds.Components.componentProgress;
+        const response = `
+            <${componentProgress}
+                data-target="${target}"
+                value="${value}"
+                value-max="${valueMax}"
+                theme="green"
+                direction="horizontal"
+                data-tooltip="${tooltip}"
+                css-wrapper="gm-style"
+            ></${componentProgress}>
+        `;
+
+        return response;
+    }
+
+    drawSound() {
+        let response = '';
+
+        this.items.forEach((item) => {
+            const id = item.id;
+            const translation = item.translation;
+            const translationDefault = ds.Translation.interface?.default;
+            const progress = this.drawProgress(id);
+            const isIncreaseDisabled = Settings.isIncreaseDisabled(id);
+            const isDecreaseDisabled = Settings.isDecreaseDisabled(id);
+            const theme = ds.Layout.theme.menuDefault;
+            const argsDecrease = {
+                icon: 'less',
+                theme,
+                tooltip: translationDefault?.decrease,
+                handler: 'handleDecrease',
+                handlerProps: [id],
+                isDisabled: isDecreaseDisabled
+            };
+            const buttonDecrease = this.drawButton(argsDecrease);
+            const argsIncrease = {
+                icon: 'plus',
+                theme,
+                tooltip: translationDefault?.increase,
+                handler: 'handleIncrease',
+                handlerProps: [id],
+                isDisabled: isIncreaseDisabled
+            };
+            const buttonIncrease = this.drawButton(argsIncrease);
+            const data = this.getData(id);
+            const themePlayPause = ds.Layout.theme.menuDefault;
+            const argsPlayPause = {
+                icon: data.isPlay ? 'pause' : 'play',
+                theme: themePlayPause,
+                tooltip: data.isPlay ? translationDefault?.pause : translationDefault?.play_music,
+                handler: data.isPlay ? 'handlePause' : 'handlePlay',
+                handlerProps: [id]
+            };
+            const buttonPlayPause = this.drawButton(argsPlayPause);
+            const menu = `
+                <div class="ds-content__menu ds-right" id="menu_${id}">
+                    ${buttonDecrease}
+                    ${buttonIncrease}
+                    ${buttonPlayPause}
+                </div>
+            `;
+
+            response += `
+                <tr>
+                    ${ds.HTML.drawTD(translation)}
+                    ${ds.HTML.drawTD(progress)}
+                    ${ds.HTML.drawTD(menu)}
+                </tr>
+            `;
+        });
+
+        return response;
+    }
+
+    drawTabs() {
+        const componentButton = ds.Components.componentButton;
+        const componentSuggestion = ds.Components.componentSuggestion;
+        const componentBugReport = ds.Components.componentBugReport;
+        const translationSuggestion = ds.Translation.getTranslationPage('suggestion')?.title || '';
+        const translationBugReport = ds.Translation.getTranslationPage('bug_report')?.title || '';
+        const cssTab = ds.Layout.theme.menuTab;
+        const cssForm = ds.Layout.theme.form;
+        const buttonTheme = ds.Layout.theme.menuDefault;
+        const tabSuggestion = `
+            <${componentButton}
+                label="${translationSuggestion}"
+                theme="${cssTab}"
+                size="small"
+                css-custom="ds-tab__button"
+                data-handler="handleTab"
+                data-handler-props='["suggestion"]'
+                data-kind="button"
+                is-active="true"
+            ></${componentButton}>
+        `;
+        const tabBugReport = `
+            <${componentButton}
+                label="${translationBugReport}"
+                theme="${cssTab}"
+                size="small"
+                css-custom="ds-tab__button"
+                data-handler="handleTab"
+                data-handler-props='["bug-report"]'
+                data-kind="button"
+            ></${componentButton}>
+        `;
+        const panelSuggestion = `
+            <div class="gm-tab__panel" data-tab="suggestion" is-active="true">
+                <${componentSuggestion}
+                    class="ds-display-contents"
+                    theme="game"
+                    css-wrapper="gm-style ${cssForm}"
+                    button-theme="${buttonTheme}"
+                    button-size="small"
+                ></${componentSuggestion}>
+            </div>
+        `;
+        const panelBugReport = `
+            <div class="gm-tab__panel ds-display-none" data-tab="bug-report">
+                <${componentBugReport}
+                    class="ds-display-contents"
+                    theme="game"
+                    css-wrapper="gm-style ${cssForm}"
+                    button-theme="${buttonTheme}"
+                    button-size="small"
+                ></${componentBugReport}>
+            </div>
+        `;
+        const response = `
+            <div class="ds-row ds-button-wrapper ds-center ds-tab ds-margin-top--big">
+                ${tabSuggestion}
+                ${tabBugReport}
+            </div>
+            <div class="ds-row">
+                ${panelSuggestion}
+                ${panelBugReport}
+            </div>
+        `;
+
+        return response;
+    }
+
+    getData(target) {
+        const response = Data.settings[target];
+
+        return response;
+    }
+
+    handleDecrease(target) {
+        const args = {
+            action: 'decrease',
+            target
+        };
+
+        this.setValue(args);
+        this.updateData();
+    }
+
+    handleIncrease(target) {
+        const args = {
+            action: 'increase',
+            target
+        };
+
+        this.setValue(args);
+        this.updateData();
+    }
+
+    handlePause(target) {
+        const args = {
+            target,
+            value: false
+        };
+
+        this.setIsPlay(args);
+    }
+
+    handlePlay(target) {
+        const args = {
+            target,
+            value: true
+        };
+
+        this.setIsPlay(args);
+    }
+
+    handleTab(target) {
+        const buttons = this.shadowRoot.querySelectorAll(`${ds.Components.componentButton}[data-handler="handleTab"]`);
+
+        buttons.forEach((button) => {
+            const props = button.getAttribute('data-handler-props') || '';
+            const isActive = props.includes(target);
+
+            button.setAttribute(ds.Layout.attributeActive, isActive ? 'true' : 'false');
+        });
+
+        const panels = this.shadowRoot.querySelectorAll('.gm-tab__panel');
+
+        panels.forEach((panel) => {
+            const isActive = panel.getAttribute('data-tab') === target;
+
+            if (isActive) {
+                panel.classList.remove(ds.Layout.cssDisplay);
+            } else {
+                panel.classList.add(ds.Layout.cssDisplay);
+            }
+        });
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    redrawButtons() {
+        this.items.forEach(item => {
+            const target = item.id;
+            const menu = this.shadowRoot.querySelector(`#menu_${target}`);
+
+            if (!menu) return;
+
+            const translationDefault = ds.Translation.interface?.default;
+            const data = this.getData(target);
+            const argsDecrease = {
+                icon: 'less',
+                theme: ds.Layout.theme.menuDefault,
+                tooltip: translationDefault?.decrease,
+                handler: 'handleDecrease',
+                handlerProps: [target],
+                isDisabled: Settings.isDecreaseDisabled(target)
+            };
+            const argsIncrease = {
+                icon: 'plus',
+                theme: ds.Layout.theme.menuDefault,
+                tooltip: translationDefault?.increase,
+                handler: 'handleIncrease',
+                handlerProps: [target],
+                isDisabled: Settings.isIncreaseDisabled(target)
+            };
+            const themePlayPause = ds.Layout.theme.menuDefault;
+            const argsPlayPause = {
+                icon: data.isPlay ? 'pause' : 'play',
+                theme: themePlayPause,
+                tooltip: data.isPlay ? translationDefault?.pause : translationDefault?.play_music,
+                handler: data.isPlay ? 'handlePause' : 'handlePlay',
+                handlerProps: [target]
+            };
+
+            const html = `
+                ${this.drawButton(argsDecrease)}
+                ${this.drawButton(argsIncrease)}
+                ${this.drawButton(argsPlayPause)}
+            `;
+
+            menu.innerHTML = html;
+        });
+
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton, this.shadowRoot);
+    }
+
+    redrawProgress() {
+        this.items.forEach(item => {
+            const target = item.id;
+            const data = this.getData(target);
+            const value = data.value;
+            const valueMax = 1;
+            const componentProgress = ds.Components.componentProgress;
+            const el = this.shadowRoot.querySelector(`${componentProgress}[data-target="${target}"]`);
+
+            if (!el) return;
+
+            el.setAttribute('value', value);
+
+            const tooltipArgs = {
+                text: ds.Translation.interfaceDefault?.status,
+                value,
+                valueMax,
+                isPercentage: true
+            };
+            const tooltip = ds.Layout.buildTextCapacity(tooltipArgs);
+
+            el.setAttribute('data-tooltip', tooltip);
+        });
+    }
+
+    setIsPlay(props) {
+        Settings.setIsPlay(props);
+        this.updates.settings = Data.settings;
+        this.redrawButtons();
+
+        Analytics.send({
+            event_name: 'settings_change',
+            setting_target: props.target,
+            setting_value: props.value,
+        });
+    }
+
+    setValue(props) {
+        Settings.setValue(props);
+        this.redrawButtons();
+    }
+
+    updateData() {
+        this.updates.settings = Data.settings;
+        this.redrawProgress();
+    }
+}
+export class HudPageStatistics extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+    }
+
+
+
+    draw() {
+        const translation = ds.Translation.getTranslationPage('statistics');
+        const totalEnemiesStatistics = this.totalEnemiesStatistics;
+        const subtitle = totalEnemiesStatistics > 1
+            ? Layout.drawSubtitle(translation?.total_enemies)
+            : '';
+        const drawEnemyFields = this.drawEnemyFields();
+        const drawSum = this.drawSum(translation);
+        const content = `
+            ${subtitle}
+            ${drawEnemyFields}
+            ${drawSum}
+        `;
+        const response = HudPageAttributes.drawPage(content);
+
+        return response;
+    }
+
+    drawEnemyFields() {
+        const fields = this.enemyFields;
+        const response = this.drawRows(fields, 3);
+
+        return response;
+    }
+
+    drawRows(fields, maxPerRow) {
+        const rows = [];
+        const length = fields.length;
+
+        for (let i = 0; i < length; i += maxPerRow) {
+            const fieldsRow = fields.slice(i, i + maxPerRow);
+            const html = `
+                <div class="ds-row">
+                    ${fieldsRow.join('')}
+                </div>
+            `;
+
+            rows.push(html);
+        }
+
+        const response = rows.join('');
+
+        return response;
+    }
+
+    drawSum(translation) {
+        const statistics = Player.statistics;
+        const translationLoot = ds.Translation.gameLoot;
+
+        const totalEnemies = Object.entries(statistics)
+            .filter(([key]) => key.startsWith('enemy_'))
+            .reduce((total, [, data]) => {
+                return total + (data?.value ?? 0);
+            }, 0);
+
+        const subtitle = Layout.drawSubtitle(translation?.total);
+
+        const fields = [
+            ds.Layout.drawField({
+                label: translation?.total_enemies,
+                value: totalEnemies,
+                isReadOnly: true
+            }),
+            ds.Layout.drawField({
+                label: translation?.deaths,
+                value: statistics?.deaths?.value ?? 0,
+                isReadOnly: true
+            }),
+            ds.Layout.drawField({
+                label: translation?.total_gold,
+                value: statistics?.collect_gold?.value ?? 0,
+                isReadOnly: true
+            }),
+            ds.Layout.drawField({
+                label: translation?.total_diamonds,
+                value: statistics?.collect_diamond?.value ?? 0,
+                isReadOnly: true
+            }),
+            ds.Layout.drawField({
+                label: translationLoot?.plant_bamboo,
+                value: statistics?.collect_wood?.value ?? 0,
+                isReadOnly: true
+            }),
+            ds.Layout.drawField({
+                label: translationLoot?.plant_fiber,
+                value: statistics?.collect_fiber?.value ?? 0,
+                isReadOnly: true
+            }),
+            ds.Layout.drawField({
+                label: translationLoot?.limestone,
+                value: statistics?.collect_limestone?.value ?? 0,
+                isReadOnly: true
+            })
+        ];
+
+        const response = `
+            ${subtitle}
+            ${this.drawRows(fields, 2)}
+        `;
+
+        return response;
+    }
+
+    get enemyFields() {
+        const statistics = Player.statistics;
+        const translationMonster = ds.Translation.gameMonster;
+        const monsters = ds.Modules.monsters;
+        const response = [];
+
+        Object.entries(statistics).forEach(([key, data]) => {
+            if (!key.startsWith('enemy_')) {
+                return;
+            }
+
+            const idMonster = Number(key.replace('enemy_', ''));
+            const monster = monsters.find((item) => item.id === idMonster);
+
+            if (!monster) {
+                return;
+            }
+
+            const label = translationMonster?.[monster.translation] ?? monster.translation;
+            const args = {
+                label,
+                value: data.value,
+                isReadOnly: true
+            };
+            
+            response.push({
+                label,
+                field: ds.Layout.drawField(args)
+            });
+        });
+
+        response.sort((a, b) => {
+            return a.label.localeCompare(b.label);
+        });
+
+        const responseFields = response.map((item) => {
+            return item.field;
+        });
+
+        return responseFields;
+    }
+
+    get totalEnemiesStatistics() {
+        const statistics = Player.statistics;
+
+        const response = Object.keys(statistics)
+            .filter((key) => {
+                return key.startsWith('enemy_');
+            })
+            .length;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    updateData() {
+        this.render();
+    }
+}
+export class HudPageStore extends HTMLElement {
+    args = {
+        context: this,
+    };
+    packages = [];
+    slotPackages = [];
+    paymentMethod = '';
+    paymentMethodDefault = '';
+    paymentMethods = [];
+    selectedPackage;
+    transaction;
+    transactionStatus = '';
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+        this.updateData();
+    }
+
+
+
+    addEventListeners() {
+        ds.Layout.addEventListeners(this, ds.Components.componentButton);
+    }
+
+    buildDefaultPaymentMethod() {
+        const methods = this.paymentMethods.map((method) => method.method);
+        const isDefaultAvailable = methods.includes(this.paymentMethodDefault);
+
+        if (isDefaultAvailable) return this.paymentMethodDefault;
+
+        const response = methods?.[0] || '';
+
+        return response;
+    }
+
+    async createTransaction(packageId, paymentWindow) {
+        const response = await FetchData.createStoreTransaction({
+            packageId,
+            paymentMethod: this.paymentMethod,
+        });
+
+        if (response?.isError) {
+            paymentWindow?.close();
+            return;
+        }
+
+        this.transaction = response.transaction;
+        this.transactionStatus = this.transaction.status;
+
+        this.render();
+
+        const paymentUrl = this.transaction.payment?.paymentUrl;
+
+        if (paymentUrl) {
+            if (paymentWindow) {
+                paymentWindow.opener = null;
+                paymentWindow.location.href = paymentUrl;
+            } else {
+                window.open(paymentUrl, '_blank', 'noopener');
+            }
+        } else {
+            paymentWindow?.close();
+        }
+    }
+
+    draw() {
+        const subtitle = Layout.drawSubtitle(this.translation.packages);
+        const subtitleSlot = Layout.drawSubtitle(this.translation.slotTitle);
+        const packages = this.drawPackages();
+        const slotPackages = this.drawSlotPackages();
+        const freeDiamonds = this.drawFreeDiamonds();
+        const content = `
+            ${subtitle}
+            ${packages}
+            <div class="ds-row">
+                ${subtitleSlot}
+            </div>
+            <div class="ds-row ds-margin-bottom--big">
+                ${slotPackages}
+            </div>
+            <div class="ds-row">
+                ${freeDiamonds}
+            </div>
+        `;
+        const response = HudPageAttributes.drawPage(content);
+
+        return response;
+    }
+
+    drawFreeDiamonds() {
+        const componentButton = ds.Components.componentButton;
+        const titleAdvertising = Layout.drawSubtitle(this.translation.titleAdvertising);
+        const theme = ds.Layout.theme;
+        const themeButton = theme.menuDefault;
+        const themeSize = theme.menuSize;
+        const response = `
+            <div class="ds-row">
+                <${Components.cHudReferral}
+                    css-wrapper="gm-style"
+                    class="ds-full-width"
+                ></${Components.cHudReferral}>
+            </div>
+            <div class="ds-row">
+                ${titleAdvertising}
+            </div>
+            <div class="ds-row">
+                <div class="ds-column ds-column--full">
+                    <p>${Layout.replaceInText(this.translation.freeDiamondsText)}</p>
+                </div>
+                <${componentButton}
+                    label="${this.translation.earn}"
+                    size="${themeSize}"
+                    theme="${themeButton}"
+                    page-target="advertising"
+                    page-position="right"
+                    click="open-hud-page"
+                    data-kind="button"
+                ></${componentButton}>
+            </div>
+        `;
+
+        return response;
+    }
+
+    formatPrice(value) {
+        return this.formatValue(this.translation.price, value);
+    }
+
+    formatQuantity(value) {
+        return this.formatValue(this.translation.quantity, value);
+    }
+
+    formatValue(label, value) {
+        return `<small>${label}: <span class="gm-price">${value}</span></small>`;
+    }
+
+    drawCard({ icon, label, price, buttonLabel, buttonProps }) {
+        const componentButton = ds.Components.componentButton;
+        const css = ds.Layout.theme.menuSuccess;
+        const button = `
+            <${componentButton}
+                label="${buttonLabel}"
+                size="small"
+                theme="${css}"
+                data-handler="handleBuy"
+                data-handler-props='["${buttonProps}"]'
+                data-kind="button"
+            ></${componentButton}>
+        `;
+        const cssCard = ds.Layout.theme.card;
+        const response = `
+            <div class="ds-column ${cssCard} ds-card--regular">
+                <div class="ds-card__header">
+                </div>
+                <div class="ds-card__body ds-row ds-center">
+                    <div class="ds-row ds-center">
+                        <div class="ds-padding--regular">
+                            ${icon}
+                        </div>
+                    </div>
+                    <div class="ds-row ds-center">
+                        ${label}
+                    </div>
+                    <div class="ds-row ds-center">
+                        <p class="ds-truncate">${price}</p>
+                    </div>
+                </div>
+                <div class="ds-card__footer ds-row ds-center">
+                    ${button}
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawPackage(packageData) {
+        const idDiamond = Statics.idItems.diamond;
+        const iconArgs = { item: idDiamond, isDurability: false };
+        const icon = lo.HTML.drawLoot(iconArgs);
+        const price = ds.Layout.buildCurrencyText({
+            language: gbLanguage,
+            value: packageData.price,
+        });
+        const response = this.drawCard({
+            icon,
+            label: this.formatQuantity(packageData.diamonds),
+            price: this.formatPrice(price),
+            buttonLabel: this.translation.buy,
+            buttonProps: packageData.id,
+        });
+
+        return response;
+    }
+
+    drawPackages() {
+        if (!this.packages.length) return Layout.drawEmptyContent();
+
+        const cards = this.packages.map((packageData) => {
+            return this.drawPackage(packageData);
+        }).join('');
+        const response = `
+            <div class="ds-row ds-center ds-card-wrapper">
+                ${cards}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawSlotPackage(packageData) {
+        const characterIcon = `
+            <div class="ds-center">
+                <${lo.Components.entity}
+                    entity="person"
+                    direction="down"
+                    action="walk"
+                    tabindex="-1"
+                ></${lo.Components.entity}>
+            </div>
+        `;
+        const price = ds.Layout.buildCurrencyText({
+            language: gbLanguage,
+            value: packageData.price,
+        });
+        const slotLabel = this.translation['slot_' + packageData.slots] || packageData.slots;
+        const response = this.drawCard({
+            icon: characterIcon,
+            label: this.formatQuantity(slotLabel),
+            price: this.formatPrice(price),
+            buttonLabel: this.translation.buy,
+            buttonProps: packageData.id,
+        });
+
+        return response;
+    }
+
+    drawSlotPackages() {
+        if (!this.slotPackages.length) return Layout.drawEmptyContent();
+
+        const cards = this.slotPackages.map((packageData) => {
+            return this.drawSlotPackage(packageData);
+        }).join('');
+        const response = `
+            <div class="ds-row ds-center ds-card-wrapper">
+                ${cards}
+            </div>
+        `;
+
+        return response;
+    }
+
+    get page() {
+        const response = this.getRootNode()?.host;
+
+        return response;
+    }
+
+    get translation() {
+        const translation = ds.Translation.getTranslationPage('store');
+        const translationAdvertising = ds.Translation.getTranslationPage('advertising');
+        const translationDefault = ds.Translation?.interfaceDefault;
+        const fallback = {
+            title: translation.title,
+            titleFree: translationAdvertising.title,
+            titleAdvertising: translation.advertising_title,
+            descriptionFree: translationAdvertising.description,
+            packages: translation.packages,
+            slotTitle: translation.slot_title,
+            slot_1: translation.slot_1,
+            slot_3: translation.slot_3,
+            slot_5: translation.slot_5,
+            diamonds: ds.Translation.gameLoot.diamond,
+            freeDiamondsText: translationAdvertising.description,
+            buy: translationDefault.buy,
+            earn: translationDefault.earn,
+            price: ds.Translation.getTranslationPage('detail').price,
+            quantity: translationDefault.amount,
+        };
+        const page = ds.Translation?.getTranslationPage('store');
+        const response = { ...fallback, ...page };
+
+        return response;
+    }
+
+    handleBuy(packageId) {
+        this.selectedPackage = packageId;
+        this.paymentMethod = this.buildDefaultPaymentMethod();
+
+        const paymentWindow = window.open('', '_blank');
+        this.createTransaction(packageId, paymentWindow);
+    }
+
+    handleCheckStatus() {
+        const transaction = this.transaction;
+
+        if (!transaction) return;
+
+        FetchData.getStoreTransactionStatus({
+            transactionId: transaction.transactionId,
+            paymentMethod: transaction.paymentMethod,
+        })
+            .then((response) => {
+                if (response?.isError) return;
+
+                this.transactionStatus = response.transactionStatus.status;
+
+                this.render();
+            });
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+    }
+
+    setPageTexts() {
+        const page = this.page;
+
+        if (page?.setTitle) page.setTitle(this.translation.title);
+        if (page?.setText) page.setText(this.translation.description || '');
+    }
+    async updateData() {
+        const responses = await Promise.all([
+            FetchData.getStorePackages(),
+            FetchData.getStorePaymentMethods(),
+            FetchData.getSlotPackages(),
+        ]);
+        const packagesData = responses[0];
+        const methodsData = responses[1];
+        const slotData = responses[2];
+
+        if (packagesData?.isError || methodsData?.isError) return;
+
+        this.packages = packagesData.packages;
+        this.paymentMethods = methodsData.paymentMethods;
+        this.paymentMethodDefault = methodsData.paymentMethodDefault;
+        this.paymentMethod = this.buildDefaultPaymentMethod();
+
+        if (!slotData?.isError) {
+            this.slotPackages = slotData.packages;
+        }
+
+        this.setPageTexts();
+        this.render();
+    }
+}
+
+export class HudPageStory extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static act;
+    static scene;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+        this.addEventListeners();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    draw() {
+        const translation = ds.Translation.gameStory;
+        const text = this.drawScene(translation);
+        const contentHTML = `
+            <div class="ds-column">
+                ${text}
+            </div>
+        `;
+        const content = ds.Modal.drawContent(contentHTML);
+        const drawFooter = this.drawFooter();
+        const footer = ds.Modal.drawFooter(drawFooter);
+        const response = `
+            ${content}
+            ${footer}
+        `;
+
+        return response;
+    }
+
+    drawScene(translation) {
+        const prefix = `act_${HudPageStory.act}_scene_${HudPageStory.scene}_text_`;
+        let response = '';
+        let i = 1;
+
+        while (translation[`${prefix}${i}`]) {
+            response += `<p>${translation[`${prefix}${i}`]}</p>`;
+            i++;
+        }
+
+        return response;
+    }
+
+    drawFooter() {
+        const translationBack = ds.Translation.interfaceDefault?.continue;
+        const componentButton = ds.Components.componentButton;
+        const theme = ds.Layout.theme;
+        const themeButton = theme.menuDefault;
+        const themeSize = theme.menuSize;
+
+        const response = `
+            <${componentButton}
+                theme="${themeButton}"
+                size="${themeSize}"
+                data-handler="handleContinue"
+                label="${translationBack}"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    async handleContinue() {
+        const args = {
+            idCharacter: Player.id,
+            act: HudPageStory.act,
+            scene: HudPageStory.scene,
+        };
+
+        await FetchData.setCharacterStory(args);
+
+        HTML.elHud.closeModalWithoutButton();
+    }
+
+    render() {
+        HudPageDetail.npcAction = this.action;
+
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+}
+export class HudPageUser extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static idUsername = 'username';
+    static idEmail = 'email';
+    static idPassword = 'password';
+    static idNewsletter = 'newsletter';
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+
+        const elNewsletter = this.shadowRoot.getElementById(HudPageUser.idNewsletter);
+
+        if (elNewsletter) {
+            elNewsletter.addEventListener('change', (event) => this.handleNewsletter(event));
+        }
+    }
+
+    draw() {
+        const translation = this.translation;
+        const data = Data.login;
+        const css = 'ds-form__field--no-margin';
+        const fieldUsername = ds.Layout.drawField({
+            label: translation.username,
+            value: data.username,
+            isReadOnly: true,
+            css
+        });
+        const fieldEmail = ds.Layout.drawField({
+            label: translation.email,
+            value: data.email,
+            isReadOnly: true,
+            css
+        });
+        const fieldPassword = ds.Layout.drawField({
+            label: translation.password,
+            value: '******',
+            isReadOnly: true,
+            css
+        });
+        const fieldNewsletter = this.drawNewsletter();
+        const buttonEditUsername = this.drawButton(HudPageUser.idUsername);
+        const buttonEditEmail = this.drawButton(HudPageUser.idEmail);
+        const buttonEditPassword = this.drawButton(HudPageUser.idPassword);
+        const buttonDeleteAccount = Layout.drawButtonComponent(Statics.buttons.deleteAccount);
+        const translationPageSettings = ds.Translation.interface?.page_setting;
+        const theme = ds.Layout.theme;
+        const themeButton = theme.menuDefault;
+        const themeSize = theme.menuSize;
+        const content = `
+            <div class="ds-row">
+                ${fieldUsername}
+                ${buttonEditUsername}
+            </div>
+            <div class="ds-row">
+                ${fieldEmail}
+                ${buttonEditEmail}
+            </div>
+            <div class="ds-row">
+                ${fieldPassword}
+                ${buttonEditPassword}
+            </div>
+            <div class="ds-row">
+                ${fieldNewsletter}
+            </div>
+            <div class="ds-row ds-right ds-button-wrapper">
+                <${this.componentButton}
+                    theme="${themeButton}"
+                    size="${themeSize}"
+                    label="${translationPageSettings?.change_character}"
+                    data-handler='handleSelectCharacter'
+                ></${this.componentButton}>
+                    <${this.componentButton}
+                    theme="${themeButton}"
+                    size="${themeSize}"
+                    label="${translationPageSettings?.logout}"
+                    data-handler='handleLogOut'
+                ></${this.componentButton}>
+                ${buttonDeleteAccount}
+            </div>
+        `;
+        const response = HudPageAttributes.drawPage(content);
+
+        return response;
+    }
+
+    get componentButton() {
+        const response = ds.Components.componentButton;
+
+        return response;
+    }
+
+    drawNewsletter() {
+        const label = this.translation.sign_up_accept_newsletter;
+        const isChecked = Data.login?.newsletter ? 'checked' : '';
+        const formCss = ds.Layout.theme.form;
+        const response = `
+            <div class="ds-form__field ${formCss}">
+                <div class="ds-form__option">
+                    <input id="${HudPageUser.idNewsletter}" type="checkbox" ${isChecked}>
+                    <label for="${HudPageUser.idNewsletter}" class="ds-checkbox-label ds-font--extra-small">${label}</label>
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+    get translation() {
+        const response = ds.Translation.loginDefault;
+
+        return response;
+    }
+
+    drawButton(id) {
+        const argsHandler = { id };
+        const handlerProps = `[${ds.Helper.buildJSONToHTML(argsHandler)}]`;
+        const response = `
+            <${this.componentButton}
+                id="${id}"
+                size="extra-small"
+                is-proportional="true"
+                css-custom="ds-button--over gm-button--over"
+                data-kind="button"
+                theme="transparent"
+                icon="edit"
+                icon-theme="black"
+                icon-size="big"
+                data-handler="handleEdit"
+                data-handler-props='${handlerProps}'
+            ></${this.componentButton}>
+        `;
+
+        return response;
+    }
+
+    handleDeleteAccount() {
+        HTML.elHud.openModalUserDeleteAccount();
+    }
+
+    handleEdit(target) {
+        const id = target.id;
+
+        HudPageUserEdit.content = id;
+        HTML.elHud.openModalUserEdit(id);
+    }
+
+    handleNewsletter(event) {
+        const isChecked = event.target.checked;
+
+        FetchData.setNewsletter({ newsletter: isChecked ? 1 : 0 });
+    }
+
+    async handleLogOut() {
+        const response = await FetchData.logOut();
+
+        if (response) window.location.reload();
+    }
+
+    handleSelectCharacter() {
+        HTML.elHud.openModalSelectCharacter();
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+    }
+}
+export class HudPageUserDeleteAccount extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static idPassword = 'password_delete';
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+        this.addFieldEventListeners();
+    }
+
+    draw() {
+        const translation = this.translationInterface;
+        const text = translation.confirm_action;
+        const paragraph = Layout.replaceInText(text);
+        const fieldPassword = this.drawField();
+        const buttonContinue = this.drawButtonContinue();
+        const buttonCancel = this.drawButtonCancel();
+        const response = `
+            <div class="ds-row ds-page__text ds-modal-text">
+                <p>${paragraph}</p>
+            </div>
+            ${fieldPassword}
+            <div class="ds-row ds-right ds-button-wrapper">
+                ${buttonCancel}
+                ${buttonContinue}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawButtonCancel() {
+        const response = Layout.drawButtonComponent(Statics.buttons.cancel);
+
+        return response;
+    }
+
+    drawButtonContinue() {
+        const button = Layout.changeThemeButton('continue');
+
+        button.isDisabled = true;
+
+        const response = Layout.drawButtonComponent(button);
+
+        return response;
+    }
+
+    drawField() {
+        const args = {
+            id: HudPageUserDeleteAccount.idPassword,
+            css: 'ds-row',
+            label: this.translationLogin.password,
+            value: '',
+            isReadOnly: false,
+            type: 'password'
+        };
+        const field = ds.Layout.drawField(args);
+        const response = `
+            <div class="ds-row">
+                ${field}
+            </div>
+        `;
+
+        return response;
+    }
+
+    async handleCancel() {
+        HTML.elHud.closeModal();
+    }
+
+    async handleContinue() {
+        const password = this.getInputValueByTarget(this.elPassword);
+
+        this.toggleButtonDisabled(false);
+
+        const response = await FetchData.deleteAccount({ password });
+
+        if (response.isError) {
+            this.notifyError();
+            this.toggleButtonDisabled(true);
+        } else {
+            window.location.reload();
+        }
+    }
+
+    notify(content, color = Notification.colorDefault) {
+        const argsNotification = {
+            content,
+            color
+        };
+
+        Notification.add(argsNotification);
+    }
+
+    notifyError() {
+        const translation = this.translationLogin.password_incorrect;
+
+        this.notify(translation, Notification.colorError);
+    }
+
+    getInputValueByTarget(target) {
+        const response = ds.FormField.getInputValueByTarget(target);
+
+        return response;
+    }
+
+    get isEnabled() {
+        const response = ds.Validation.validatePassword(this.elPassword);
+
+        return response;
+    }
+
+    get translationInterface() {
+        const response = ds.Translation.interfaceDefault;
+
+        return response;
+    }
+
+    get translationLogin() {
+        const response = ds.Translation.loginDefault;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+        this.updateButtonState();
+    }
+
+
+
+
+    addFieldEventListeners() {
+        const field = this.elPassword;
+
+        field?.addEventListener('input', () => this.updateButtonState());
+    }
+
+    get elButton() {
+        const response = this.shadowRoot.querySelectorAll(ds.Components.componentButton);
+
+        return response;
+    }
+
+    get elPassword() {
+        const response = this.getElById(HudPageUserDeleteAccount.idPassword);
+
+        return response;
+    }
+
+    getElById(id) {
+        const response = this.shadowRoot.getElementById(id);
+
+        return response;
+    }
+
+    toggleButtonDisabled(isEnabled) {
+        const buttons = this.elButton;
+
+        if (!buttons) return;
+
+        buttons.forEach((button) => {
+            if (!button) return;
+
+            if (isEnabled) {
+                button.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+            } else {
+                button.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+            }
+        });
+    }
+
+    updateButtonState() {
+        const isEnabled = this.isEnabled;
+
+        const buttons = this.elButton;
+
+        if (!buttons) return;
+
+        buttons.forEach((button) => {
+            if (!button) return;
+
+            const isContinue = button.getAttribute('data-handler') === 'handleContinue';
+
+            if (isContinue) {
+                if (isEnabled) {
+                    button.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+                } else {
+                    button.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+                }
+            }
+        });
+    }
+}
+
+export class HudPageUserEdit extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static content;
+    static idEmail = 'email';
+    static idUsername = 'username_visible';
+    static idpassword = 'password_old';
+    static idPasswordNew = 'password_new';
+    static idPasswordConfirm = 'password_confirm';
+    static idPasswordComponent = 'password_reset';
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+        this.addFieldEventListeners();
+        this.addComponentListeners();
+    }
+
+    get argsEmail() {
+        const response = {
+            email: this.getInputValueByTarget(this.elEmail),
+            password: this.getInputValueByTarget(this.getElById('password')),
+        };
+
+        return response;
+    }
+
+    get argsUsername() {
+        const response = {
+            username: this.getInputValueByTarget(this.elUsername),
+            password: this.getInputValueByTarget(this.elPasswordConfirm),
+        };
+
+        return response;
+    }
+
+    addComponentListeners() {
+        if (this.capitalizedContent !== 'Password') return;
+
+        const component = this.getElById(HudPageUserEdit.idPasswordComponent);
+
+        if (component) {
+            component.addEventListener('passwordResetSubmit', (event) => this.handlePasswordSubmit(event));
+        }
+    }
+
+    async handlePasswordSubmit(event) {
+        const { currentPassword, password } = event.detail;
+        const args = {
+            password: currentPassword,
+            passwordNew: password
+        };
+        const response = await FetchData.setPassword(args);
+
+        if (response.isError) {
+            this.notifyChangedErrorPassword();
+        } else {
+            this.notifyChangedPassword();
+        }
+    }
+
+    get capitalizedContent() {
+        const response = ds.Helper.capitalizeString(HudPageUserEdit.content);
+
+        return response;
+    }
+
+    draw() {
+        const capitalizeContent = this.capitalizedContent;
+        const content = this[`draw${capitalizeContent}`]();
+        const button = this.isSelfButton ? this.drawButton() : '';
+        const response = `
+            ${content}
+            <div class="ds-row ds-right">
+                ${button}
+            </div>
+        `;
+
+        return response;
+    }
+
+    get isSelfButton() {
+        const response = this.capitalizedContent !== 'Password';
+
+        return response;
+    }
+
+    drawButton() {
+        const button = Statics.buttons.continue;
+
+        button.isDisabled = true;
+
+        const response = Layout.drawButtonComponent(button);
+
+        return response;
+    }
+
+    drawEmail() {
+        const fieldEmail = this.drawField({ translation: HudPageUserEdit.idEmail });
+        const fieldPassword = this.drawField({ translation: 'password', type: 'password' });
+        const response = `
+            ${fieldEmail}
+            ${fieldPassword}
+        `;
+
+        return response;
+    }
+
+    drawField(props) {
+        const args = {
+            id: props.translation,
+            css: 'ds-row',
+            label: this.translation[props.translation],
+            value: '',
+            isReadOnly: false,
+            type: props.type || 'text',
+            rule: props.rule,
+            hint: props.hint,
+            iconTheme: ds.Layout.theme.menuDefaultIcon,
+        };
+
+        const field = ds.Layout.drawField(args);
+        const response = `
+            <div class="ds-row">
+                ${field}
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawPassword() {
+        const response = `
+            <${ds.Components.componentPasswordReset}
+                id="${HudPageUserEdit.idPasswordComponent}"
+                mode="session"
+            ></${ds.Components.componentPasswordReset}>
+        `;
+
+        return response;
+    }
+
+    drawText(text) {
+        const paragrath = Layout.replaceInText(text);
+        const response = `
+            <div class="ds-row ds-page__text ds-modal-text">
+                <p>${paragrath}</p>
+            </div>
+        `;
+
+        return response;
+    }
+
+    drawUsername() {
+        const cost = Data.rules.user.username.cost;
+        const payWith = Data.rules.user.username.pay_with;
+        const costText = Layout.drawTextItemQuantity(payWith, cost);
+        const text = `${this.translation.username_change} ${costText}`;
+        const paragraph = this.drawText(text);
+        const fieldOld = this.drawField({ translation: HudPageUserEdit.idUsername, type: 'text' });
+        const fieldPassword = this.drawField({ translation: HudPageUserEdit.idPasswordConfirm, type: 'password' });
+        const response = `
+            ${paragraph}
+            ${fieldOld}
+            ${fieldPassword}
+        `;
+
+        return response;
+    }
+
+    async handleContinue() {
+        const capitalizeContent = this.capitalizedContent;
+        const args = this[`args${capitalizeContent}`];
+
+        this.toggleButtonDisabled(false);
+
+        const response = await FetchData[`set${capitalizeContent}`](args);
+
+        if (response.isError) {
+            this[`notifyChangedError${capitalizeContent}`]();
+        } else {
+            this[`notifyChanged${capitalizeContent}`]();
+        }
+    }
+
+    notify(content, color = Notification.colorDefault) {
+        const argsNotification = {
+            content,
+            color
+        };
+
+        Notification.add(argsNotification);
+    }
+
+    notifyChangedEmail() {
+        const translation = this.translation.email_sent;
+
+        this.notify(translation);
+    }
+
+    notifyChangedPassword() {
+        const translation = this.translation.password_changed;
+
+        this.notify(translation);
+    }
+
+    notifyChangedUsername() {
+        const translation = this.translation.username_changed;
+
+        this.notify(translation);
+    }
+
+    notifyChangedErrorEmail() {
+        const translation = this.translation.email_error;
+
+        this.notify(translation, Notification.colorError);
+    }
+
+    notifyChangedErrorPassword() {
+        const translation = this.translation.password_error;
+
+        this.notify(translation, Notification.colorError);
+    }
+
+    notifyChangedErrorUsername() {
+        const translation = this.translation.username_error;
+
+        this.notify(translation, Notification.colorError);
+    }
+
+    getInputValueByTarget(target) {
+        const response = ds.FormField.getInputValueByTarget(target);
+
+        return response;
+    }
+
+    get isEnabledEmail() {
+        const isEmailValid = ds.Validation.validateEmail(this.elEmail);
+        const isPasswordValid = ds.Validation.validatePassword(this.getElById('password'));
+        const response = isEmailValid && isPasswordValid;
+
+        return response;
+    }
+
+    get isEnabledUsername() {
+        const diamondsInInventory = Player.inventoryDiamonds;
+        const diamondsRequired = Data.rules.user.username.cost;
+        const isUsernameValid = ds.Validation.validateUsername(this.elUsername);
+        const isPasswordValid = ds.Validation.validatePassword(this.elPasswordConfirm);
+        const response = isUsernameValid && isPasswordValid && diamondsInInventory >= diamondsRequired;
+
+        return response;
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+        this.updateButtonState();
+    }
+
+    get translation() {
+        const response = ds.Translation.loginDefault;
+
+        return response;
+    }
+
+
+
+
+    addFieldEventListeners() {
+        const capitalizeContent = this.capitalizedContent;
+        const fields = this.fieldsByContent[capitalizeContent];
+
+        fields.forEach((field) => {
+            field?.addEventListener('input', () => this.updateButtonState());
+        });
+    }
+
+    get elButton() {
+        const response = this.shadowRoot.querySelector(ds.Components.componentButton);
+
+        return response;
+    }
+
+    get elEmail() {
+        const response = this.getElById(HudPageUserEdit.idEmail);
+
+        return response;
+    }
+
+    get elPasswordConfirm() {
+        const response = this.getElById(HudPageUserEdit.idPasswordConfirm);
+
+        return response;
+    }
+
+    get elUsername() {
+        const response = this.getElById(HudPageUserEdit.idUsername);
+
+        return response;
+    }
+
+    get fieldsByContent() {
+        const response = {
+            Email: [this.elEmail, this.getElById('password')],
+            Password: [],
+            Username: [this.elUsername, this.elPasswordConfirm],
+        };
+
+        return response;
+    }
+
+    getElById(id) {
+        const response = this.shadowRoot.getElementById(id);
+
+        return response;
+    }
+
+    toggleButtonDisabled(isEnabled) {
+        const button = this.elButton;
+
+        if (!button) return;
+
+        if (isEnabled) {
+            button.removeAttribute(ds.Prefix.ATTR_IS_DISABLED);
+        } else {
+            button.setAttribute(ds.Prefix.ATTR_IS_DISABLED, 'true');
+        }
+    }
+
+    updateButtonState() {
+        const capitalizeContent = this.capitalizedContent;
+        const isEnabled = this[`isEnabled${capitalizeContent}`];
+
+        this.toggleButtonDisabled(isEnabled);
+    }
+}
+export class HudPageWithdraw extends HTMLElement {
+    args = {
+        context: this,
+    };
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+
+
+    draw() {
+        const data = Player.bankStorage;
+        const length = data.length;
+        const content = length > 0 ? Layout.drawCardItemList(data) : Layout.drawEmptyContent();
+        const response = HudPageNPC.drawWrapper(content);
+
+        return response;
+    }
+
+    get action() {
+        const response = ds.Prefix.WITHDRAW;
+
+        return response;
+    }
+
+    handleOpenDetails(id) {
+        const args = {
+            id,
+            context: this,
+            npcAction: this.action,
+        };
+
+        HudPageDetail.itemId = id.id;
+
+        HudPageNPC.handleOpenDetails(args);
+    }
+
+    async render() {
+        const isValid = NPCs.validateBankLevel();
+
+        if (!isValid) return;
+
+        HudPageDetail.npcAction = this.action;
+
+        await FetchData.openBank();
+
+        const component = await this.draw();
+
+        ds.Components.render(this.args, component);
+
+        ds.Layout.addEventListeners(this, 'button');
+    }
+}
+export class HudReferral extends HTMLElement {
+    args = {
+        context: this,
+    };
+    static idReferral = 'referral';
+
+
+
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+
+        this.render();
+    }
+
+
+
+    addEventListeners() {
+        const componentButton = ds.Components.componentButton;
+
+        ds.Layout.addEventListeners(this, componentButton);
+    }
+
+    draw() {
+        const subtitle = Layout.drawSubtitle(this.translation.title);
+        const description = Layout.replaceInText(this.translation.description);
+        const field = ds.Layout.drawField({
+            label: this.translation.link,
+            value: this.referralLink,
+            isReadOnly: true
+        });
+        const button = Layout.drawButtonComponent({
+            id: HudReferral.idReferral,
+            label: this.translation.copy,
+            handler: 'handleCopyLink',
+            handlerProps: '[]',
+            theme: ds.Layout.theme.menuDefault
+        });
+        const content = `
+            <div class="ds-row">
+                ${subtitle}
+            </div>
+            <div class="ds-row">
+                <p class="ds-paragrath">${description}</p>
+            </div>
+            <div class="ds-row">
+                <div class="ds-column ds-column--full">
+                    ${field}
+                </div>
+                <div class="ds-column ds-center ds-column__button">
+                    ${button}
+                </div>
+            </div>
+        `;
+
+        return content;
+    }
+
+    async handleCopyLink() {
+        try {
+            await navigator.clipboard.writeText(this.referralLink);
+        } catch {
+            return;
+        }
+
+        Notification.add({
+            content: this.translation.copied,
+        });
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.addEventListeners();
+    }
+
+    get referralLink() {
+        const response = `${gbUrls.project}login/?ref=${Data.login.id}`;
+
+        return response;
+    }
+
+    get translation() {
+        const response = ds.Translation.getTranslationPage('referral');
+
+        return response;
+    }
+}
+export class HudStatus extends HTMLElement {
+    args = {
+        context: this,
+    };
+    progress;
+    updates = {
+        player: {
+            attributes: {},
+            statistics: {}
+        }
+    };
+    tooltipActionPoints;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.initializeData();
+        this.render();
+    }
+
+
+
+    draw() {
+        const actionPoints = this.updates.player.attributes.actionPoints ?? 0;
+        const componentAction = Components.cHudActionPoints;
+        let response = `
+            <div class="ds-row">
+                <div class="ds-column gm-status-center">
+                    <${componentAction}
+                        data-action-points="${actionPoints}"
+                        data-tooltip=""
+                    >
+                    </${componentAction}>
+                </div>
+                <div class="ds-column gm-status-center">
+        `;
+
+        this.progress.forEach((index) => {
+            const componentProgress = ds.Components.componentProgress;
+
+            response += `
+                <${componentProgress}
+                    id="${index.id}"
+                    value="${index.value}"
+                    value-max="${index.valueMax}"
+                    theme="${index.theme}"
+                    direction="horizontal"
+                    data-tooltip="${index.tooltip}"
+                    css-wrapper="gm-style"
+                ></${componentProgress}>
+            `;
+        });
+
+        response += `
+                </div>
+            </div>
+        `;
+
+        return response;
+    }
+
+    initializeData() {
+        this.updates.player.attributes = Data.player.attributes;
+        this.rebuildData();
+        this.translate();
+    }
+
+    rebuildData() {
+        const translationPage = ds.Translation.getTranslationPage('attributes');
+        const data = this.updates.player.attributes;
+        this.progress = [
+            {
+                id: HTML.idHudProgressLife,
+                theme: 'red',
+                value: data.hitPoints,
+                valueMax: data.hitPointsMaximum,
+                text: translationPage?.life
+            },
+            {
+                id: HTML.idHudProgressMana,
+                theme: 'blue',
+                value: data.manaPoints,
+                valueMax: data.manaPointsMaximum,
+                text: translationPage?.mana
+            },
+            {
+                id: HTML.idHudProgressExperience,
+                theme: 'yellow',
+                valueTooltip: data.experience,
+                valueTooltipMax: data.experienceNext,
+                value: data.experience - data.experienceCurrent,
+                valueMax: data.experienceNext - data.experienceCurrent,
+                text: translationPage?.experience
+            },
+        ];
+
+        if (!this.tooltipActionPoints) {
+            const tooltip = ds.Translation.interfaceDefault?.action_points;
+            const componentAction = Components.cHudActionPoints;
+
+            this.tooltipActionPoints = tooltip;
+            this.shadowRoot.querySelector(componentAction)?.setAttribute('data-tooltip', `${tooltip}`);
+        }
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    translate() {
+        this.progress.forEach((index) => {
+            const { text, value, valueMax, valueTooltip, valueTooltipMax } = index;
+            const isExperience = index.id === HTML.idHudProgressExperience;
+
+            const tooltipArgs = {
+                text,
+                value: isExperience ? valueTooltip : value,
+                valueMax: isExperience ? valueTooltipMax : valueMax,
+                isPercentage: false
+            };
+
+            const tooltipArgs2 = {
+                value,
+                valueMax,
+                isPercentage: true
+            };
+
+            const tooltip = ds.Layout.buildTextCapacity(tooltipArgs);
+            const tooltip2 = ds.Layout.buildTextCapacity(tooltipArgs2);
+
+            index.tooltip = `${tooltip} - ${tooltip2}`;
+        });
+    }
+
+    updateActionPoints(actionPoints) {
+        const componentAction = Components.cHudActionPoints;
+        const el = this.shadowRoot.querySelector(componentAction);
+
+        if (el) el.setAttribute('data-action-points', actionPoints);
+    }
+
+    updateData() {
+        this.updates.player.attributes = Data.player.attributes;
+        this.rebuildData();
+        this.translate();
+
+        this.progress.forEach((progressData) => {
+            const el = this.shadowRoot.getElementById(progressData.id);
+
+            if (el) {
+                el.setAttribute('value', progressData.value);
+                el.setAttribute('value-max', progressData.valueMax);
+                el.setAttribute('data-tooltip', progressData.tooltip);
+            }
+        });
+
+        const actionPoints = this.updates.player.attributes.actionPoints ?? 0;
+
+        this.updateActionPoints(actionPoints);
+    }
+}
+export class HudTransition extends HTMLElement {
+    args = {
+        context: this,
+    };
+    idMain = 'main';
+    idContent = 'content';
+    idVersion = 'version';
+    idLoading = 'loading';
+    isInitial = true;
+    timeout = 500;
+    timeout2 = this.timeout * 2;
+    timeout3 = this.timeout * 3;
+    timeoutHalf = this.timeout / 2;
+    timeClose = 0;
+    title = '';
+    subtitle = '';
+    loot;
+    static tipPool = [];
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.updateAttributes();
+        this.render();
+        this.updateHTML();
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue === newValue) return;
+        this.changeAttributes();
+    }
+
+    static get observedAttributes() {
+        const response = [ds.Layout.attributeOpen, 'kind'];
+
+        return response;
+    }
+
+
+
+
+    addEventListeners() {
+        const data = [];
+        const componentButton = ds.Components.componentButton;
+        const elButtons = this.shadowRoot.querySelectorAll(componentButton);
+
+        elButtons.forEach((el) => {
+            const args = {
+                el,
+                handler: this.close.bind(this)
+            };
+            data.push(args);
+        });
+
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    buildMessage(props) {
+        const { title, subtitle } = props;
+
+        this.title = title;
+        this.subtitle = subtitle;
+        this.setAttribute(ds.Layout.attributeOpen, true);
+        this.setAttribute('kind', 'message');
+
+        const timeoutCustom = this.calculateTimeout({ title, subtitle });
+        setTimeout(() => {
+            this.setAttribute(ds.Layout.attributeOpen, false);
+        }, timeoutCustom);
+    }
+
+    buildTip() {
+        const tips = ds.Translation.gameTip;
+        const isGuest = Statics.isGuest;
+        const isNewbie = Statics.isNewbie;
+
+        if (HudTransition.tipPool.length === 0) {
+            const pool = this.buildTipGetAvailableTipKeys(tips, isGuest);
+
+            HudTransition.tipPool = this.buildTipPrioritizeNewbieTip(pool, isNewbie);
+        }
+
+        const key = HudTransition.tipPool.shift();
+        let title = tips[`${key}_title`];
+        let subtitle = tips[`${key}_subtitle`];
+
+        ({ title, subtitle } = this.buildTipWrapWithLinkIfMatch(key, title, subtitle));
+
+        const args = { title, subtitle };
+        this.timeClose = this.calculateTimeout(args);
+
+        const response = { title, subtitle };
+
+        return response;
+    }
+
+    buildTipGetAvailableTipKeys(tips, isGuest) {
+        const seen = new Set();
+        const response = [];
+        const keys = Object.keys(tips);
+        const length = keys.length;
+
+        for (let i = 0; i < length; i++) {
+            const key = keys[i];
+
+            if (!key.endsWith('_title')) continue;
+
+            const prefix = key.slice(0, -6);
+
+            if (seen.has(prefix)) continue;
+
+            const subtitleKey = `${prefix}_subtitle`;
+
+            if (!tips[subtitleKey]) continue;
+            if (!isGuest && prefix === 'do_login') continue;
+
+            seen.add(prefix);
+            response.push(prefix);
+        }
+
+        return response;
+    }
+
+    buildTipPrioritizeNewbieTip(pool, isNewbie) {
+        if (!isNewbie) return ds.Helper.shuffle(pool);
+
+        const index = pool.indexOf('walk_end');
+
+        if (index !== -1) {
+            pool.splice(index, 1);
+            return ['walk_end', ...ds.Helper.shuffle(pool)];
+        }
+
+        return ds.Helper.shuffle(pool);
+    }
+
+    buildTipWrapWithLinkIfMatch(key, title, subtitle) {
+        const links = Statics.link;
+        const linkKeys = Object.keys(links);
+        const length = linkKeys.length;
+
+        for (let i = 0; i < length; i++) {
+            const linkKey = linkKeys[i];
+
+            if (key.includes(linkKey)) {
+                const href = links[linkKey];
+                const aOpen = `<a href="${href}" class=" ds-link ds-link--transparent" target="_blank" rel="noopener noreferrer">`;
+                const aClose = '</a>';
+                const response = {
+                    title: `${aOpen}${title}${aClose}`,
+                    subtitle: `${aOpen}${subtitle}${aClose}`,
+                };
+
+                return response;
+            }
+        }
+
+        const args = { title, subtitle };
+
+        return args;
+    }
+
+    calculateTimeout(props) {
+        const timePerCharacter = Statics.timePerCharacter;
+        const { title, subtitle } = props;
+        const titleLength = title ? title.length : 0;
+        const subtitleLength = subtitle ? subtitle.length : 0;
+        const response = (titleLength + subtitleLength) * timePerCharacter;
+
+        return response;
+    }
+
+    changeAttributes() {
+        this.updateAttributes();
+        this.redraw();
+    }
+
+    close() {
+        setTimeout(() => {
+            this.isOpen = false;
+            ds.Helper.removeClass(this.elMain, ds.Layout.cssAnimationFadeIn);
+            ds.Helper.addClass(this.elMain, ds.Layout.cssAnimationFadeOut);
+
+            queueMicrotask(() => {
+                this.setContent('');
+            });
+        }, this.timeClose);
+    }
+
+    draw() {
+        if (!this.isOpen) return '';
+
+        const html = `
+            <div class="gm-transition ${ds.Layout.cssAnimationPrepare}" id="${this.idMain}">
+                <div class="gm-transition__container">
+                    <div id="${this.idContent}"></div>
+                </div>
+                <div
+                    class="gm-version"
+                    id="${this.idVersion}"
+                ></div>
+            </div>
+        `;
+
+        return html;
+    }
+
+    drawBattle() {
+        const translation = ds.Translation.gameBattle;
+        const subtitle = translation.battle_prepare;
+        const title = translation.battle;
+        const args = {
+            title,
+            subtitle
+        };
+        const response = this.drawContent(args);
+
+        return response;
+    }
+
+    drawBattleLose() {
+        const translation = ds.Translation.gameBattle;
+        const subtitle = translation.lose;
+        const title = translation.lose_title;
+        const button = this.drawButtonClose();
+        const subtitleFixed = Layout.replaceInText(subtitle, true);
+        const args = {
+            title,
+            subtitle: subtitleFixed,
+            button
+        };
+        const response = this.drawContent(args);
+
+        return response;
+    }
+
+    drawBattleWin() {
+        const translation = ds.Translation.gameBattle;
+        const subtitle = translation.win;
+        const title = translation.win_title;
+        const content = this.drawBattleWinLoot();
+        const button = this.drawButtonClose();
+        const args = {
+            title,
+            subtitle,
+            content,
+            button
+        };
+        const response = this.drawContent(args);
+
+        return response;
+    }
+
+    drawBattleWinLoot() {
+        const itens = Object.entries(this.loot);
+        const themeCard = this.theme.card;
+        let response = '<div class="ds-row ds-center ds-card-wrapper">';
+
+        itens.forEach((index) => {
+            const item = Storage.buildItem(index).item;
+            const argsIcon = { item, isDurability: false };
+            const icon = lo.HTML.drawLoot(argsIcon);
+            const quantity = index[1];
+
+            response += `
+                <div
+                    class="${themeCard} ds-card--small"
+                >
+                    <div class="ds-card__header">
+                    </div>
+                    <div class="ds-card__body">
+                        ${icon}
+                    </div>
+                    <div class="ds-card__footer ds-right">
+                        <div class="ds-truncate">
+                            ${quantity}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        response += '</div>';
+
+        return response;
+    }
+
+    drawButtonClose() {
+        const translation = ds.Translation.interfaceDefault.continue;
+        const componentButton = ds.Components.componentButton;
+        const themeButton = this.theme.menuDefault;
+        const themeSize = this.theme.menuSize;
+        const response = `
+            <${componentButton}
+                theme="${themeButton}"
+                size="${themeSize}"
+                data-kind="button"
+                label="${translation}"
+            ></${componentButton}>
+        `;
+
+        return response;
+    }
+
+    drawContent(props) {
+        const {
+            subtitle,
+            title,
+            content = undefined,
+            button = undefined,
+        } = props;
+
+        const buildContent = (target, css) =>
+            target ?
+                `
+            <div class="ds-row ds-center gm-transition__${css}">
+                ${target}
+            </div>
+            `
+                : '';
+        const subtitleHTML = this.drawSubtitle(subtitle);
+        const titleHTML = this.drawTitle(title);
+        const contentHTML = buildContent(content, 'content');
+        const buttonHTML = buildContent(button, 'button');
+        const response = `
+            <div class="ds-row">
+                ${subtitleHTML}
+            </div>
+            <div class="ds-row">
+                ${titleHTML}
+            </div>
+            ${contentHTML}
+            ${buttonHTML}
+        `;
+
+        return response;
+    }
+
+    drawMessage() {
+        const subtitle = this.subtitle;
+        const title = this.title;
+        const args = {
+            title,
+            subtitle
+        };
+        const response = this.drawContent(args);
+
+        return response;
+    }
+
+    drawLoading() {
+        const textEn = 'Loa<span>ding</span>';
+        const textPt = 'Carre<span>gan</span>do';
+        const text = gbLanguage === 'pt' ? textPt : textEn;
+        const title = this.drawTitle(text);
+        const response = `
+            ${title}
+        `;
+
+        return response;
+    }
+
+    drawLoadingIcon() {
+        const args = {
+            theme: ds.Layout.theme.menuDefault,
+            size: 'small',
+            id: this.idLoading
+        };
+        const response = ds.HTML.drawLoading(args);
+
+        return response;
+    }
+
+    drawSubtitle(target) {
+        const response = `
+            <h2 class="gm-transition__text ${ds.Layout.cssAnimationPrepare} ${ds.Layout.cssAnimationFromRight}">
+                ${target}
+            </h2>
+        `;
+
+        return response;
+    }
+
+    drawTip() {
+        const tip = this.buildTip();
+        const subtitle = this.drawSubtitle(tip.subtitle);
+        const title = this.drawTitle(tip.title);
+        const response = `
+            ${subtitle}
+            ${title}
+        `;
+
+        return response;
+    }
+
+    drawTitle(target) {
+        const response = `
+            <h1 class="ds-title gm-transition__title ${ds.Layout.cssAnimationPrepare} ${ds.Layout.cssAnimationFromLeft}">
+                ${target}
+            </h1>
+        `;
+        return response;
+    }
+
+    get theme() {
+        const response = ds.Layout.theme;
+
+        return response;
+    }
+
+    init() {
+        this.isInitial = true;
+    }
+
+    open() {
+        this.isOpen = true;
+
+        if (!this.isInitial) {
+            ds.Helper.removeClass(this.elMain, ds.Layout.cssAnimationFadeOut);
+            ds.Helper.addClass(this.elMain, ds.Layout.cssAnimationFadeIn);
+        }
+    }
+
+    openByKind(kind = 'loading') {
+        this.setAttribute(ds.Layout.attributeOpen, true);
+        this.setAttribute('kind', kind);
+        this.open();
+        this.changeAttributes();
+    }
+
+    redraw() {
+        let content = '';
+        let isLoading = true;
+
+        this.timeClose = 0;
+
+        switch (this.kind) {
+            case 'battle':
+                content = this.drawBattle();
+                break;
+            case 'initial':
+                this.isInitial = true;
+                content = this.drawLoading();
+                break;
+            case 'loading':
+                content = this.drawLoading();
+                break;
+            case 'lose':
+                content = this.drawBattleLose();
+                isLoading = false;
+                break;
+            case 'message':
+                content = this.drawMessage();
+                break;
+            case 'tip':
+            default:
+                content = this.drawTip();
+                break;
+            case 'win':
+                content = this.drawBattleWin();
+                isLoading = false;
+                break;
+        }
+
+        this.setContent(content, isLoading);
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+    }
+
+    setContent(content, isLoading) {
+        const elLoading = this.drawLoadingIcon();
+        let html = content;
+
+        if (isLoading) html += elLoading;
+
+        this.elContent.innerHTML = html;
+
+        const versionTranslation = ds.Translation.gameGeneric?.game_version || '';
+        const version = `
+            ${versionTranslation} <span>${gbVersion.game}</span>
+        `;
+        this.elVersion.innerHTML = version;
+
+        this.addEventListeners();
+    }
+
+    updateAttributes() {
+        const isOpen = this.getAttribute(ds.Layout.attributeOpen);
+
+        if (isOpen === 'true') this.open();
+        if (isOpen === 'false' || !isOpen) this.close();
+
+        const kind = this.getAttribute('kind');
+
+        this.kind = kind;
+    }
+
+    updateHTML() {
+        this.elMain = this.shadowRoot.getElementById(this.idMain);
+        this.elContent = this.shadowRoot.getElementById(this.idContent);
+        this.elVersion = this.shadowRoot.getElementById(this.idVersion);
+    }
+}
+export class MapGame extends HTMLElement {
+    args = {
+        context: this,
+    };
+    map = {};
+    randomMovementInterval = 0;
+    randomMovementIntervalTime = 0;
+    directions = [
+        { dx: 1, dy: 0 },
+        { dx: -1, dy: 0 },
+        { dx: 0, dy: 1 },
+        { dx: 0, dy: -1 }
+    ];
+    directionsLength = this.directions.length;
+    safeDistance = 2;
+    movementQueue = [];
+    movementRunning = false;
+    occupationMap = null;
+    movementLoop = null;
+
+
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+
+
+
+    addEventListeners() {
+        const data = [];
+        const elButtons = HTML.elMapGameTiles.querySelectorAll('button');
+
+        elButtons.forEach((el) => {
+            const args = {
+                el,
+                handler: Walk.walkClick
+            };
+            data.push(args);
+        });
+
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    addClick(el) {
+        el.forEach(index => {
+            index.addEventListener('click', () => {
+                const positionX = ds.Helper.getPositionX(index);
+                const positionY = ds.Helper.getPositionY(index);
+                const currentX = HTML.elGamePlayer.getAttribute(ds.Layout.attributePositionX);
+                const currentY = HTML.elGamePlayer.getAttribute(ds.Layout.attributePositionY);
+                const args = {
+                    el: HTML.elGamePlayer,
+                    positionXTo: positionX,
+                    positionYTo: positionY,
+                    positionXFrom: currentX,
+                    positionYFrom: currentY,
+                };
+
+                Walk.walk(args);
+            });
+        });
+    }
+
+    buildMapDoors() {
+        const args = {
+            tiles: ds.Modules.tiles,
+            map: HTML.elMapGameTiles
+        };
+        const doors = ds.MapGame.buildDoors(args);
+
+        this.map.doors = doors;
+    }
+
+    static async buildDataMap(target) {
+        if (!target) return;
+
+        const tilesById = new Map(
+            ds.Modules.tiles.map(t => [t.id, t])
+        );
+        const tiles = Array.from({ length: target.height }, (_, row) =>
+            target.tiles.slice(row * target.width, (row + 1) * target.width)
+        );
+        const pathWalk = tiles.map(row =>
+            row.map(id => {
+                const tile = tilesById.get(id);
+                return tile && tile.is_walk ? 0 : 1;
+            })
+        );
+        const pathSpawn = tiles.map(row =>
+            row.map(id => {
+                const tile = tilesById.get(id);
+                return tile && tile.is_walk && !tile.is_door ? 0 : 1;
+            })
+        );
+        const pathMonster = tiles.map(row =>
+            row.map(id => {
+                const tile = tilesById.get(id);
+                return tile && tile.is_walk && !tile.is_door ? 0 : 1;
+            })
+        );
+        const response = {
+            tiles,
+            pathWalk,
+            pathSpawn,
+            pathMonster
+        };
+
+        return response;
+    }
+
+    buildOccupationMap() {
+        const map = new Map();
+        const register = (el) => {
+            const x = ds.Helper.getPositionX(el);
+            const y = ds.Helper.getPositionY(el);
+            map.set(`${x}:${y}`, el);
+        };
+
+        register(HTML.elGamePlayer);
+
+        this.map.npcs.forEach(npc => {
+            const el = MapGame.getNPCById(npc.id);
+            if (el) register(el);
+        });
+
+        this.map.monsters.forEach(monster => {
+            const el = MapGame.getMonsterById(monster.id);
+            if (el) register(el);
+        });
+
+        this.occupationMap = map;
+    }
+
+    static async changeMap(target) {
+        HTML.elTransition.openByKind('tip');
+        const data = HTML.elMapGame.map;
+        const currentMapId = data.idMap;
+        const currentCityId = data.idCity;
+        const args = {
+            character: 0,
+            map: data.idMap,
+            door: target,
+            isChangeMap: true
+        };
+        await this.updateDataMap(args);
+
+        const newMap = Data.map?.data;
+        const newMapId = newMap?.idMap;
+        const newCityId = newMap?.idCity;
+
+        Analytics.send({
+            event_name: 'map_change',
+            map_from: currentMapId,
+            map_to: newMapId,
+            city_from: currentCityId,
+            city_to: newCityId,
+        });
+
+        Player.updateLayout();
+
+        Tutorial.showAct1Scene2();
+
+        Camera.center();
+
+        HTML.elTransition.close();
+    }
+
+    draw() {
+        const tiles = this.map.tiles;
+        const lines = tiles.length;
+        const columns = tiles[0].length;
+        const widthMath = columns * ds.Layout.tileSize;
+        const width = ds.Layout.buildPixel(widthMath);
+        const heightMath = lines * ds.Layout.tileSize;
+        const height = ds.Layout.buildPixel(heightMath);
+        const player = Player.draw();
+        const nPC = NPCs.draw(this.map.npcs);
+        const collectable = Collectibles.draw(this.map.collectibles);
+        const monsters = Monsters.draw(this.map.monsters);
+        let response = `
+            ${player}
+            ${nPC}
+            ${monsters}
+            ${collectable}
+            <div
+                id="${HTML.idMapGame}"
+                class="gm-map"
+                style="width: ${width}; height: ${height};"
+                tabindex="-1"
+            >
+        `;
+
+        response += this.drawTiles(tiles);
+        response += '</div>';
+
+        this.map.width = widthMath;
+        this.map.height = heightMath;
+
+        return response;
+    }
+
+    drawTiles(map) {
+        let response = '';
+
+        map.forEach((line, lineIndex) => {
+            line.forEach((column, columnIndex) => {
+                const props = {
+                    id: `tile-${lineIndex}-${columnIndex}`,
+                    tileId: column,
+                    positionX: columnIndex,
+                    positionY: lineIndex,
+                    tiles: ds.Modules.tiles
+                };
+
+                response += ds.MapGame.drawTile(props);
+            });
+        });
+
+        return response;
+    }
+
+    enqueueEntities(entities, idGenerator) {
+        entities.forEach((entity, index) => {
+            this.movementQueue.push({
+                entity,
+                index,
+                idGenerator
+            });
+        });
+    }
+
+    findPath(props) {
+        const { start, end } = props;
+        const map = this.map.pathWalk;
+        const response = Pathfinding.findPath(map, start, end);
+
+        return response;
+    }
+
+    getBehavior(el) {
+        const response = el.getAttribute('data-behavior') || 'neutral';
+
+        return response;
+    }
+
+    getDistance(props) {
+        const { candidateX, candidateY, playerPositionX, playerPositionY } = props;
+        const response = Math.abs(candidateX - playerPositionX) + Math.abs(candidateY - playerPositionY);
+
+        return response;
+    }
+
+    static getEntityById(id) {
+        const response = HTML.elMapGame.shadowRoot.getElementById(id);
+
+        return response;
+    }
+
+    static getMonsterById(target) {
+        const id = Layout.buildId(Monsters.prefix, target);
+        const response = MapGame.getEntityById(id);
+
+        return response;
+    }
+
+    static getNPCById(target) {
+        const id = Layout.buildId(NPCs.prefix, target);
+        const response = MapGame.getEntityById(id);
+
+        return response;
+    }
+
+    get elMap() {
+        const response = MapGame.getEntityById(HTML.idMapGame);
+
+        return response;
+    }
+
+    static get player() {
+        const response = MapGame.getEntityById(HTML.idGamePlayer);
+
+        return response;
+    }
+
+    getOccupation(x, y) {
+        const response = {
+            target: undefined,
+            positionX: 0,
+            positionY: 0,
+        };
+        const playerElement = HTML.elGamePlayer;
+        const playerX = ds.Helper.getPositionX(playerElement);
+        const playerY = ds.Helper.getPositionY(playerElement);
+
+        if (playerX === x && playerY === y) {
+            response.target = playerElement;
+            response.positionX = playerX;
+            response.positionY = playerY;
+        }
+
+        for (const npc of this.map.npcs) {
+            const elNPC = this.shadowRoot.getElementById(`${NPCs.prefix}_${npc.id}`);
+
+            if (elNPC) {
+                const npcX = ds.Helper.getPositionX(elNPC);
+                const npcY = ds.Helper.getPositionY(elNPC);
+
+                if (npcX === x && npcY === y) {
+                    response.target = elNPC;
+                    response.positionX = npcX;
+                    response.positionY = npcY;
+                }
+            }
+        }
+
+        this.map.monsters.forEach((index => {
+            const id = Layout.buildId(Monsters.prefix, index.id);
+            const elMonster = this.shadowRoot.getElementById(id);
+            if (elMonster) {
+                const monsterX = ds.Helper.getPositionX(elMonster);
+                const monsterY = ds.Helper.getPositionY(elMonster);
+
+                if (monsterX === x && monsterY === y) {
+                    response.target = elMonster;
+                    response.positionX = monsterX;
+                    response.positionY = monsterY;
+                }
+            }
+        }));
+
+        const collectibles = this.shadowRoot.querySelectorAll('.lo-collectable');
+
+        for (const collectable of collectibles) {
+            const collectableX = ds.Helper.getPositionX(collectable);
+            const collectableY = ds.Helper.getPositionY(collectable);
+
+            if (collectableX === x && collectableY === y) {
+                response.target = collectable;
+                response.positionX = collectableX;
+                response.positionY = collectableY;
+            }
+        }
+
+        return response;
+    }
+
+    getPosition(target) {
+        if (!target) return;
+
+        const dataX = ds.Helper.getPositionX(target);
+        const dataY = ds.Helper.getPositionY(target);
+        const math = (target) => target * ds.Layout.tileSize;
+        const response = {
+            top: math(dataY),
+            left: math(dataX),
+        };
+
+        return response;
+    }
+
+    getNextStepByBehavior(props) {
+        const {
+            element,
+            currentPositionX,
+            currentPositionY,
+            playerPositionX,
+            playerPositionY
+        } = props;
+        const behavior = this.getBehavior(element);
+
+        if (behavior === 'neutral') return null;
+
+        let response = null;
+        let bestDistance = behavior === 'scared' ? -Infinity : Infinity;
+
+        for (let i = 0; i < this.directionsLength; i++) {
+            const direction = this.directions[i];
+            const candidateX = currentPositionX + direction.dx;
+            const candidateY = currentPositionY + direction.dy;
+
+            if (!this.isValidNextPosition(candidateX, candidateY)) continue;
+            if (!this.isWithinNpcRange(element, candidateX, candidateY)) continue;
+
+            const args = {
+                candidateX,
+                candidateY,
+                playerPositionX,
+                playerPositionY
+            };
+            const distanceToPlayer = this.getDistance(args);
+
+            if (
+                (behavior === 'scared' && distanceToPlayer > bestDistance) ||
+                (behavior === 'agressive' && distanceToPlayer < bestDistance)
+            ) {
+                bestDistance = distanceToPlayer;
+                response = { x: candidateX, y: candidateY };
+            }
+        }
+
+        return response;
+    }
+
+    getSafeZone() {
+        const response = [];
+        const elPlayer = MapGame.player;
+        const playerX = ds.Helper.getPositionX(elPlayer);
+        const playerY = ds.Helper.getPositionY(elPlayer);
+        const npcPositions = this.map.npcs.map(npc => ({
+            x: Number(npc.position[0]),
+            y: Number(npc.position[1])
+        }));
+
+        this.map.pathSpawn.forEach((row, y) => {
+            row.forEach((cell, x) => {
+                const withinPlayerZone = x >= playerX - this.safeDistance && x <= playerX + this.safeDistance &&
+                    y >= playerY - this.safeDistance && y <= playerY + this.safeDistance;
+
+                const withinNpcZone = npcPositions.some(npcPos =>
+                    x >= npcPos.x - this.safeDistance && x <= npcPos.x + this.safeDistance &&
+                    y >= npcPos.y - this.safeDistance && y <= npcPos.y + this.safeDistance
+                );
+
+                if (cell === 0 &&
+                    !(x === playerX && y === playerY) &&
+                    !withinPlayerZone &&
+                    !withinNpcZone
+                ) {
+                    response.push({ x, y });
+                }
+            });
+        });
+
+        return response;
+    }
+
+    isMovingRandom() {
+        const response = Math.random() < 0.3;
+
+        return response;
+    }
+
+    isOccupied(x, y) {
+        const response = this.occupationMap?.has(`${x}:${y}`) ?? false;
+
+        return response;
+    }
+
+    isValidNextPosition(x, y) {
+        if (!this.isWithinMapBounds(x, y)) return false;
+        if (this.map.pathMonster[y]?.[x] !== 0) return false;
+        if (this.getOccupation(x, y).target) return false;
+
+        return true;
+    }
+
+    isWithinMapBounds(x, y) {
+        const response = x >= 0 && y >= 0 && x < this.map.width && y < this.map.height;
+
+        return response;
+    }
+
+    getEntityElement(entity, index, idGenerator) {
+        const id = idGenerator(entity, index, 0);
+        const response = this.shadowRoot.getElementById(id);
+
+        return response;
+    }
+
+    getInitialPosition(element) {
+        const response = {
+            x: Number(element.getAttribute('data-position-x-initial')),
+            y: Number(element.getAttribute('data-position-y-initial'))
+        };
+
+        return response;
+    }
+
+    getMaxWalkSteps(element) {
+        const stepsAttr = Number(element.getAttribute('data-walk-steps')) || 1;
+        const response = (Math.random() * stepsAttr | 0) + 1;
+
+        return response;
+    }
+
+    getRandomStep(position, element) {
+        const direction = this.directions[Math.random() * this.directionsLength | 0];
+        const nextX = position.x + direction.dx;
+        const nextY = position.y + direction.dy;
+
+        if (!this.isWithinMapBounds(nextX, nextY)) return null;
+        if (this.map.pathMonster[nextY]?.[nextX] !== 0) return null;
+        if (this.getOccupation(nextX, nextY).target) return null;
+        if (!this.isWithinNpcRange(element, nextX, nextY)) return null;
+
+        const response = { x: nextX, y: nextY };
+
+        return response;
+    }
+
+    getRandomSubset(list, max) {
+        const response = [...list].sort(() => Math.random() - 0.5);
+
+        return response.slice(0, max);
+    }
+
+    getWalkRadius(element) {
+        const radius = Number(element.getAttribute('data-walk-radius'));
+        const response = Number.isFinite(radius) ? radius : 1;
+
+        return response;
+    }
+
+    isWithinNpcRange(element, x, y) {
+        if (element.getAttribute('kind') !== 'npc') return true;
+
+        const radius = this.getWalkRadius(element);
+
+        if (radius <= 0) return false;
+
+        const initial = this.getInitialPosition(element);
+        const distance =
+            Math.abs(x - initial.x) +
+            Math.abs(y - initial.y);
+
+        const response = distance <= 2;
+
+        return response;
+    }
+
+    async moveSingleEntity({ entity, index, idGenerator }) {
+        const element = this.getEntityElement(entity, index, idGenerator);
+
+        if (!element || !this.isMovingRandom()) return;
+
+        const playerX = ds.Helper.getPositionX(HTML.elGamePlayer);
+        const playerY = ds.Helper.getPositionY(HTML.elGamePlayer);
+
+        let position = {
+            x: ds.Helper.getPositionX(element),
+            y: ds.Helper.getPositionY(element)
+        };
+
+        const behavior = element.getAttribute('data-behavior') || 'neutral';
+        const maxSteps = this.getMaxWalkSteps(element);
+
+        for (let step = 0; step < maxSteps; step++) {
+            if (this.tryStartBattleIfAggressive(
+                element,
+                behavior,
+                position,
+                playerX,
+                playerY
+            )) {
+                return;
+            }
+
+            const next =
+                this.getNextStepByBehavior({
+                    element,
+                    currentPositionX: position.x,
+                    currentPositionY: position.y,
+                    playerPositionX: playerX,
+                    playerPositionY: playerY
+                }) ||
+                this.getRandomStep(position, element);
+
+            if (!next) break;
+
+            position = next;
+        }
+
+        const args = {
+            el: element,
+            positionXFrom: ds.Helper.getPositionX(element),
+            positionYFrom: ds.Helper.getPositionY(element),
+            positionXTo: position.x,
+            positionYTo: position.y
+        };
+
+        await Walk.walk(args);
+    }
+
+    processMovementQueue() {
+        if (this.movementRunning) return;
+
+        this.movementRunning = true;
+
+        const step = async () => {
+            if (Battle.isBattle || this.movementQueue.length === 0) {
+                this.movementRunning = false;
+                return;
+            }
+
+            const item = this.movementQueue.shift();
+
+            await this.moveSingleEntity(item);
+
+            requestAnimationFrame(step);
+        };
+
+        requestAnimationFrame(step);
+    }
+
+    render() {
+        const component = this.draw();
+
+        ds.Components.render(this.args, component);
+
+        this.buildMapDoors();
+
+        Player.setPosition(this.map.player.position);
+
+        this.map.availablePositions = this.getSafeZone();
+
+        NPCs.setPosition(this.map.npcs);
+        Monsters.setPosition();
+        Collectibles.setPosition();
+
+        this.startRandomMovementCycle();
+
+        this.addEventListeners();
+
+        Monsters.addClick();
+        NPCs.addClick();
+        Collectibles.addClick();
+    }
+
+    setPosition(props) {
+        const calculate = (target) => Number(target) * ds.Layout.tileSize;
+        const { target, positionX, positionY, speed } = props;
+        const left = calculate(positionX);
+        const top = calculate(positionY);
+        const transition = speed !== undefined ? `${speed}ms` : '.5s';
+        const style = `transform: translate(${left}px, ${top}px); transition: ${transition};`;
+
+        target.setAttribute('style', style);
+        target.setAttribute(ds.Layout.attributePositionX, positionX);
+        target.setAttribute(ds.Layout.attributePositionY, positionY);
+    }
+
+    static setPositionEntity(elements) {
+        const elMap = HTML.elMapGame;
+        const availablePositions = elMap.map.availablePositions;
+
+        elements.forEach(el => {
+            if (!el) return;
+
+            const length = availablePositions.length;
+            if (length === 0) {
+                el.remove();
+                return;
+            }
+
+            const index = Math.floor(Math.random() * length);
+            const position = availablePositions.splice(index, 1)[0];
+
+            elMap.setPosition({
+                target: el,
+                positionX: position.x,
+                positionY: position.y
+            });
+        });
+    }
+
+    startRandomMovementCycle() {
+        clearTimeout(this.movementLoop);
+
+        const delay = Math.floor(Math.random() * (10000 - 3000)) + 3000;
+
+        this.movementLoop = setTimeout(() => {
+            this.buildOccupationMap();
+
+            this.enqueueEntities(
+                this.map.monsters,
+                (monster) => Layout.buildId(Monsters.prefix, monster.id)
+            );
+
+            this.enqueueEntities(
+                this.map.npcs,
+                (npc) => `${NPCs.prefix}_${npc.id}`
+            );
+
+            this.processMovementQueue();
+
+            this.startRandomMovementCycle();
+        }, delay);
+    }
+
+    tryStartBattleIfAggressive(element, behavior, position, playerX, playerY) {
+        const isAgressive =
+            behavior === 'agressive' &&
+            Math.abs(position.x - playerX) <= 1 &&
+            Math.abs(position.y - playerY) <= 1;
+
+        if (isAgressive) {
+            HTML.elGameBattle.build(element);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    updateData(map) {
+        this.map = map;
+
+        this.render();
+    }
+
+    static async updateDataMap(props) {
+        const { isChangeMap, mapData } = props;
+        const map = mapData ?? (isChangeMap ? await FetchData.changeMap(props) : await FetchData.getMap(props));
+
+        if (!map) return;
+
+        const builtMapData = await MapGame.buildDataMap(map);
+        if (!builtMapData) return;
+
+        Tutorial.showAct1Scene3(map.idMap);
+
+        map.tiles = builtMapData.tiles;
+        map.pathWalk = builtMapData.pathWalk;
+        map.pathSpawn = builtMapData.pathSpawn;
+        map.pathMonster = builtMapData.pathMonster;
+        map.player = Player.buildPosition(map);
+        map.npcs = NPCs.buildPosition(map);
+
+        Data.map.data = NPCs.updateDataNPC(map);
+    }
+
+    static updateMap() {
+        const map = Data.map.data;
+        const {
+            monsters,
+            npcs,
+            collectibles,
+            player,
+            tiles,
+            pathWalk,
+            pathSpawn,
+            pathMonster,
+            background,
+            idMap,
+            idCity
+        } = map;
+        const args = {
+            tiles,
+            pathWalk,
+            pathSpawn,
+            pathMonster,
+            monsters,
+            npcs,
+            collectibles,
+            player,
+            idMap,
+            idCity
+        };
+        const length = tiles.length;
+
+        if (length <= 0) return;
+
+        Game.drawBackground(background);
+        HTML.elMapGame.updateData(args);
+    }
+}

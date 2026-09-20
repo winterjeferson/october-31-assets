@@ -1,5 +1,7 @@
 export class Management {
     static async init() {
+        await HTML.loadIconSprite();
+
         customElements.define(`${Components.prefixComponentDash}tooltip`, Tooltip);
         customElements.define(`${Components.prefixComponentDash}form-field`, FormField);
         customElements.define(`${Components.prefixComponentDash}button`, Button);
@@ -1111,9 +1113,15 @@ export class HTML {
         const { icon } = props;
         props.cssPrefix = 'icon';
         const css = Layout.buildCss(props);
+        const iconSource = this.icons?.[icon];
+        const attributes = iconSource
+            ? `viewBox="${iconSource.viewBox}" xmlns="http://www.w3.org/2000/svg"`
+            : '';
+        const content = iconSource ? iconSource.html : '';
         const html = `
-            <svg ${css}>
-                <use xlink:href="${gbFileIcon}#${icon}" crossorigin="anonymous"></use>
+            <svg ${css} ${attributes}>
+                ${content}
+                <use xlink:href="#${icon}"></use>
             </svg>
         `;
         return html;
@@ -1143,6 +1151,37 @@ export class HTML {
             </div>
         `;
         return html;
+    }
+
+    static async loadIconSprite() {
+        if (this.spriteLoaded) return;
+
+        this.spriteLoaded = true;
+
+        try {
+            const response = await fetch(gbFileIcon);
+            const text = await response.text();
+            const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+            const symbols = doc.querySelectorAll('symbol');
+            this.icons = {};
+
+            for (const symbol of symbols) {
+                this.icons[symbol.id] = {
+                    viewBox: symbol.getAttribute('viewBox'),
+                    html: symbol.innerHTML
+                };
+            }
+
+            const svg = doc.documentElement;
+
+            if (svg?.localName === 'svg') {
+                svg.setAttribute('aria-hidden', 'true');
+                svg.style.display = 'none';
+                document.body.appendChild(svg);
+            }
+        } catch (error) {
+            console.error('Failed to load icons:', error);
+        }
     }
 
     static drawRibbon(title) {
