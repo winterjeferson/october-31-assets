@@ -1,3 +1,116 @@
+export class ActivateConfirm {
+    static id = 'activate_confirm';
+    static idComponent = `${this.id}_component`;
+    static frontEndClass = 'activateConfirm';
+
+    static get paramUserId() {
+        return ds.Helper.getUrlParameter('id');
+    }
+
+    static get paramEmail() {
+        return ds.Helper.getUrlParameter('e');
+    }
+
+    static get paramToken() {
+        return ds.Helper.getUrlParameter('t');
+    }
+
+    static hasToken() {
+        const userId = ActivateConfirm.paramUserId;
+        const email = ActivateConfirm.paramEmail;
+        const token = ActivateConfirm.paramToken;
+
+        return Boolean(userId && email && token);
+    }
+
+    static addEventListeners() {
+        const data = [
+            {
+                el: ActivateConfirm.elComponent,
+                event: 'click',
+                handler: ActivateConfirm.handleActivate
+            }
+        ];
+
+        data.forEach((index) => {
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static draw() {
+        const page = Component.drawPage({
+            id: ActivateConfirm.id,
+            title: Theme.translation?.login?.e_mail_activate?.title,
+            content: ActivateConfirm.drawPage()
+        });
+
+        Component.insertHTML(page);
+
+        ActivateConfirm.updateHtml();
+        ActivateConfirm.addEventListeners();
+    }
+
+    static drawPage() {
+        const activation = `
+            <p class="ds-font--regular">
+                ${Theme.translation?.login?.e_mail_activate?.text}
+            </p>
+        `;
+        const button = Component.drawButtonProceed({
+            id: ActivateConfirm.idComponent,
+            label: Theme.translation?.login?.e_mail_activate?.link_text
+        });
+        const response = `
+            ${activation}
+            <div class="lo-margin-button">
+                ${button}
+            </div>
+        `;
+
+        return response;
+    }
+
+    static async handleActivate() {
+        const payload = {
+            userId: ActivateConfirm.paramUserId,
+            email: ActivateConfirm.paramEmail,
+            activationToken: ActivateConfirm.paramToken
+        };
+        const data = await FetchData.activate(payload);
+
+        ActivateConfirm.requestProceedResponse(data);
+    }
+
+    static requestProceedResponse(props) {
+        const isError = props.isError;
+
+        if (isError) {
+            const args = {
+                content: props.content ?? Theme.translation?.login?.default?.fail,
+                color: 'red'
+            };
+
+            Notification.add(args);
+
+            return;
+        }
+
+        const args = {
+            content: Theme.translation?.login?.e_mail_activate?.done,
+            color: 'green'
+        };
+
+        Notification.add(args);
+
+        setTimeout(() => {
+            window.location.href = gbUrls.project;
+        }, 1500);
+    }
+
+    static updateHtml() {
+        ActivateConfirm.elComponent = document.getElementById(ActivateConfirm.idComponent);
+    }
+}
 export class Component {
     static theme = 'purple--dark';
 
@@ -219,6 +332,20 @@ export class FetchData {
             userId,
             newEmail,
             captcha
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
+
+    static async activate(props) {
+        const { userId, email, activationToken } = props;
+        const args = {
+            controller: this.controller,
+            action: 'activate',
+            userId,
+            email,
+            activationToken
         };
         const response = await this.fetchData(args);
 
@@ -1484,6 +1611,14 @@ export class Theme {
         await ds.Translation.translate('login');
         await ds.Translation.translate('default');
         Theme.translation = ds.Translation?.translation;
+
+        const path = window.location.pathname;
+
+        if (ActivateConfirm.hasToken() && path.includes('/activate/')) {
+            ActivateConfirm.draw();
+
+            return;
+        }
 
         if (ResetPasswordConfirm.hasToken()) {
             ResetPasswordConfirm.draw();
