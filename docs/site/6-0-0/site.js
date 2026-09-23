@@ -881,7 +881,16 @@ export class Theme {
     static async changeLanguage(event) {
         const value = event.target.dataset.language;
         const data = await FetchData.changeLanguage(value);
-        if (data.language) window.location.reload();
+        if (!data.language) return;
+
+        const alternate = document.querySelector(`link[rel="alternate"][hreflang="${value}"]`);
+
+        if (alternate) {
+            window.location.href = alternate.href;
+            return;
+        }
+
+        window.location.reload();
     }
 
     static init() {

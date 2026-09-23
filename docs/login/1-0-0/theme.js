@@ -1643,7 +1643,8 @@ export class Theme {
     static redirectPlay() {
         const page = ds.Storage.getValue(Theme.storage) || 'play';
         ds.Storage.removeValue(Theme.storage);
-        window.location.href = `./${page}/`;
+        const url = gbUrlsSite[page];
+        window.location.href = url || `./${gbLanguage}/${page}/`;
     }
 
     static requestProceedResponse(props) {
