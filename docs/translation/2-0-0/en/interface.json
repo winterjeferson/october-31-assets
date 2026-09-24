@@ -252,10 +252,18 @@
     },
     "page_store": {
         "advertising_title": "Advertising",
-        "description": "Help a broke developer keep this project online by spending your hard-earned money on a buggy game.",
+        "date": "Date",
+        "description": "Help a broke developer keep this project online by spending your hard-earned money on a buggy game. <span>Attention! Payments are processed by third-party companies. Funds will only be credited after the confirmation email is received. You may need to log in again.<\/span>",
         "description_free": "Broke like me? Help spread the word and earn diamonds!",
+        "history": "Purchase History",
+        "item": "Item",
         "packages": "Packages",
+        "payment_method": "Payment Method",
         "slot_title": "Character slots",
+        "status_cancelled": "Cancelled",
+        "status_expired": "Expired",
+        "status_paid": "Paid",
+        "status_pending": "Pending",
         "title": "Store"
     },
     "page_suggestion": {

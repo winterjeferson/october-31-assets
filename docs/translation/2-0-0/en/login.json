@@ -68,5 +68,10 @@
         "special_character": "Special characters and white spaces are not allowed.",
         "user": "Existing user. Please try another.",
         "white_space": "Please do not use blanks."
+    },
+    "unsubscribe": {
+        "link_text": "Unsubscribe",
+        "text": "Click here to unsubscribe your email",
+        "title": "Unsubscribe"
     }
 }

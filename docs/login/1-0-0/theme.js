@@ -436,6 +436,20 @@ export class FetchData {
 
         return response;
     }
+
+    static async unsubscribe(props) {
+        const { userId, email, token } = props;
+        const args = {
+            controller: this.controller,
+            action: 'unsubscribe',
+            userId,
+            email,
+            unsubscribeToken: token
+        };
+        const response = await this.fetchData(args);
+
+        return response;
+    }
 }
 export class ForgetPassword {
     static id = 'forget_password';
@@ -1620,6 +1634,12 @@ export class Theme {
             return;
         }
 
+        if (UnsubscribeConfirm.hasToken() && path.includes('/unsubscribe/')) {
+            UnsubscribeConfirm.draw();
+
+            return;
+        }
+
         if (ResetPasswordConfirm.hasToken()) {
             ResetPasswordConfirm.draw();
 
@@ -1679,5 +1699,120 @@ export class Theme {
         }
 
         return isValid;
+    }
+}
+export class UnsubscribeConfirm {
+    static id = 'unsubscribe_confirm';
+    static idComponent = `${this.id}_component`;
+    static frontEndClass = 'unsubscribeConfirm';
+
+    static get paramUserId() {
+        return ds.Helper.getUrlParameter('id');
+    }
+
+    static get paramEmail() {
+        const email = ds.Helper.getUrlParameter('e');
+
+        return email ? decodeURIComponent(email) : email;
+    }
+
+    static get paramToken() {
+        return ds.Helper.getUrlParameter('t');
+    }
+
+    static hasToken() {
+        const userId = UnsubscribeConfirm.paramUserId;
+        const email = UnsubscribeConfirm.paramEmail;
+        const token = UnsubscribeConfirm.paramToken;
+
+        return Boolean(userId && email && token);
+    }
+
+    static addEventListeners() {
+        const data = [
+            {
+                el: UnsubscribeConfirm.elComponent,
+                event: 'click',
+                handler: UnsubscribeConfirm.handleUnsubscribe
+            }
+        ];
+
+        data.forEach((index) => {
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static draw() {
+        const page = Component.drawPage({
+            id: UnsubscribeConfirm.id,
+            title: Theme.translation?.login?.unsubscribe?.title,
+            content: UnsubscribeConfirm.drawPage()
+        });
+
+        Component.insertHTML(page);
+
+        UnsubscribeConfirm.updateHtml();
+        UnsubscribeConfirm.addEventListeners();
+    }
+
+    static drawPage() {
+        const content = `
+            <p class="ds-font--regular">
+                ${Theme.translation?.login?.unsubscribe?.text}
+            </p>
+        `;
+        const button = Component.drawButtonProceed({
+            id: UnsubscribeConfirm.idComponent,
+            label: Theme.translation?.login?.unsubscribe?.link_text
+        });
+        const response = `
+            ${content}
+            <div class="lo-margin-button">
+                ${button}
+            </div>
+        `;
+
+        return response;
+    }
+
+    static async handleUnsubscribe() {
+        const payload = {
+            userId: UnsubscribeConfirm.paramUserId,
+            email: UnsubscribeConfirm.paramEmail,
+            token: UnsubscribeConfirm.paramToken
+        };
+        const data = await FetchData.unsubscribe(payload);
+
+        UnsubscribeConfirm.requestProceedResponse(data);
+    }
+
+    static requestProceedResponse(props) {
+        const isError = props.isError;
+
+        if (isError) {
+            const args = {
+                content: props.content ?? Theme.translation?.login?.default?.fail,
+                color: 'red'
+            };
+
+            Notification.add(args);
+
+            return;
+        }
+
+        const args = {
+            content: Theme.translation?.login?.unsubscribe?.done,
+            color: 'green'
+        };
+
+        Notification.add(args);
+
+        setTimeout(() => {
+            window.location.href = gbUrls.project;
+        }, 1500);
+    }
+
+    static updateHtml() {
+        UnsubscribeConfirm.elComponent = document.getElementById(UnsubscribeConfirm.idComponent);
     }
 }
