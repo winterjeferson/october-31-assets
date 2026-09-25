@@ -70,6 +70,7 @@
         "white_space": "Por favor não utilize espaços em branco."
     },
     "unsubscribe": {
+        "done": "E-mail descadastrado com sucesso.",
         "link_text": "Descadastrar",
         "text": "Clique aqui para descadastrar seu email:",
         "title": "Descadastrar"
