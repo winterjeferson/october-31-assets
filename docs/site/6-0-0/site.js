@@ -1,3 +1,532 @@
+export class AdminAdvertising {
+    static advertisings = [];
+    static columns = ['id', 'id_user', 'date_register', 'kind', 'link', 'status'];
+    static currentStatusFilter = '';
+    static id = 'admin_advertising';
+    static kindLabels = {
+        1: 'YouTube',
+        2: 'Site',
+        3: 'Social',
+    };
+    static statusLabels = {
+        0: 'Pending',
+        1: 'Approved',
+    };
+
+    static addEventListeners() {
+        const data = [
+            {
+                el: this.elRefresh,
+                handler: this.clickRefresh
+            },
+            {
+                el: this.elStatus,
+                event: 'change',
+                handler: this.changeFilter
+            },
+        ];
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static addEventListenersRows() {
+        const buttons = this.elPage.querySelectorAll('[data-advertising-approve]');
+
+        buttons.forEach((el) => {
+            ds.Helper.addEventListener({
+                el,
+                context: this,
+                handler: this.clickApprove
+            });
+        });
+    }
+
+    static async changeFilter(event) {
+        this.currentStatusFilter = event.target.value;
+        this.drawRows();
+    }
+
+    static async clickApprove(event) {
+        const id = event.currentTarget.dataset.advertisingApprove;
+        const response = await FetchData.approveAdvertising(id);
+
+        if (response?.isError) {
+            return;
+        }
+
+        ds.Notification.add({
+            content: 'Advertising approved.',
+            color: 'green'
+        });
+
+        await this.loadData();
+    }
+
+    static async clickRefresh() {
+        await this.loadData();
+    }
+
+    static drawAction(advertising) {
+        const id = ds.Helper.escapeHTML(advertising.id);
+
+        if (String(advertising.status) === '1') {
+            return 'Approved';
+        }
+
+        return `
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--green'
+                data-advertising-approve='${id}'
+            >Approve</button>
+        `;
+    }
+
+    static drawCell(advertising, column) {
+        const value = this.getLabel(column, advertising[column] ?? '');
+
+        return ds.Helper.escapeHTML(value);
+    }
+
+    static drawRows() {
+        const rows = this.getFiltered();
+        let html = '';
+
+        rows.forEach((advertising) => {
+            html += `<tr data-id='${ds.Helper.escapeHTML(advertising.id)}'>`;
+
+            this.columns.forEach((column) => {
+                html += `<td>${this.drawCell(advertising, column)}</td>`;
+            });
+
+            html += `<td>${this.drawAction(advertising)}</td>`;
+            html += '</tr>';
+        });
+
+        if (html === '') {
+            const colspan = this.columns.length + 1;
+            html = `<tr><td colspan='${colspan}'>No advertisings found.</td></tr>`;
+        }
+
+        this.elTbody.innerHTML = html;
+        this.addEventListenersRows();
+    }
+
+    static drawStatusOptions() {
+        const statuses = [...new Set(this.advertisings.map((index) => index.status))].sort();
+        let html = '<option value=\'\'>All</option>';
+
+        statuses.forEach((status) => {
+            const value = ds.Helper.escapeHTML(status);
+            const label = this.statusLabels[status] ?? status;
+            const selected = String(this.currentStatusFilter) === String(status) ? 'selected' : '';
+            html += `<option value='${value}' ${selected}>${ds.Helper.escapeHTML(label)}</option>`;
+        });
+
+        this.elStatus.innerHTML = html;
+        this.elStatus.value = this.currentStatusFilter;
+    }
+
+    static getFiltered() {
+        if (this.currentStatusFilter === '') {
+            return this.advertisings;
+        }
+
+        return this.advertisings.filter((index) => String(index.status) === String(this.currentStatusFilter));
+    }
+
+    static getLabel(column, value) {
+        if (column === 'kind') {
+            return this.kindLabels[value] ?? value;
+        }
+
+        if (column === 'status') {
+            return this.statusLabels[value] ?? value;
+        }
+
+        return value;
+    }
+
+    static init() {
+        this.updateHTML();
+        if (!this.elPage) return;
+
+        this.addEventListeners();
+        this.loadData();
+    }
+
+    static async loadData() {
+        const response = await FetchData.getAdvertisings();
+
+        if (response?.isError) {
+            return;
+        }
+
+        this.advertisings = Array.isArray(response) ? response : [];
+        this.drawStatusOptions();
+        this.drawRows();
+    }
+
+    static updateHTML() {
+        this.elPage = document.getElementById(this.id);
+        if (!this.elPage) return;
+        this.elRefresh = document.getElementById(`${this.id}_refresh`);
+        this.elStatus = document.getElementById(`${this.id}_status`);
+        this.elTbody = document.getElementById(`${this.id}_tbody`);
+    }
+}
+
+export class AdminBugReport {
+    static bugs = [];
+    static columns = [
+        'id',
+        'title_pt',
+        'title_en',
+        'description_pt',
+        'description_en',
+        'description_user',
+        'browser',
+        'operational_system',
+        'game_patch',
+        'date_register',
+    ];
+    static currentStatusFilter = '';
+    static editableColumns = [
+        'title_pt',
+        'title_en',
+        'description_pt',
+        'description_en',
+        'description_user',
+        'browser',
+        'operational_system',
+        'game_patch',
+    ];
+    static id = 'admin_bug_report';
+    static statusLabels = {};
+    static textareaColumns = [
+        'title_pt',
+        'title_en',
+        'description_pt',
+        'description_en',
+        'description_user',
+    ];
+    static validationColumns = ['title_pt', 'title_en', 'description_pt', 'description_en'];
+
+    static addEventListeners() {
+        const data = [
+            {
+                el: this.elRefresh,
+                handler: this.clickRefresh
+            },
+            {
+                el: this.elSave,
+                handler: this.clickSave
+            },
+            {
+                el: this.elStatus,
+                event: 'change',
+                handler: this.changeFilter
+            },
+        ];
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static addEventListenersRows() {
+        const data = [];
+
+        this.elPage.querySelectorAll('[data-bug-approve]').forEach((el) => {
+            data.push({ el, context: this, handler: this.clickApprove });
+        });
+        this.elPage.querySelectorAll('[data-bug-col]').forEach((el) => {
+            data.push({ el, event: 'change', context: this, handler: this.changeField });
+        });
+        this.elPage.querySelectorAll('[data-bug-reject]').forEach((el) => {
+            data.push({ el, context: this, handler: this.clickReject });
+        });
+
+        data.forEach((index) => {
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static async changeField(event) {
+        const el = event.currentTarget;
+        const bug = this.getBug(el.dataset.bugId);
+
+        if (!bug) {
+            return;
+        }
+
+        bug[el.dataset.bugCol] = el.value;
+        bug.isChanged = true;
+    }
+
+    static async changeFilter(event) {
+        this.currentStatusFilter = event.target.value;
+        this.drawRows();
+    }
+
+    static async changeStatus(bug, status) {
+        if (!this.validate(bug, status)) {
+            ds.Notification.add({
+                content: `Bug #${bug.id}: fill title and description before activating.`,
+                color: 'red'
+            });
+            return;
+        }
+
+        bug.status = status;
+
+        const response = await this.updateBug(bug);
+        if (response?.isError) {
+            await this.loadData();
+            return;
+        }
+
+        this.drawRows();
+    }
+
+    static async clickApprove(event) {
+        const bug = this.getBug(event.currentTarget.dataset.bugApprove);
+        if (!bug) return;
+
+        await this.changeStatus(bug, '1');
+    }
+
+    static async clickRefresh() {
+        await this.loadData();
+    }
+
+    static async clickReject(event) {
+        const bug = this.getBug(event.currentTarget.dataset.bugReject);
+        if (!bug) return;
+
+        await this.changeStatus(bug, '0');
+    }
+
+    static async clickSave() {
+        const changed = this.getChanged();
+
+        if (changed.length === 0) {
+            ds.Notification.add({
+                content: 'No changes to save.',
+                color: 'grey'
+            });
+            return;
+        }
+
+        const errors = [];
+
+        for (const bug of changed) {
+            if (!this.validate(bug)) {
+                errors.push(`Bug #${bug.id}: fill title and description before activating.`);
+                continue;
+            }
+
+            const response = await this.updateBug(bug);
+
+            if (response?.isError) {
+                errors.push(`Bug #${bug.id}: could not save.`);
+            }
+        }
+
+        if (errors.length > 0) {
+            ds.Notification.add({
+                content: errors.join(' | '),
+                color: 'red'
+            });
+            await this.loadData();
+            return;
+        }
+
+        ds.Notification.add({
+            content: 'Changes saved.',
+            color: 'green'
+        });
+
+        this.drawRows();
+    }
+
+    static drawAction(bug) {
+        const id = ds.Helper.escapeHTML(bug.id);
+        const status = String(bug.status);
+        const approveDisabled = status === '1' ? 'disabled' : '';
+        const rejectDisabled = status === '0' ? 'disabled' : '';
+
+        return `
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--green'
+                data-bug-approve='${id}'
+                ${approveDisabled}
+            >Approve</button>
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--red'
+                data-bug-reject='${id}'
+                ${rejectDisabled}
+            >Reject</button>
+        `;
+    }
+
+    static drawCell(bug, column) {
+        const id = ds.Helper.escapeHTML(bug.id);
+        const value = ds.Helper.escapeHTML(bug[column] ?? '');
+
+        if (!this.editableColumns.includes(column)) {
+            return value;
+        }
+
+        if (this.textareaColumns.includes(column)) {
+            return `
+                <textarea
+                    class='ds-form__input'
+                    rows='2'
+                    data-bug-col='${column}'
+                    data-bug-id='${id}'
+                >${value}</textarea>
+            `;
+        }
+
+        return `
+            <input
+                type='text'
+                class='ds-form__input'
+                value='${value}'
+                data-bug-col='${column}'
+                data-bug-id='${id}'
+            />
+        `;
+    }
+
+    static drawRows() {
+        const rows = this.getFiltered();
+        let html = '';
+
+        rows.forEach((bug) => {
+            html += `<tr data-id='${ds.Helper.escapeHTML(bug.id)}'>`;
+
+            this.columns.forEach((column) => {
+                html += `<td>${this.drawCell(bug, column)}</td>`;
+            });
+
+            html += `<td>${this.drawAction(bug)}</td>`;
+            html += '</tr>';
+        });
+
+        if (html === '') {
+            const colspan = this.columns.length + 1;
+            html = `<tr><td colspan='${colspan}'>No bugs found.</td></tr>`;
+        }
+
+        this.elTbody.innerHTML = html;
+        this.addEventListenersRows();
+    }
+
+    static drawStatusOptions() {
+        let html = '<option value=\'\'>All</option>';
+
+        Object.entries(this.statusLabels).forEach(([label, value]) => {
+            const selected = String(this.currentStatusFilter) === String(value) ? 'selected' : '';
+            html += `<option value='${ds.Helper.escapeHTML(value)}' ${selected}>${ds.Helper.escapeHTML(label)}</option>`;
+        });
+
+        this.elStatus.innerHTML = html;
+        this.elStatus.value = this.currentStatusFilter;
+    }
+
+    static getBug(id) {
+        return this.bugs.find((index) => String(index.id) === String(id));
+    }
+
+    static getChanged() {
+        return this.bugs.filter((index) => index.isChanged);
+    }
+
+    static getFiltered() {
+        if (this.currentStatusFilter === '') {
+            return this.bugs;
+        }
+
+        return this.bugs.filter((index) => String(index.status) === String(this.currentStatusFilter));
+    }
+
+    static init() {
+        this.updateHTML();
+        if (!this.elPage) return;
+
+        this.addEventListeners();
+        this.loadOptions();
+        this.loadData();
+    }
+
+    static async loadData() {
+        const response = await FetchData.getBugs();
+
+        if (response?.isError) {
+            return;
+        }
+
+        this.bugs = Array.isArray(response) ? response : [];
+        this.drawRows();
+    }
+
+    static async loadOptions() {
+        const response = await FetchData.getBugOptions();
+
+        if (response?.isError) {
+            return;
+        }
+
+        this.statusLabels = response?.status || {};
+        this.drawStatusOptions();
+    }
+
+    static updateHTML() {
+        this.elPage = document.getElementById(this.id);
+        if (!this.elPage) return;
+        this.elRefresh = document.getElementById(`${this.id}_refresh`);
+        this.elSave = document.getElementById(`${this.id}_save`);
+        this.elStatus = document.getElementById(`${this.id}_status`);
+        this.elTbody = document.getElementById(`${this.id}_tbody`);
+    }
+
+    static async updateBug(bug) {
+        const fields = {};
+
+        this.editableColumns.forEach((column) => {
+            fields[column] = bug[column] ?? '';
+        });
+
+        const response = await FetchData.updateBug({
+            id: bug.id,
+            status: bug.status,
+            fields
+        });
+
+        if (response?.isError) {
+            return response;
+        }
+
+        bug.isChanged = false;
+
+        return response;
+    }
+
+    static validate(bug, status = bug.status) {
+        if (String(status) !== '1') {
+            return true;
+        }
+
+        return this.validationColumns.every((column) => String(bug[column] ?? '').trim() !== '');
+    }
+}
+
 export class Analytics {
     static load() {
         ds.Analytics.load();
@@ -407,10 +936,13 @@ export class Cookies {
 
 export class FetchData {
     static namespace = 'Site/';
+    static connection = gbIsLocalHost ? 'local' : 'online';
     static controller = {
         site: `${this.namespace}Site`,
         contact: `${this.namespace}Contact`,
         translation: 'App/Language',
+        advertising: 'Advertising/Advertising',
+        bugReport: 'BugReport/BugReport',
     };
 
     static async fetchData(args) {
@@ -435,6 +967,17 @@ export class FetchData {
         return response;
     }
 
+    static async approveAdvertising(id) {
+        const args = {
+            controller: this.controller['advertising'],
+            action: 'approveAdvertising',
+            connection: this.connection,
+            id
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
     static async changeLanguage(language) {
         const args = {
             controller: this.controller['translation'],
@@ -451,6 +994,16 @@ export class FetchData {
         return response;
     }
 
+    static async getAdvertisings() {
+        const args = {
+            controller: this.controller['advertising'],
+            action: 'getAdvertisings',
+            connection: this.connection
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
     static async getBlog(props) {
         const { limit, offset, filter, filterKind } = props;
         const args = {
@@ -460,6 +1013,26 @@ export class FetchData {
             offset,
             filter,
             filterKind
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
+    static async getBugOptions() {
+        const args = {
+            controller: this.controller['bugReport'],
+            action: 'getOptions',
+            connection: this.connection
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
+    static async getBugs() {
+        const args = {
+            controller: this.controller['bugReport'],
+            action: 'getBugs',
+            connection: this.connection
         };
         const response = await this.fetchData(args);
         return response;
@@ -553,6 +1126,20 @@ export class FetchData {
         const response = await this.fetchData(args);
         return response;
     }
+
+    static async updateBug(props) {
+        const { id, status, fields } = props;
+        const args = {
+            controller: this.controller['bugReport'],
+            action: 'updateBug',
+            connection: this.connection,
+            id,
+            status,
+            ...fields
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
 }
 const nameSpace = 'si'; // eslint-disable-line no-unused-vars
 let deps = {}; // eslint-disable-line no-unused-vars
@@ -570,6 +1157,8 @@ export class Management {
 
     static async handleLoaded() {
         await this.translate();
+        AdminAdvertising.init();
+        AdminBugReport.init();
         Blog.init();
         Ranking.init();
         Theme.init();
