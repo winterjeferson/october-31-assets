@@ -536,7 +536,6 @@ export class AdminSuggestion {
         'description_pt',
         'description_en',
         'description_user',
-        'category',
         'votes',
         'game_patch',
         'date_register',
@@ -548,7 +547,6 @@ export class AdminSuggestion {
         'description_pt',
         'description_en',
         'description_user',
-        'category',
         'game_patch',
     ];
     static id = 'admin_suggestion';
