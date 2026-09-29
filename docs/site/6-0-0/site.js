@@ -192,7 +192,7 @@ export class AdminBugReport {
         'game_patch',
         'date_register',
     ];
-    static currentStatusFilter = '';
+    static currentStatusFilter = '2';
     static editableColumns = [
         'title_pt',
         'title_en',
@@ -541,7 +541,7 @@ export class AdminSuggestion {
         'game_patch',
         'date_register',
     ];
-    static currentStatusFilter = '';
+    static currentStatusFilter = '2';
     static editableColumns = [
         'title_pt',
         'title_en',
