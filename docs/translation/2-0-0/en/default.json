@@ -1,6 +1,7 @@
 {
     "code": {
         "action_not_available": "Action not available",
+        "battle": "You cannot do that during a battle.",
         "captcha_invalid": "Please validate that you are not a robot.",
         "checkbox_invalid": "You need to confirm that you accept the field as mandatory.",
         "collectible_not_found": "Collectible not found",
@@ -18,9 +19,14 @@
         "email_or_password_invalid": "Invalid email or password.",
         "email_sent": "Sending successfully. Please check your email. If you can`t find it, also check your spam folder.",
         "field_invalid": "The field value is not valid.",
+        "guest_account": "Guest accounts cannot perform this action.",
         "invalid_data": "Invalid data",
         "invalid_equipment": "Invalid equipment",
         "invalid_payment_method": "Invalid payment method.",
+        "invalid_skill_caster": "You cannot use this skill right now.",
+        "invalid_skill_cost_action": "Not enough action points.",
+        "invalid_skill_cost_item": "You do not have the required items.",
+        "invalid_skill_cost_mana": "Not enough mana.",
         "invalid_username": "Invalid username",
         "item_not_available": "Item is not available.",
         "item_not_found": "Item not found",

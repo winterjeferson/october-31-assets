@@ -527,6 +527,354 @@ export class AdminBugReport {
     }
 }
 
+export class AdminSuggestion {
+    static suggestions = [];
+    static columns = [
+        'id',
+        'title_pt',
+        'title_en',
+        'description_pt',
+        'description_en',
+        'description_user',
+        'category',
+        'votes',
+        'game_patch',
+        'date_register',
+    ];
+    static currentStatusFilter = '';
+    static editableColumns = [
+        'title_pt',
+        'title_en',
+        'description_pt',
+        'description_en',
+        'description_user',
+        'category',
+        'game_patch',
+    ];
+    static id = 'admin_suggestion';
+    static statusLabels = {};
+    static textareaColumns = [
+        'title_pt',
+        'title_en',
+        'description_pt',
+        'description_en',
+        'description_user',
+    ];
+    static validationColumns = ['title_pt', 'title_en', 'description_pt', 'description_en'];
+
+    static addEventListeners() {
+        const data = [
+            {
+                el: this.elRefresh,
+                handler: this.clickRefresh
+            },
+            {
+                el: this.elSave,
+                handler: this.clickSave
+            },
+            {
+                el: this.elStatus,
+                event: 'change',
+                handler: this.changeFilter
+            },
+        ];
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static addEventListenersRows() {
+        const data = [];
+
+        this.elPage.querySelectorAll('[data-suggestion-approve]').forEach((el) => {
+            data.push({ el, context: this, handler: this.clickApprove });
+        });
+        this.elPage.querySelectorAll('[data-suggestion-col]').forEach((el) => {
+            data.push({ el, event: 'change', context: this, handler: this.changeField });
+        });
+        this.elPage.querySelectorAll('[data-suggestion-reject]').forEach((el) => {
+            data.push({ el, context: this, handler: this.clickReject });
+        });
+
+        data.forEach((index) => {
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static async changeField(event) {
+        const el = event.currentTarget;
+        const suggestion = this.getSuggestion(el.dataset.suggestionId);
+
+        if (!suggestion) {
+            return;
+        }
+
+        suggestion[el.dataset.suggestionCol] = el.value;
+        suggestion.isChanged = true;
+    }
+
+    static async changeFilter(event) {
+        this.currentStatusFilter = event.target.value;
+        this.drawRows();
+    }
+
+    static async changeStatus(suggestion, status) {
+        if (!this.validate(suggestion, status)) {
+            ds.Notification.add({
+                content: `Suggestion #${suggestion.id}: fill title and description before activating.`,
+                color: 'red'
+            });
+            return;
+        }
+
+        suggestion.status = status;
+
+        const response = await this.updateSuggestion(suggestion);
+        if (response?.isError) {
+            await this.loadData();
+            return;
+        }
+
+        this.drawRows();
+    }
+
+    static async clickApprove(event) {
+        const suggestion = this.getSuggestion(event.currentTarget.dataset.suggestionApprove);
+        if (!suggestion) return;
+
+        await this.changeStatus(suggestion, '1');
+    }
+
+    static async clickRefresh() {
+        await this.loadData();
+    }
+
+    static async clickReject(event) {
+        const suggestion = this.getSuggestion(event.currentTarget.dataset.suggestionReject);
+        if (!suggestion) return;
+
+        await this.changeStatus(suggestion, '0');
+    }
+
+    static async clickSave() {
+        const changed = this.getChanged();
+
+        if (changed.length === 0) {
+            ds.Notification.add({
+                content: 'No changes to save.',
+                color: 'grey'
+            });
+            return;
+        }
+
+        const errors = [];
+
+        for (const suggestion of changed) {
+            if (!this.validate(suggestion)) {
+                errors.push(`Suggestion #${suggestion.id}: fill title and description before activating.`);
+                continue;
+            }
+
+            const response = await this.updateSuggestion(suggestion);
+
+            if (response?.isError) {
+                errors.push(`Suggestion #${suggestion.id}: could not save.`);
+            }
+        }
+
+        if (errors.length > 0) {
+            ds.Notification.add({
+                content: errors.join(' | '),
+                color: 'red'
+            });
+            await this.loadData();
+            return;
+        }
+
+        ds.Notification.add({
+            content: 'Changes saved.',
+            color: 'green'
+        });
+
+        this.drawRows();
+    }
+
+    static drawAction(suggestion) {
+        const id = ds.Helper.escapeHTML(suggestion.id);
+        const status = String(suggestion.status);
+        const approveDisabled = status === '1' ? 'disabled' : '';
+        const rejectDisabled = status === '0' ? 'disabled' : '';
+
+        return `
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--green'
+                data-suggestion-approve='${id}'
+                ${approveDisabled}
+            >Approve</button>
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--red'
+                data-suggestion-reject='${id}'
+                ${rejectDisabled}
+            >Reject</button>
+        `;
+    }
+
+    static drawCell(suggestion, column) {
+        const id = ds.Helper.escapeHTML(suggestion.id);
+        const value = ds.Helper.escapeHTML(suggestion[column] ?? '');
+
+        if (!this.editableColumns.includes(column)) {
+            return value;
+        }
+
+        if (this.textareaColumns.includes(column)) {
+            return `
+                <textarea
+                    class='ds-form__input'
+                    rows='2'
+                    data-suggestion-col='${column}'
+                    data-suggestion-id='${id}'
+                >${value}</textarea>
+            `;
+        }
+
+        return `
+            <input
+                type='text'
+                class='ds-form__input'
+                value='${value}'
+                data-suggestion-col='${column}'
+                data-suggestion-id='${id}'
+            />
+        `;
+    }
+
+    static drawRows() {
+        const rows = this.getFiltered();
+        let html = '';
+
+        rows.forEach((suggestion) => {
+            html += `<tr data-id='${ds.Helper.escapeHTML(suggestion.id)}'>`;
+
+            this.columns.forEach((column) => {
+                html += `<td>${this.drawCell(suggestion, column)}</td>`;
+            });
+
+            html += `<td>${this.drawAction(suggestion)}</td>`;
+            html += '</tr>';
+        });
+
+        if (html === '') {
+            const colspan = this.columns.length + 1;
+            html = `<tr><td colspan='${colspan}'>No suggestions found.</td></tr>`;
+        }
+
+        this.elTbody.innerHTML = html;
+        this.addEventListenersRows();
+    }
+
+    static drawStatusOptions() {
+        let html = '<option value=\'\'>All</option>';
+
+        Object.entries(this.statusLabels).forEach(([label, value]) => {
+            const selected = String(this.currentStatusFilter) === String(value) ? 'selected' : '';
+            html += `<option value='${ds.Helper.escapeHTML(value)}' ${selected}>${ds.Helper.escapeHTML(label)}</option>`;
+        });
+
+        this.elStatus.innerHTML = html;
+        this.elStatus.value = this.currentStatusFilter;
+    }
+
+    static getSuggestion(id) {
+        return this.suggestions.find((index) => String(index.id) === String(id));
+    }
+
+    static getChanged() {
+        return this.suggestions.filter((index) => index.isChanged);
+    }
+
+    static getFiltered() {
+        if (this.currentStatusFilter === '') {
+            return this.suggestions;
+        }
+
+        return this.suggestions.filter((index) => String(index.status) === String(this.currentStatusFilter));
+    }
+
+    static init() {
+        this.updateHTML();
+        if (!this.elPage) return;
+
+        this.addEventListeners();
+        this.loadOptions();
+        this.loadData();
+    }
+
+    static async loadData() {
+        const response = await FetchData.getSuggestions();
+
+        if (response?.isError) {
+            return;
+        }
+
+        this.suggestions = Array.isArray(response) ? response : [];
+        this.drawRows();
+    }
+
+    static async loadOptions() {
+        const response = await FetchData.getSuggestionOptions();
+
+        if (response?.isError) {
+            return;
+        }
+
+        this.statusLabels = response?.status || {};
+        this.drawStatusOptions();
+    }
+
+    static updateHTML() {
+        this.elPage = document.getElementById(this.id);
+        if (!this.elPage) return;
+        this.elRefresh = document.getElementById(`${this.id}_refresh`);
+        this.elSave = document.getElementById(`${this.id}_save`);
+        this.elStatus = document.getElementById(`${this.id}_status`);
+        this.elTbody = document.getElementById(`${this.id}_tbody`);
+    }
+
+    static async updateSuggestion(suggestion) {
+        const fields = {};
+
+        this.editableColumns.forEach((column) => {
+            fields[column] = suggestion[column] ?? '';
+        });
+
+        const response = await FetchData.updateSuggestion({
+            id: suggestion.id,
+            status: suggestion.status,
+            fields
+        });
+
+        if (response?.isError) {
+            return response;
+        }
+
+        suggestion.isChanged = false;
+
+        return response;
+    }
+
+    static validate(suggestion, status = suggestion.status) {
+        if (String(status) !== '1') {
+            return true;
+        }
+
+        return this.validationColumns.every((column) => String(suggestion[column] ?? '').trim() !== '');
+    }
+}
+
 export class Analytics {
     static load() {
         ds.Analytics.load();
@@ -943,6 +1291,7 @@ export class FetchData {
         translation: 'App/Language',
         advertising: 'Advertising/Advertising',
         bugReport: 'BugReport/BugReport',
+        suggestion: 'Suggestion/Suggestion',
     };
 
     static async fetchData(args) {
@@ -1052,6 +1401,26 @@ export class FetchData {
         return response;
     }
 
+    static async getSuggestionOptions() {
+        const args = {
+            controller: this.controller['suggestion'],
+            action: 'getOptions',
+            connection: this.connection
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
+    static async getSuggestions() {
+        const args = {
+            controller: this.controller['suggestion'],
+            action: 'getSugestions',
+            connection: this.connection
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
     static async getWikiMonster(props) {
         const { limit, offset, idMonster } = props;
         const args = {
@@ -1140,6 +1509,20 @@ export class FetchData {
         const response = await this.fetchData(args);
         return response;
     }
+
+    static async updateSuggestion(props) {
+        const { id, status, fields } = props;
+        const args = {
+            controller: this.controller['suggestion'],
+            action: 'updateSugestion',
+            connection: this.connection,
+            id,
+            status,
+            ...fields
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
 }
 const nameSpace = 'si'; // eslint-disable-line no-unused-vars
 let deps = {}; // eslint-disable-line no-unused-vars
@@ -1159,6 +1542,7 @@ export class Management {
         await this.translate();
         AdminAdvertising.init();
         AdminBugReport.init();
+        AdminSuggestion.init();
         Blog.init();
         Ranking.init();
         Theme.init();

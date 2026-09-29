@@ -1,6 +1,7 @@
 {
     "code": {
         "action_not_available": "Ação não disponível",
+        "battle": "Você não pode fazer isso durante uma batalha.",
         "captcha_invalid": "Por favor, valide que você não é um robô.",
         "checkbox_invalid": "Você precisa confirmar que aceita a obrigatoriedade do campo.",
         "collectible_not_found": "Colectável não encontrado",
@@ -18,9 +19,14 @@
         "email_or_password_invalid": "E-mail ou senha inválida.",
         "email_sent": "Envio realizado com sucesso. Por favor, verifique seu e-mail. Caso não encontre, verifique também a caixa de spam.",
         "field_invalid": "O valor do campo não é válido.",
+        "guest_account": "Contas convidadas não podem executar esta ação.",
         "invalid_data": "Dados inválidos",
         "invalid_equipment": "Equipamento inválido",
         "invalid_payment_method": "Método de pagamento inválido.",
+        "invalid_skill_caster": "Você não pode usar esta habilidade agora.",
+        "invalid_skill_cost_action": "Pontos de ação insuficientes.",
+        "invalid_skill_cost_item": "Você não tem os itens necessários.",
+        "invalid_skill_cost_mana": "Mana insuficiente.",
         "invalid_username": "Nome de usuário inválido",
         "item_not_available": "O item não está disponível.",
         "item_not_found": "Item não encontrado",
