@@ -167,10 +167,10 @@ export class Component {
         const response = `
             <button
                 type="button"
-                class="ds-button ds-button--regular ds-button--rounded ds-button--full ds-button--google"
+                class="ds-button ds-button--regular ds-button--rounded ds-button--full ds-button--purple"
                 ${id}
             >
-                ${icon}<span class="ds-button__google-label">${label}</span>
+                ${icon}${label}
             </button>
         `;
 
@@ -183,10 +183,10 @@ export class Component {
         const response = `
             <button
                 type="button"
-                class="ds-button ds-button--regular ds-button--rounded ds-button--full ds-button--google"
+                class="ds-button ds-button--regular ds-button--rounded ds-button--full ds-button--bordered"
                 ${id}
             >
-                <span class="ds-button__google-label">${label}</span>
+                ${label}
             </button>
         `;
 
