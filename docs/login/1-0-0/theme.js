@@ -169,7 +169,25 @@ export class Component {
                 type="button"
                 class="ds-button ds-button--regular ds-button--rounded ds-button--full ds-button--google"
                 ${id}
-            >${icon}<span class="ds-button__google-label">${label}</span></button>
+            >
+                ${icon}<span class="ds-button__google-label">${label}</span>
+            </button>
+        `;
+
+        return response;
+    }
+
+    static drawGuestButton(props) {
+        const id = props.id ? `id="${props.id}"` : '';
+        const label = props.label;
+        const response = `
+            <button
+                type="button"
+                class="ds-button ds-button--regular ds-button--rounded ds-button--full ds-button--google"
+                ${id}
+            >
+                <span class="ds-button__google-label">${label}</span>
+            </button>
         `;
 
         return response;
@@ -1029,6 +1047,7 @@ export class SignIn {
     static idButtonPlayGuest = `${this.id}_button_play_guest`;
     static idButtonGoogle = `${this.id}_button_google`;
     static frontEndClass = 'signIn';
+    static isGuest = false;
 
     static addEventListeners() {
         const data = [
@@ -1115,7 +1134,7 @@ export class SignIn {
             id: this.idButtonSignUp,
             label: Theme.translation?.login?.default?.sign_up,
         });
-        const linkGuest = Component.drawLink({
+        const buttonGuest = Component.drawGuestButton({
             id: this.idButtonPlayGuest,
             label: Theme.translation?.login?.default?.play_guest,
         });
@@ -1133,9 +1152,9 @@ export class SignIn {
             <div class="ds-page__footer">
                 ${buttonProceed}
                 ${buttonGoogle}
+                ${buttonGuest}
             </div>
             ${linkSignUp}
-            ${linkGuest}
         `;
 
         return response;
@@ -1145,7 +1164,7 @@ export class SignIn {
         const isValidEmail = Theme.validateForm(SignIn.elFieldEmail, 'emailInvalid');
         const isValidPassword = Theme.validateForm(SignIn.elFieldPassword, 'fieldInvalid');
         const isCaptcha = ds.Helper.validateCaptcha();
-        const isValidForm = isValidEmail && isValidPassword && isCaptcha;
+        let isValidForm = SignIn.isGuest ? isValidEmail && isValidPassword : isValidEmail && isValidPassword && isCaptcha;
 
         if (isValidForm) {
             const propsButton = {
@@ -1199,6 +1218,7 @@ export class SignIn {
     static handlePlayGuest() {
         const login = ds.Statics.account.guest;
 
+        SignIn.isGuest = true;
         ds.FormField.setValue(SignIn.elFieldEmail, login.email);
         ds.FormField.setValue(SignIn.elFieldPassword, login.password);
 
