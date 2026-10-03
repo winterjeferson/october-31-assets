@@ -242,6 +242,9 @@ export class AdminBugReport {
         this.elPage.querySelectorAll('[data-bug-approve]').forEach((el) => {
             data.push({ el, context: this, handler: this.clickApprove });
         });
+        this.elPage.querySelectorAll('[data-bug-close]').forEach((el) => {
+            data.push({ el, context: this, handler: this.clickClose });
+        });
         this.elPage.querySelectorAll('[data-bug-col]').forEach((el) => {
             data.push({ el, event: 'change', context: this, handler: this.changeField });
         });
@@ -296,6 +299,13 @@ export class AdminBugReport {
         if (!bug) return;
 
         await this.changeStatus(bug, '1');
+    }
+
+    static async clickClose(event) {
+        const bug = this.getBug(event.currentTarget.dataset.bugClose);
+        if (!bug) return;
+
+        await this.changeStatus(bug, '3');
     }
 
     static async clickRefresh() {
@@ -356,6 +366,7 @@ export class AdminBugReport {
         const id = ds.Helper.escapeHTML(bug.id);
         const status = String(bug.status);
         const approveDisabled = status === '1' ? 'disabled' : '';
+        const closeDisabled = status === '3' ? 'disabled' : '';
         const rejectDisabled = status === '0' ? 'disabled' : '';
 
         return `
@@ -365,6 +376,12 @@ export class AdminBugReport {
                 data-bug-approve='${id}'
                 ${approveDisabled}
             >Approve</button>
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--grey'
+                data-bug-close='${id}'
+                ${closeDisabled}
+            >Close</button>
             <button
                 type='button'
                 class='ds-button ds-button--small ds-button--red'
@@ -527,6 +544,309 @@ export class AdminBugReport {
     }
 }
 
+export class AdminStorePackages {
+    static columns = [
+        'id',
+        'kind',
+        'name',
+        'diamonds',
+        'slots',
+        'price_brl',
+        'promo_price_brl',
+        'promo_start_at',
+        'promo_end_at',
+        'active',
+        'sort',
+    ];
+    static dateColumns = [
+        'promo_start_at',
+        'promo_end_at',
+    ];
+    static editableColumns = [
+        'kind',
+        'name',
+        'diamonds',
+        'slots',
+        'price_brl',
+        'promo_price_brl',
+        'promo_start_at',
+        'promo_end_at',
+        'active',
+        'sort',
+    ];
+    static id = 'admin_store_packages';
+    static kindOptions = ['diamond', 'slot'];
+    static packages = [];
+    static uid = 0;
+    static validationColumns = ['kind', 'name', 'price_brl'];
+
+    static addEventListeners() {
+        const data = [
+            {
+                el: this.elNew,
+                handler: this.clickNew
+            },
+            {
+                el: this.elRefresh,
+                handler: this.clickRefresh
+            },
+            {
+                el: this.elSave,
+                handler: this.clickSave
+            },
+        ];
+        data.forEach((index) => {
+            index.context = this;
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static addEventListenersRows() {
+        const data = [];
+
+        this.elPage.querySelectorAll('[data-package-col]').forEach((el) => {
+            data.push({ el, event: 'change', context: this, handler: this.changeField });
+        });
+
+        data.forEach((index) => {
+            ds.Helper.addEventListener(index);
+        });
+    }
+
+    static buildUid() {
+        this.uid += 1;
+
+        return this.uid;
+    }
+
+    static async changeField(event) {
+        const el = event.currentTarget;
+        const item = this.getPackage(el.dataset.packageUid);
+
+        if (!item) {
+            return;
+        }
+
+        item[el.dataset.packageCol] = el.value;
+        item.isChanged = true;
+    }
+
+    static async clickNew() {
+        this.packages.push({
+            uid: this.buildUid(),
+            id: 0,
+            kind: 'diamond',
+            name: '',
+            diamonds: 0,
+            slots: 0,
+            price_brl: '',
+            promo_price_brl: '',
+            promo_start_at: '',
+            promo_end_at: '',
+            active: 1,
+            sort: 0,
+            isChanged: true,
+            isNew: true,
+        });
+
+        this.drawRows();
+    }
+
+    static async clickRefresh() {
+        await this.loadData();
+    }
+
+    static async clickSave() {
+        const changed = this.getChanged();
+
+        if (changed.length === 0) {
+            ds.Notification.add({
+                content: 'No changes to save.',
+                color: 'grey'
+            });
+            return;
+        }
+
+        const errors = [];
+
+        for (const item of changed) {
+            if (!this.validate(item)) {
+                errors.push(`Package ${item.id || ''}: fill kind, name and price.`);
+                continue;
+            }
+
+            const response = await FetchData.savePackage(item);
+
+            if (response?.isError) {
+                errors.push(`Package ${item.id || ''}: could not save.`);
+            }
+        }
+
+        if (errors.length > 0) {
+            ds.Notification.add({
+                content: errors.join(' | '),
+                color: 'red'
+            });
+            await this.loadData();
+            return;
+        }
+
+        ds.Notification.add({
+            content: 'Changes saved.',
+            color: 'green'
+        });
+
+        await this.loadData();
+    }
+
+    static drawCell(item, column) {
+        const uid = ds.Helper.escapeHTML(item.uid);
+        const value = ds.Helper.escapeHTML(item[column] ?? '');
+
+        if (!this.editableColumns.includes(column)) {
+            return item.isNew ? '' : value;
+        }
+
+        if (column === 'kind') {
+            const options = this.kindOptions.map((option) => {
+                const selected = option === item.kind ? 'selected' : '';
+                return `<option value='${option}' ${selected}>${option}</option>`;
+            }).join('');
+
+            return `
+                <select
+                    class='ds-select ds-select--small'
+                    data-package-col='${column}'
+                    data-package-uid='${uid}'
+                >${options}</select>
+            `;
+        }
+
+        if (column === 'active') {
+            const isActive = String(item.active) === '1';
+            const selectedActive = isActive ? 'selected' : '';
+            const selectedInactive = isActive ? '' : 'selected';
+
+            return `
+                <select
+                    class='ds-select ds-select--small'
+                    data-package-col='${column}'
+                    data-package-uid='${uid}'
+                >
+                    <option value='1' ${selectedActive}>Active</option>
+                    <option value='0' ${selectedInactive}>Inactive</option>
+                </select>
+            `;
+        }
+
+        if (this.dateColumns.includes(column)) {
+            const dateValue = this.toDateTimeLocal(item[column]);
+
+            return `
+                <input
+                    type='datetime-local'
+                    class='ds-form__input'
+                    value='${dateValue}'
+                    data-package-col='${column}'
+                    data-package-uid='${uid}'
+                />
+            `;
+        }
+
+        return `
+            <input
+                type='text'
+                class='ds-form__input'
+                value='${value}'
+                data-package-col='${column}'
+                data-package-uid='${uid}'
+            />
+        `;
+    }
+
+    static drawRows() {
+        let html = '';
+
+        this.packages.forEach((item) => {
+            html += `<tr data-uid='${ds.Helper.escapeHTML(item.uid)}'>`;
+
+            this.columns.forEach((column) => {
+                html += `<td>${this.drawCell(item, column)}</td>`;
+            });
+
+            html += '</tr>';
+        });
+
+        if (html === '') {
+            html = `<tr><td colspan='${this.columns.length}'>No packages found.</td></tr>`;
+        }
+
+        this.elTbody.innerHTML = html;
+        this.addEventListenersRows();
+    }
+
+    static getChanged() {
+        return this.packages.filter((index) => index.isChanged);
+    }
+
+    static getPackage(uid) {
+        return this.packages.find((index) => String(index.uid) === String(uid));
+    }
+
+    static init() {
+        this.updateHTML();
+        if (!this.elPage) return;
+
+        this.addEventListeners();
+        this.loadData();
+    }
+
+    static async loadData() {
+        const response = await FetchData.getPackagesAdmin();
+
+        if (response?.isError) {
+            return;
+        }
+
+        const packages = response?.packages ?? [];
+        this.packages = packages.map((item) => ({
+            ...item,
+            uid: this.buildUid(),
+            isChanged: false,
+        }));
+        this.drawRows();
+    }
+
+    static toDateTimeLocal(value) {
+        if (!value) {
+            return '';
+        }
+
+        return String(value).replace(' ', 'T').slice(0, 16);
+    }
+
+    static updateHTML() {
+        this.elPage = document.getElementById(this.id);
+        if (!this.elPage) return;
+        this.elNew = document.getElementById(`${this.id}_new`);
+        this.elRefresh = document.getElementById(`${this.id}_refresh`);
+        this.elSave = document.getElementById(`${this.id}_save`);
+        this.elTbody = document.getElementById(`${this.id}_tbody`);
+    }
+
+    static validate(item) {
+        return this.validationColumns.every((column) => {
+            const value = String(item[column] ?? '').trim();
+
+            if (column === 'price_brl') {
+                return value !== '' && !Number.isNaN(Number(value));
+            }
+
+            return value !== '';
+        });
+    }
+}
+
 export class AdminSuggestion {
     static suggestions = [];
     static columns = [
@@ -588,6 +908,9 @@ export class AdminSuggestion {
         this.elPage.querySelectorAll('[data-suggestion-approve]').forEach((el) => {
             data.push({ el, context: this, handler: this.clickApprove });
         });
+        this.elPage.querySelectorAll('[data-suggestion-close]').forEach((el) => {
+            data.push({ el, context: this, handler: this.clickClose });
+        });
         this.elPage.querySelectorAll('[data-suggestion-col]').forEach((el) => {
             data.push({ el, event: 'change', context: this, handler: this.changeField });
         });
@@ -642,6 +965,13 @@ export class AdminSuggestion {
         if (!suggestion) return;
 
         await this.changeStatus(suggestion, '1');
+    }
+
+    static async clickClose(event) {
+        const suggestion = this.getSuggestion(event.currentTarget.dataset.suggestionClose);
+        if (!suggestion) return;
+
+        await this.changeStatus(suggestion, '3');
     }
 
     static async clickRefresh() {
@@ -702,6 +1032,7 @@ export class AdminSuggestion {
         const id = ds.Helper.escapeHTML(suggestion.id);
         const status = String(suggestion.status);
         const approveDisabled = status === '1' ? 'disabled' : '';
+        const closeDisabled = status === '3' ? 'disabled' : '';
         const rejectDisabled = status === '0' ? 'disabled' : '';
 
         return `
@@ -711,6 +1042,12 @@ export class AdminSuggestion {
                 data-suggestion-approve='${id}'
                 ${approveDisabled}
             >Approve</button>
+            <button
+                type='button'
+                class='ds-button ds-button--small ds-button--grey'
+                data-suggestion-close='${id}'
+                ${closeDisabled}
+            >Close</button>
             <button
                 type='button'
                 class='ds-button ds-button--small ds-button--red'
@@ -1286,10 +1623,11 @@ export class FetchData {
     static controller = {
         site: `${this.namespace}Site`,
         contact: `${this.namespace}Contact`,
+        store: 'Game/Store',
         translation: 'App/Language',
         advertising: 'Advertising/Advertising',
-        bugReport: 'BugReport/BugReport',
-        suggestion: 'Suggestion/Suggestion',
+        bugReport: 'DesignSystem/BugReport',
+        suggestion: 'DesignSystem/Suggestion',
     };
 
     static async fetchData(args) {
@@ -1380,6 +1718,15 @@ export class FetchData {
             controller: this.controller['bugReport'],
             action: 'getBugs',
             connection: this.connection
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
+    static async getPackagesAdmin() {
+        const args = {
+            controller: this.controller['store'],
+            action: 'getPackagesAdmin'
         };
         const response = await this.fetchData(args);
         return response;
@@ -1494,6 +1841,26 @@ export class FetchData {
         return response;
     }
 
+    static async savePackage(props) {
+        const args = {
+            controller: this.controller['store'],
+            action: 'savePackage',
+            id: props.id ?? 0,
+            kind: props.kind ?? '',
+            name: props.name ?? '',
+            diamonds: props.diamonds ?? 0,
+            slots: props.slots ?? 0,
+            price_brl: props.price_brl ?? '',
+            promo_price_brl: props.promo_price_brl ?? '',
+            promo_start_at: props.promo_start_at ?? '',
+            promo_end_at: props.promo_end_at ?? '',
+            active: props.active ?? 0,
+            sort: props.sort ?? 0
+        };
+        const response = await this.fetchData(args);
+        return response;
+    }
+
     static async updateBug(props) {
         const { id, status, fields } = props;
         const args = {
@@ -1540,6 +1907,7 @@ export class Management {
         await this.translate();
         AdminAdvertising.init();
         AdminBugReport.init();
+        AdminStorePackages.init();
         AdminSuggestion.init();
         Blog.init();
         Ranking.init();
