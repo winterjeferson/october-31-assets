@@ -283,6 +283,7 @@
         "done": "Feito",
         "equipped": "Item equipado",
         "equip_conflict": "Você não pode equipar este item porque este item conflita com outro item equipado.",
+        "guest_save": "Este jogo não está sendo salvo, para salvar é necessário criar uma conta.",
         "inventory_full": "Seu inventário está cheio. A velocidade ao caminhar de seu personagem será reduzida.",
         "quest_accepted": "Missão aceita",
         "quest_completed": "missão finalizada",

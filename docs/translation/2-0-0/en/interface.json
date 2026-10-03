@@ -283,6 +283,7 @@
         "done": "Done",
         "equipped": "Equipped item",
         "equip_conflict": "You cannot equip this item because this item conflicts with another equipped item.",
+        "guest_save": "This game is not being saved, to save it is necessary to create an account.",
         "inventory_full": "Your inventory is full. Your character`s walking speed will be reduced.",
         "quest_accepted": "Quest accepted",
         "quest_completed": "Quest completed",

@@ -1361,6 +1361,7 @@ export class SignUp {
     static idLinkTerms = `${this.id}_button_terms`;
     static idlLinkBack = `${this.id}_button_back`;
     static frontEndClass = 'signUp';
+    static invalidRules = [];
 
     static addEventListeners() {
         const data = [
@@ -1438,6 +1439,7 @@ export class SignUp {
             id: this.idFieldUserName,
             type: 'text',
             label: Theme.translation?.login?.default?.username_visible,
+            rule: 'fieldInvalid',
             required: true
         });
         const fieldEmail = Component.drawFormFieldEmail({
@@ -1492,25 +1494,42 @@ export class SignUp {
     }
 
     static handleProceed() {
-        const isValidEmail = SignUp.validateForm();
+        const isValidForm = SignUp.validateForm();
+
+        if (!isValidForm) {
+            SignUp.notifyInvalidForm();
+
+            return;
+        }
+
         const isCaptcha = ds.Helper.validateCaptcha();
-        const isValidForm = isValidEmail && isCaptcha;
+
+        if (!isCaptcha) return;
+
         const propsButton = {
             button: SignUp.elButtonProceed,
             action: true
         };
 
-        if (isValidForm) {
-            ds.Helper.toggleButtonEnabled(propsButton);
+        ds.Helper.toggleButtonEnabled(propsButton);
 
-            return SignUp.requestProceed();
-        }
+        return SignUp.requestProceed();
     }
 
     static handleTerms() {
         const url = gbUrlsSite['terms'];
 
         window.open(url, '_blank');
+    }
+
+    static notifyInvalidForm() {
+        const rule = this.invalidRules[0];
+        const args = {
+            content: Theme.getValidationMessage(rule),
+            color: 'red'
+        };
+
+        Notification.add(args);
     }
 
     static async requestProceed() {
@@ -1570,15 +1589,23 @@ export class SignUp {
     }
 
     static validateForm() {
-        const isValidUserName = Theme.validateForm(this.elFieldUserName, 'usernameInvalid');
-        const isValidEmail = Theme.validateForm(this.elFieldEmail, 'emailInvalid');
-        const isValidPassword = Theme.validateForm(this.elFieldPassword, 'passwordStrongInvalid');
-        const isValidTerms = this.elFieldTerms.checked;
-        const isValidForm = isValidUserName && isValidEmail && isValidPassword && isValidTerms;
-        let response = true;
+        const fields = [
+            { field: this.elFieldUserName, rule: 'fieldInvalid' },
+            { field: this.elFieldEmail, rule: 'emailInvalid' },
+            { field: this.elFieldPassword, rule: 'passwordStrongInvalid' },
+        ];
+        const isTerms = this.elFieldTerms.checked;
 
-        if (!isValidForm) response = false;
-        if (!isValidTerms) this.elFieldTerms.focus();
+        this.invalidRules = fields
+            .filter(({ field, rule }) => !Theme.validateForm(field, rule))
+            .map(({ rule }) => rule);
+
+        if (!isTerms) {
+            this.invalidRules.push('checkboxInvalid');
+            this.elFieldTerms.focus();
+        }
+
+        const response = this.invalidRules.length === 0;
 
         return response;
     }
@@ -1602,8 +1629,8 @@ export class Theme {
             text = Theme.getValidationMessage(rule);
         }
 
-        const elValidation = el.parentNode.querySelector('.form__input-validation');
-        if (elValidation) elValidation.innerText = text;
+        const elValidation = el.shadowRoot?.querySelector('.ds-form__input-validation');
+        if (elValidation) elValidation.innerText = text || '';
     }
 
     static getValidationMessage(rule) {
@@ -1711,7 +1738,7 @@ export class Theme {
             case 'passwordStrongInvalid':
                 isValid = ds.Validation.validateStrongPassword(field);
                 break;
-            case 'usernameInvalid':
+            case 'userNameInvalid':
             case 'fieldInvalid':
             default:
                 isValid = ds.Validation.validateUsername(field);
